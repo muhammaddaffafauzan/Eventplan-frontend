@@ -46,7 +46,7 @@ const routes = [
   },
 
   {
-    path: "/admin",
+    path: "/admin/dashboard",
     component: AdminLayouts,
     name: "AdminLayouts",
     meta: {

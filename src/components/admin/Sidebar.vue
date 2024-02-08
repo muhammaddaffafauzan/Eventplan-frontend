@@ -4,8 +4,8 @@
           <div class="flex h-screen flex-col justify-between pt-2 pb-6">
             <div>
               <div class="w-max p-2.5">
-                <span class="text-3xl font-semibold text-gray-800 hover:text-transparent">Admin</span>
-                <p class="text-lg font-mono hover:text-transparent">eventPlan</p>
+                <span class="text-3xl font-semibold text-gray-800">Admin</span>
+                <p class="text-lg font-mono">eventPlan</p>
               </div>
               <ul class="mt-6 space-y-2 tracking-wide">
                 <li class="min-w-max">
