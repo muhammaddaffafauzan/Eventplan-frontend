@@ -7,20 +7,20 @@
           <div class="absolute top-0 right-0 bottom-0 left-0 h-full w-full overflow-hidden bg-[hsla(0,0%,0%,0.75)] bg-fixed">
             <div class="flex h-full items-center justify-center">
               <div class="max-w-[800px] px-6 py-6 text-center text-white md:py-0 md:px-12">
-                <h2 class="mb-12 text-5xl font-bold leading-tight tracking-tight md:text-6xl xl:text-7xl">
-                  Are you ready <br /><span>for an adventure</span>
+                <h2 class="mb-12 text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold leading-tight tracking-tight">
+                    Are you ready <br /><span>for an adventure</span>
                 </h2>
-                <p class="text-lg">
-                  Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                  Minima officia consequatur adipisci tenetur repudiandae rerum
-                  quos.
+                <p class="text-base md:text-lg lg:text-xl">
+                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Minima officia consequatur adipisci tenetur
+                    repudiandae rerum quos.
                 </p>
-                <!-- Button -->
-                <button class="button-find-event group relative mt-8 px-4 py-2 min-h-[50px] w-40 overflow-hidden border border-white text-white-500 shadow-2xl transition-all before:absolute before:left-0 before:top-0 before:h-0 before:w-1/4 before:bg-white before:duration-500 after:absolute after:bottom-0 after:right-0 after:h-0 after:w-1/4 after:bg-white after:duration-500 hover:text-white hover:before:h-full hover:after:h-full">
+            
+                <button class="button-find-event group relative mt-8 px-4 py-2 min-h-[40px] md:min-h-[50px] w-[50%] md:w-40 lg:w-[25%] xl:w-[20%] overflow-hidden border border-white text-white-500 shadow-2xl transition-all before:absolute before:left-0 before:top-0 before:h-0 before:w-1/4 before:bg-white before:duration-500 after:absolute after:bottom-0 after:right-0 after:h-0 after:w-1/4 after:bg-white after:duration-500 hover:text-white hover:before:h-full hover:after:h-full">
                     <span class="top-0 flex h-full w-full items-center justify-center before:absolute before:bottom-0 before:left-1/4 before:z-0 before:h-0 before:w-1/4 before:bg-white before:duration-500 after:absolute after:right-1/4 after:top-0 after:z-0 after:h-0 after:w-1/4 after:bg-white after:duration-500 hover:text-white group-hover:before:h-full group-hover:after:h-full"></span>
-                    <span class="absolute bottom-0 left-0 right-0 top-0 z-10 flex h-full w-full items-center justify-center group-hover:text-gray-700 hover:font-semibold">Find an event now</span>
-                  </button>
-              </div>
+                    <span class="absolute bottom-0 left-0 right-0 top-0 z-10 flex h-full w-full items-center justify-center text-sm md:text-base lg:text-lg xl:text-sm group-hover:text-gray-700 hover:font-semibold">Find an event now</span>
+                </button>
+            </div>
+            
             </div>
           </div>
         </div>
@@ -28,7 +28,7 @@
       <!-- Section: Design Block -->
   
       <!-- Section: Category Buttons -->
-      <section class="container flex md:justify-center items-center section-category-buttons overflow-x-auto whitespace-nowrap gap-5 px-10">
+      <section class="container flex md:justify-center items-center section-category-buttons overflow-x-auto whitespace-nowrap gap-5 px-10 2xl:mx-16">
         <!-- Category Button 1 -->
         <div class="category-button flex flex-col items-center">
             <button class="rounded-full bg-transparent p-8 mb-3 hover:border-sky-200 border border-gray-300 mx-auto">

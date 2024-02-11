@@ -1,34 +1,22 @@
 <template>
   <div>
     <NavbarMain/>
-    <HeaderMainVue/>
-    <SectionMainVue/>
+    <router-view></router-view>
   </div>
 </template>
 
 <script>
-import HeaderMainVue from '../components/main/HeaderMain.vue';
 import NavbarMain from '../components/main/NavbarMain.vue';
-import SectionMainVue from '../components/main/SectionMain.vue';
-
 export default {
   components: {
     NavbarMain,
-    HeaderMainVue,
-    SectionMainVue
   }
 }
 </script>
 
 <style>
-body {
-  font-family: 'Montserrat', sans-serif;
-}
-
-/* You can also specify Montserrat for specific elements */
-h1, h2, h3, p {
-  font-family: 'Montserrat', sans-serif;
-}
+  @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+  *{
+    font-family: 'Montserrat', sans-serif;
+  }
 </style>
-
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&display=swap">

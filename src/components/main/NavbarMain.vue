@@ -15,7 +15,7 @@
           <span class="sr-only">Search icon</span>
         </div>
         <button type="button" @click="toggleModal" id="search-navbar" class="flex items-center w-full md:w-96 h-10 p-2 pl-10 text-sm text-gray-900 border border-gray-300 rounded-full bg-gray-50 focus:ring-blue-500 focus:border-blue-500">
-          <span class="text-left flex-grow">search event...</span>
+          <span class="text-left flex-grow text-gray-500">search event...</span>
         </button>
         <!-- Modal -->
         <div v-if="isModalOpen" class="main-modal fixed w-full h-full inset-0 z-50 overflow-hidden flex justify-center items-center animated fadeIn faster">
@@ -80,7 +80,7 @@
           <!-- Component 2 -->
           <div class="block">
             <div class="inline relative">
-              <button type="button" class="inline-flex items-center relative px-2 md:border rounded-full md:hover:shadow-lg" id="user-menu-button" aria-expanded="false" data-dropdown-toggle="user-dropdown" data-dropdown-placement="bottom" >
+              <button type="button" class="inline-flex items-center relative px-2 md:border rounded-full md:hover:shadow-lg" id="dropdownHoverButton" data-dropdown-toggle="dropdownHover" data-dropdown-trigger="hover" >
                 <div class="pl-1">
                   <span class="text-sm text-gray-800 truncate dark:text-gray-400 hidden w-full md:flex md:w-auto md:order-1">name@flowbite.com</span>
                 </div>
@@ -103,12 +103,12 @@
         </div>
       
       <!-- Dropdown menu -->
-      <div class="z-50 hidden my-4 text-base list-none bg-white divide-y divide-gray-100 rounded-lg shadow dark:bg-gray-700 dark:divide-gray-600" id="user-dropdown">
+      <div class="z-50 hidden my-4 w-52 text-base list-none bg-white divide-y divide-gray-100 rounded-lg shadow dark:bg-gray-700 dark:divide-gray-600" id="dropdownHover">
         <div class="px-4 py-3">
           <span class="text-sm text-gray-800 truncate dark:text-gray-400 md:hidden  md:w-auto md:order-1">name@flowbite.com</span>
           <span class="block text-sm text-gray-900 dark:text-white">Bonnie Green</span>
         </div>
-        <ul class="py-2" aria-labelledby="user-menu-button">
+        <ul class="py-2" aria-labelledby="dropdownHoverButton">
           <li>
             <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Dashboard</a>
           </li>
@@ -133,25 +133,28 @@
     </div>
     <div class="items-center justify-between w-full md:flex md:w-auto md:order-1">
       <div class="flex mr-4 items-center max-lg:hidden">
-        <a class="inline-block py-2 px-2 my-auto hover:bg-gray-200 rounded-full" href="#">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-lg mx-auto" viewBox="0 0 16 16">
+        <a
+          class="inline-block py-2 px-2 my-auto rounded-full group hover:bg-gray-200 transition duration-300"
+          href="#"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-lg mx-auto text-gray-600 group-hover:text-gray-800" viewBox="0 0 16 16">
             <path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/>
           </svg>
-          <div class="flex items-center relative cursor-pointer whitespace-nowrap text-sm">Create a event</div>
+          <div class="flex items-center relative cursor-pointer whitespace-nowrap text-sm text-gray-600 group-hover:text-gray-800 font-medium">Create an event</div>
         </a>
         <div class="block relative">
-          <button type="button" class="inline-block py-3 px-2 ml-5 hover:bg-gray-200 rounded-full relative ">
+          <button type="button" class="inline-block py-3 px-2 ml-5 rounded-full relative group hover:bg-gray-200 transition duration-300">
             <div class="flex items-center h-5">
               <div class="_xpkakx">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-heart mx-auto" viewBox="0 0 16 16">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-heart mx-auto text-gray-600 group-hover:text-gray-800" viewBox="0 0 16 16">
                   <path d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"/>
                 </svg>
-                <p class="text-sm font-medium">favorite</p>
+                <p class="text-sm font-medium text-gray-600 group-hover:text-gray-800">Favorite</p>
               </div>
             </div>
           </button>
         </div>
-      </div>
+      </div>      
     </div>
     </div>
   </nav>
@@ -226,4 +229,30 @@ export default {
     },
   },
 };
+document.addEventListener("DOMContentLoaded", function () {
+        var dropdownHover = document.getElementById("dropdownHover");
+        var dropdownHoverButton = document.getElementById("dropdownHoverButton");
+
+        function toggleDropdown() {
+            dropdownHover.classList.toggle("hidden");
+        }
+
+        // Toggle dropdown on button click
+        dropdownHoverButton.addEventListener("click", toggleDropdown);
+
+        // Close dropdown when clicking outside
+        document.addEventListener("click", function (event) {
+            if (!dropdownHover.contains(event.target) && !dropdownHoverButton.contains(event.target)) {
+                dropdownHover.classList.add("hidden");
+            }
+        });
+
+        // Toggle dropdown on window resize
+        window.addEventListener("resize", function () {
+            // Check if the window width is greater than or equal to 768px and not a touch device
+            if (window.innerWidth >= 768 && !('ontouchstart' in window || navigator.maxTouchPoints)) {
+                dropdownHover.classList.add("hidden");
+            }
+        });
+    });
 </script>

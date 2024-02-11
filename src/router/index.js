@@ -3,6 +3,7 @@ import AdminLayouts from "../layouts/AdminLayouts.vue";
 import DashboardAdmin from "../views/admin/DashboardAdmin.vue";
 import EventAdmin from "../views/admin/EventAdmin.vue";
 import MainLayout from "../layouts/MainLayout.vue";
+import HomeMain from "../views/main/HomeMain.vue"
 // import store from "../store";
 
 const routes = [
@@ -43,6 +44,16 @@ const routes = [
       //   requiresLogin: true,
       //   requiresAdmin: true,
     },
+    children:[
+      {
+        path: "/",
+        component: HomeMain,
+        name: "HomeMain",
+        meta: {
+          title: "home",
+        },
+      },
+    ]
   },
 
   {
