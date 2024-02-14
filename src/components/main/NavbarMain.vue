@@ -229,6 +229,8 @@ export default {
     },
   },
 };
+</script>
+<script setup>
 document.addEventListener("DOMContentLoaded", function () {
         var dropdownHover = document.getElementById("dropdownHover");
         var dropdownHoverButton = document.getElementById("dropdownHoverButton");

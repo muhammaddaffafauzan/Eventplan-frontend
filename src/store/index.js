@@ -1,11 +1,11 @@
 import { createStore } from "vuex";
-
+import auth from "./modules/auth/auth";
 const store = createStore({
     state: {
         isLoading: false,   
     },
     modules: {
-
+      auth
     },  
 });
 

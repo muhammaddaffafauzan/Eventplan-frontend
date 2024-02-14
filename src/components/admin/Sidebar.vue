@@ -1,12 +1,20 @@
 <template>
     <div class="max-h-screen bg-gray-100">
-        <div class="sidebar min-h-screen w-[3.35rem] overflow-hidden border-r hover:w-56 hover:bg-white">
-          <div class="flex h-screen flex-col justify-between pt-2 pb-6">
-            <div>
-              <div class="w-max p-2.5">
-                <span class="text-3xl font-semibold text-gray-800">Admin</span>
-                <p class="text-lg font-mono">eventPlan</p>
-              </div>
+ <div class="sidebar min-h-screen w-[3.35rem] overflow-hidden border-r group hover:w-56 hover:bg-white">
+      <div class="flex h-screen flex-col justify-between pt-2 pb-6">
+        <div>
+          <div class="w-max p-2.5 relative">
+            <span class="text-2xl font-bold transition-all opacity-0 group-hover:opacity-100 group-hover:text-gray-800">
+              Admin
+            </span>
+            <span class="absolute z-10 text-left text-4xl font-semibold text-blue-500 group-hover:text-transparent transition-transform transform group-hover:scale-110"
+            :style="{ transform: ('100%'), left: '10%' }" >
+              E
+            </span>
+            <p class="text-lg transition-all opacity-0 group-hover:opacity-100 group-hover:text-gray-800">
+              EventPlan
+            </p>
+          </div>
               <ul class="mt-6 space-y-2 tracking-wide">
                 <li class="min-w-max">
                     <a
@@ -82,9 +90,16 @@
   },
 };
   </script>
-  <style>
-    .sidebar {
-      transition: all 0.4s ease-in-out;
-    }
-  </style>
+<style>
+.sidebar {
+  transition: all 0.4s ease-in-out;
+}
+
+
+
+.group:hover p {
+  opacity: 1;
+  color: #000000; /* Ganti dengan warna yang diinginkan untuk teks "ventPlan" */
+}
+</style>
   

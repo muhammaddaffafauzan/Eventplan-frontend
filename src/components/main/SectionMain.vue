@@ -361,21 +361,10 @@ export default {
         // Add more organizer data as needed
       ],
       selectedCategory: null,
+      dropdownWidth: '16rem'
     };
   },
   computed: {
-    dropdownWidth() {
-      const inputElement = this.$el.querySelector("input");
-      return inputElement ? `${inputElement.offsetWidth}px` : "100%";
-    },
-    dropdownLeft() {
-      const inputElement = this.$el.querySelector("input");
-      return inputElement ? `${inputElement.getBoundingClientRect().left}px` : "0";
-    },
-    dropdownTop() {
-      const inputElement = this.$el.querySelector("input");
-      return inputElement ? `${inputElement.getBoundingClientRect().bottom + this.dropdownTopOffset}px` : "0";
-    },
   },
   methods: {
     searchEvents() {

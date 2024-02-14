@@ -1,22 +1,36 @@
 <template>
   <div>
-    <NavbarMain/>
-    <router-view></router-view>
+    <NavbarMain />
+    <router-view v-if="!isLoading" />
+    <LoadingPage v-if="isLoading" />
   </div>
 </template>
 
 <script>
 import NavbarMain from '../components/main/NavbarMain.vue';
+import LoadingPage from '../components/LoadingPage.vue';
 export default {
   components: {
     NavbarMain,
-  }
-}
+    LoadingPage,
+  },
+  data() {
+    return {
+      isLoading: false,
+    };
+  },
+  watch: {
+    $route(to, from) {
+      // Set isLoading to true when the route is changing
+      this.isLoading = true;
+    },
+  },
+  mounted() {
+    // Assuming you want to hide the loading page when the new route is fully loaded.
+    this.$router.afterEach(() => {
+      // Set isLoading to false when the new route is fully loaded.
+      this.isLoading = false;
+    });
+  },
+};
 </script>
-
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
-  *{
-    font-family: 'Montserrat', sans-serif;
-  }
-</style>

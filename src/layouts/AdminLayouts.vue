@@ -37,15 +37,6 @@ export default {
   position: relative;
   overflow: hidden;
 }
-/* Add Montserrat font to the body or specific elements */
-body {
-  font-family: 'Montserrat', sans-serif;
-}
-
-/* You can also specify Montserrat for specific elements */
-h1, h2, h3, p {
-  font-family: 'Montserrat', sans-serif;
-}
 </style>
 
 
