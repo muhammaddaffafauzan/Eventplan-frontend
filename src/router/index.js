@@ -1,5 +1,6 @@
 import { createWebHistory, createRouter } from "vue-router";
 import LoginAdmin from "../views/auth/LoginAdmin.vue";
+import DetailEventAdmin from "../views/admin/DetailEventAdmin.vue";
 import AdminLayouts from "../layouts/AdminLayouts.vue";
 import DashboardAdmin from "../views/admin/DashboardAdmin.vue";
 import EventAdmin from "../views/admin/EventAdmin.vue";
@@ -85,6 +86,14 @@ const router = createRouter({
             title: "Admin Event",
           },
         },
+        {
+          path: "/admin/event/:uuid",
+          component: DetailEventAdmin,
+          name: "DetailEventAdmin",
+          meta: {
+            title: "Admin Event Detail",
+          },
+        },
       ],
     },
     // settings
@@ -115,10 +124,6 @@ router.beforeEach(async (to, from, next) => {
   const isAuthenticated = store.getters["auth/isAuthenticated"];
   const role = localStorage.getItem("role");
 
-  if (!isAuthenticated) {
-    // Jika tidak terautentikasi, periksa token kedaluwarsa
-    await store.dispatch("auth/checkTokenExpiration");
-  }
 
   if (to.meta.requiresLogin && !isAuthenticated) {
     // Redirect ke halaman login jika diperlukan login dan pengguna tidak terautentikasi

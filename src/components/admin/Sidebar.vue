@@ -7,10 +7,8 @@
             <span class="text-2xl font-bold transition-all opacity-0 group-hover:opacity-100 group-hover:text-gray-800">
               Admin
             </span>
-            <span class="absolute z-10 text-left text-4xl font-semibold text-blue-500 group-hover:text-transparent transition-transform transform group-hover:scale-110"
-            :style="{ transform: ('100%'), left: '10%' }" >
-              E
-            </span>
+            <img src="../../assets/img/letter-e.png" class="w-8 absolute z-20 group-hover:hidden transition-transform transform group-hover:scale-110 -my-2" alt="" srcset="" 
+            :style="{ transform: ('100%'), left: '9%' }" >
             <p class="text-lg transition-all opacity-0 group-hover:opacity-100 group-hover:text-gray-800">
               EventPlan
             </p>
