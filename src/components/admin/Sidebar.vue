@@ -1,6 +1,6 @@
 <template>
-    <div class="max-h-screen bg-gray-100">
- <div class="sidebar min-h-screen w-[3.35rem] overflow-hidden border-r group hover:w-56 hover:bg-white">
+  <div class="max-h-full bg-gray-100 flex">
+    <div class="sidebar min-h-screen w-[3.35rem] overflow-hidden border-r border-opacity-100 group hover:w-56 hover:bg-white">
       <div class="flex h-screen flex-col justify-between pt-2 pb-6">
         <div>
           <div class="w-max p-2.5 relative">

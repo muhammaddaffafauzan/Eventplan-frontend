@@ -214,5 +214,5 @@ export default {
     document.title = 'EventPlan - ' + (to.meta.title || 'Teks Default');
     next();
   },
-}
+};
 </script>

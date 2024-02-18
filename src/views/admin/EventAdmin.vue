@@ -3,26 +3,28 @@
     <div class="flex flex-col">
         <div class="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
             <div class="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8">
-                      <!-- Filter Section -->
-                    <div class="flex items-center gap-x-2 mb-6">
-                      <el-select v-model="selectedFilter" placeholder="Select Filter" class="w-56">
-                        <el-option label="All" value="all" />
-                        <el-option label="Reviewed" value="Reviewed" />
-                        <el-option label="Approved" value="Approved" />
-                        <el-option label="Denied" value="Denied" />
-                        <!-- Tambahkan opsi filter lainnya sesuai kebutuhan -->
-                      </el-select>
-                      <el-input v-model="searchKeyword" placeholder="Search" class="w-56">
-                        <el-dropdown @command="handleSearchResultClick">
-                          <el-button slot="suffix" icon="el-icon-search"></el-button>
-                          <el-dropdown-menu slot="dropdown">
-                            <el-dropdown-item v-for="result in searchResults" :key="result.id" :command="result">
-                              {{ result.title }}
-                            </el-dropdown-item>
-                          </el-dropdown-menu>
-                        </el-dropdown>
-                      </el-input>
-                    </div>
+                            <!-- Filter Section -->
+                  <div class="flex items-center gap-x-2 mb-6">
+                    <el-select v-model="selectedFilter" placeholder="Select Filter" class="w-56">
+                      <el-option label="All" value="all" />
+                      <el-option label="Reviewed" value="Reviewed" />
+                      <el-option label="Approved" value="Approved" />
+                      <el-option label="Denied" value="Denied" />
+                      <!-- Tambahkan opsi filter lainnya sesuai kebutuhan -->
+                    </el-select>
+
+                    <el-input v-model="searchKeyword" placeholder="Search" class="w-56">
+                      <el-dropdown @command="handleSearchResultClick">
+                        <el-button slot="suffix" icon="el-icon-search"></el-button>
+                        <el-dropdown-menu slot="dropdown">
+                          <el-dropdown-item v-for="result in searchResults" :key="result.id" :command="result">
+                            {{ result.title }}
+                          </el-dropdown-item>
+                        </el-dropdown-menu>
+                      </el-dropdown>
+                      <el-loading :text="searching ? 'Searching...' : ''" :visible="searching" class="search-loading"></el-loading>
+                    </el-input>
+                  </div>
                       <div class="overflow-hidden border border-gray-200 dark:border-gray-700 md:rounded-lg">
                         <el-skeleton :loading="isLoading" :rows="5" animated/>
                         <template v-if="!isLoading && !loadingEvent">
@@ -55,17 +57,17 @@
                                 <th scope="col" class="px-4 py-3.5 text-sm font-normal text-left rtl:text-right text-gray-500 dark:text-gray-400">
                                     Date
                                 </th>
-
                                 <th scope="col" class="px-4 py-3.5 text-sm font-normal text-left rtl:text-right text-gray-500 dark:text-gray-400">
-                                    Status
+                                  title
                                 </th>
+
 
                                 <th scope="col" class="px-4 py-3.5 text-sm font-normal text-left rtl:text-right text-gray-500 dark:text-gray-400">
                                     Organizer
                                 </th>
 
                                 <th scope="col" class="px-4 py-3.5 text-sm font-normal text-left rtl:text-right text-gray-500 dark:text-gray-400">
-                                    title event
+                                  Status
                                 </th>
 
                                 <th scope="col" class="relative py-3.5 px-4">
@@ -85,23 +87,23 @@
                                   <span>{{ new Date(item.createdAt).toLocaleDateString() }}</span>
                                 </div>
                               </td>
+                              <td class="px-4 py-4 text-sm text-gray-500 dark:text-gray-300 whitespace-nowrap">{{ item?.title }}</td>
+                              <td class="px-4 py-4 text-sm text-gray-500 dark:text-gray-300 whitespace-nowrap">
+                                <div class="flex items-center gap-x-2">
+                                  <el-avatar>
+                                    <img :src="item?.user?.Profiles[0]?.url" alt="profile" crossorigin="use-credentials">
+                                 </el-avatar>                                 
+                                    <div>
+                                        <h2 class="text-sm font-medium text-gray-800 dark:text-white">{{ item?.user?.Profiles[0]?.firstName }}</h2>
+                                        <p class="text-xs font-normal text-gray-600 dark:text-gray-400">{{ item?.user?.email }}</p>
+                                    </div>
+                                </div>
+                              </td>
                               <td class="px-4 py-4 text-sm font-medium text-gray-700 whitespace-nowrap">
                                 <div class="inline-flex items-center px-3 py-1 rounded-full gap-x-2" :class="getStatusClass(item?.admin_validation)">
                                   <h2 class="text-sm font-normal">{{ item?.admin_validation }}</h2>
                                 </div>
                               </td>
-                              <td class="px-4 py-4 text-sm text-gray-500 dark:text-gray-300 whitespace-nowrap">
-                                <div class="flex items-center gap-x-2">
-                                  <el-avatar>
-                                    <img :src="item?.user?.Profiles[0]?.url" alt="profile">
-                                </el-avatar>
-                                    <div>
-                                        <h2 class="text-sm font-medium text-gray-800 dark:text-white">{{ item?.user?.Profiles[0]?.firstName }} {{ item?.user?.Profiles[0]?.lastName }}</h2>
-                                        <p class="text-xs font-normal text-gray-600 dark:text-gray-400">{{ item?.user?.email }}</p>
-                                    </div>
-                                </div>
-                            </td>
-                              <td class="px-4 py-4 text-sm text-gray-500 dark:text-gray-300 whitespace-nowrap">{{ item?.title }}</td>
                               <td class="px-4 py-4 text-sm whitespace-nowrap">
                                 <div class="flex items-center gap-x-6">
                                   <!-- <button @click="handleArchive(item)" class="text-gray-500 transition-colors duration-200 dark:hover:text-indigo-500 dark:text-gray-300 hover:text-indigo-500 focus:outline-none">
@@ -144,6 +146,7 @@
 </template>
 <script>
 import { mapActions, mapGetters } from "vuex";
+import { ElLoading } from 'element-plus';
 
 export default {
   data() {
@@ -154,10 +157,15 @@ export default {
       searchResults: [],
       currentPage: 1,
       pageSize: 10,
+      searching: false,
     };
   },
-  computed: {
-    ...mapGetters("eventAdmin", ["getEventAdmin", "isLoading"]),
+  components: {
+  ElLoading,
+},
+computed: {
+    // Remove the duplicate definition of handleSearchResultClick from computed
+ ...mapGetters("eventAdmin", ["getEventAdmin", "isLoading"]),
     event() {
       return this.getEventAdmin;
     },
@@ -166,21 +174,24 @@ export default {
 
       if (this.selectedFilter !== "all") {
         const selectedFilterLower = this.selectedFilter.toLowerCase();
-        filtered = filtered.filter((item) => item.admin_validation.toLowerCase() === selectedFilterLower);
+        filtered = filtered.filter((item) => {
+          return item.admin_validation && item.admin_validation.toLowerCase() === selectedFilterLower;
+        });
       }
 
       if (this.searchKeyword) {
         const keyword = this.searchKeyword.toLowerCase();
-        filtered = filtered.filter(
-          (item) =>
+        filtered = filtered.filter((item) => {
+          return (
             item.id.toString().includes(keyword) ||
             item.createdAt.toLowerCase().includes(keyword) ||
-            item.admin_validation.toLowerCase().includes(keyword) ||
-            (item.organizer && item.organizer.firstName.toLowerCase().includes(keyword)) ||
-            (item.organizer && item.organizer.lastName.toLowerCase().includes(keyword)) ||
-            (item.organizer && item.organizer.email.toLowerCase().includes(keyword)) ||
+            (item.admin_validation && item.admin_validation.toLowerCase().includes(keyword)) ||
+            (item.user && item?.user?.Profiles[0]?.firstName.toLowerCase().includes(keyword)) ||
+            (item.user && item?.user?.Profiles[0]?.lastName.toLowerCase().includes(keyword)) ||
+            (item.user && item?.user?.email.toLowerCase().includes(keyword)) ||
             item.title.toLowerCase().includes(keyword)
-        );
+          );
+        });
       }
 
       return filtered;
@@ -232,6 +243,21 @@ export default {
     changePage(pageNumber) {
       this.currentPage = pageNumber;
     },
+    handleSearchResultClick(command) {
+      this.searchKeyword = command.title;
+      this.searchResults = [];
+      this.searching = true;
+
+      try {
+        // Perform your search logic
+        // await this.fetchEventAdmin();
+      } finally {
+        this.searching = false;
+        this.$nextTick(() => {
+          this.$refs.searchInput.$refs.input.focus();
+        });
+      }
+    },
   },
   mounted() {
     this.loadingEvent = true;
@@ -239,14 +265,29 @@ export default {
       this.loadingEvent = false;
     });
   },
+  beforeRouteEnter(to, from, next) {
+    document.title = 'EventPlan - ' + (to.meta.title || 'Teks Default');
+    next();
+  },
+
+  beforeRouteUpdate(to, from, next) {
+    document.title = 'EventPlan - ' + (to.meta.title || 'Teks Default');
+    next();
+  },
 };
 </script>
 
-<style>
+<style scoped>
 .fade-enter-active, .fade-leave-active {
   transition: opacity 0.5s;
 }
 .fade-enter, .fade-leave-to {
   opacity: 0;
+}
+.search-loading {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 </style>
