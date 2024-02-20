@@ -33,56 +33,38 @@
         </div>
       </div>
     </div>
-    
-     <!-- Admin Validation Section -->
-     <div v-if="showValidation" class="bg-white p-4 rounded-lg shadow-md fixed bottom-8 right-8">
-      <h3 class="text-2xl font-semibold mb-4">Admin Validation</h3>
-      <div v-if="!showApproval">
-        <button
-          class="w-full bg-blue-500 text-white rounded-full px-4 py-2 transition duration-300 ease-in-out hover:bg-blue-600"
-          @click="toggleApproval"
-        >
-          <i class="fas fa-circle-notch fa-spin"></i> <!-- Rounded approval icon -->
-        </button>
-      </div>
-      <div v-else>
-        <button
-          class="w-full bg-green-500 text-white rounded-full px-4 py-2 transition duration-300 ease-in-out hover:bg-green-600"
-          @click="approveEvent"
-        >
-          <i class="fas fa-check"></i> <!-- Approved icon -->
-        </button>
-      </div>
-
-      <button
-        class="mt-2 w-full bg-red-500 text-white rounded-full px-4 py-2 transition duration-300 ease-in-out hover:bg-red-600"
-        @click="denyEvent"
-      >
-        <i class="fas fa-times"></i> <!-- Denied icon -->
-      </button>
+      <!-- Admin Validation Section -->
+      <div v-if="showValidation" class="bg-white p-4 rounded-lg shadow-md fixed bottom-8 right-36">
+        <h3 class="text-2xl font-semibold mb-4">Admin Validation</h3>
+        <el-switch
+        v-model="isApproved"
+        active-text="Approve"
+        inactive-text="Deny"
+        active-color="#67C23A"
+        inactive-color="#F56C6C"
+        @change="handleSwitchChange"
+      ></el-switch>
     </div>
-
     <!-- Button to Toggle Admin Validation -->
     <div class="relative">
       <button
         class="z-20 text-white flex flex-col shrink-0 grow-0 justify-around 
-                fixed bottom-0 right-5 rounded-lg
-                mr-1 mb-5 lg:mr-5 lg:mb-5 xl:mr-10 xl:mb-10"
+                fixed bottom-0 right-5 rounded-lg mb-5 mr-5"
         @click="toggleValidation"
       >
         <div class="p-3 rounded-full border-4 border-white bg-green-600">
           <svg
-            class="w-10 h-10 lg:w-12 lg:h-12 xl:w-16 xl:h-16"
-            fill="currentColor"
-            viewBox="0 0 20 20"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              fill-rule="evenodd"
-              d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM7 9H5v2h2V9zm8 0h-2v2h2V9zM9 9h2v2H9V9z"
-              clip-rule="evenodd"
-            ></path>
-          </svg>
+          class="w-10 h-10 lg:w-12 lg:h-12 xl:w-16 xl:h-16"
+          fill="currentColor"
+          viewBox="0 0 20 20"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            fill-rule="evenodd"
+            d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM7 9H5v2h2V9zm8 0h-2v2h2V9zM9 9h2v2H9V9z"
+            clip-rule="evenodd"
+          ></path>
+        </svg>
         </div>
       </button>
     </div>
@@ -90,43 +72,92 @@
 </template>
 
 <script>
+import { ElSwitch, ElMessageBox } from 'element-plus';
+
 export default {
   data() {
     return {
       event: {
         title: "Sample Event",
         organizer: "Event Organizer Inc.",
-        image: "https://via.placeholder.com/800x400", // Example image URL
+        image: "https://via.placeholder.com/800x400",
         type: "Conference",
         category: "Technology",
         price: "$50",
         description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
       },
       showValidation: false,
-      showApproval: false,
+      showApproval: 'Reviewed',
+      isApproved: false, // Use a boolean for v-model
     };
+  },
+  components: {
+    ElSwitch,
   },
   methods: {
     toggleValidation() {
       this.showValidation = !this.showValidation;
     },
-    toggleApproval() {
-      this.showApproval = !this.showApproval;
+    handleSwitchChange(newValue) {
+      this.showApproval = newValue ? 'Approved' : 'Denied';
     },
-    approveEvent() {
-      // Implement logic for approving the event
-      this.showApproval = false; // Hide the approval button after approving
+    async approveEvent() {
+      const confirmed = await this.confirmAction('Approve');
+      if (confirmed) {
+        // Implement logic for approving the event based on this.showApproval
+        console.log('Event Approved:', this.showApproval);
+
+        // Set showApproval to 'Approved' after approval logic if needed
+        this.showApproval = 'Approved';
+
+        // Hide the approval button after approving
+        this.showValidation = false;
+
+        // Show Element Plus success message box
+        ElMessageBox.alert('Event approved successfully!', 'Success', {
+          type: 'success',
+        });
+      }
     },
-    denyEvent() {
-      // Implement logic for denying the event
-      this.showApproval = false; // Hide the approval button after denying
+
+    async denyEvent() {
+      const confirmed = await this.confirmAction('Deny');
+      if (confirmed) {
+        // Implement logic for denying the event based on this.showApproval
+        console.log('Event Denied:', this.showApproval);
+
+        // Set showApproval to 'Denied' after denial logic if needed
+        this.showApproval = 'Denied';
+
+        // Hide the approval button after denying
+        this.showValidation = false;
+
+        // Show Element Plus success message box
+        ElMessageBox.alert('Event denied successfully!', 'Success', {
+          type: 'success',
+        });
+      }
+    },
+
+    confirmAction(action) {
+      return new Promise((resolve) => {
+        const message = `Are you sure you want to ${action.toLowerCase()} this event?`;
+        ElMessageBox.confirm(message, 'Confirmation', {
+          confirmButtonText: 'Yes',
+          cancelButtonText: 'No',
+          type: 'warning',
+        }).then(() => {
+          resolve(true);
+        }).catch(() => {
+          resolve(false);
+        });
+      });
     },
   },
   beforeRouteEnter(to, from, next) {
     document.title = 'EventPlan - ' + (to.meta.title || 'Event Detail');
     next();
   },
-
   beforeRouteUpdate(to, from, next) {
     document.title = 'EventPlan - ' + (to.meta.title || 'Event Detail');
     next();

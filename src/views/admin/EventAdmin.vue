@@ -91,10 +91,10 @@
                               <td class="px-4 py-4 text-sm text-gray-500 dark:text-gray-300 whitespace-nowrap">
                                 <div class="flex items-center gap-x-2">
                                   <el-avatar>
-                                    <img :src="item?.user?.Profiles[0]?.url" alt="profile" crossorigin="use-credentials">
+                                    <img :src="item?.user?.Profiles?.url" alt="profile">
                                  </el-avatar>                                 
                                     <div>
-                                        <h2 class="text-sm font-medium text-gray-800 dark:text-white">{{ item?.user?.Profiles[0]?.firstName }}</h2>
+                                        <h2 class="text-sm font-medium text-gray-800 dark:text-white">{{ item?.user?.Profiles?.organize }}</h2>
                                         <p class="text-xs font-normal text-gray-600 dark:text-gray-400">{{ item?.user?.email }}</p>
                                     </div>
                                 </div>
