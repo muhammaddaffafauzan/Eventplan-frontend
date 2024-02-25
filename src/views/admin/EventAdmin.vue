@@ -24,6 +24,9 @@
                       </el-dropdown>
                       <el-loading :text="searching ? 'Searching...' : ''" :visible="searching" class="search-loading"></el-loading>
                     </el-input>
+                    <el-button @click="goToAddEvent" type="primary" plain class="ml-auto ">
+                      Add Event
+                    </el-button>
                   </div>
                       <div class="overflow-hidden border border-gray-200 dark:border-gray-700 md:rounded-lg">
                         <el-skeleton :loading="isLoading" :rows="5" animated/>
@@ -84,7 +87,7 @@
                               </td>
                               <td class="px-4 py-4 text-sm font-medium text-gray-700 dark:text-gray-200 whitespace-nowrap">
                                 <div class="inline-flex items-center gap-x-3">
-                                  <span>{{ new Date(item.createdAt).toLocaleDateString() }}</span>
+                                  <span>{{ new Intl.DateTimeFormat('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(item.createdAt)) }}</span>
                                 </div>
                               </td>
                               <td class="px-4 py-4 text-sm text-gray-500 dark:text-gray-300 whitespace-nowrap">{{ item?.title }}</td>
@@ -213,7 +216,17 @@ computed: {
     handleSearchResultClick(command) {
       this.searchKeyword = command.title;
       this.searchResults = [];
-      this.fetchEventAdmin();
+      this.searching = true;
+
+      try {
+        // Perform your search logic
+        // await this.fetchEventAdmin();
+      } finally {
+        this.searching = false;
+        this.$nextTick(() => {
+          this.$refs.searchInput.$refs.input.focus();
+        });
+      }
     },
     handleArchive(row) {
       console.log("Mengarsipkan acara:", row);
@@ -258,6 +271,9 @@ computed: {
         });
       }
     },
+    goToAddEvent() {
+    this.$router.push({ name: 'AddEventAdmin' });
+  },
   },
   mounted() {
     this.loadingEvent = true;

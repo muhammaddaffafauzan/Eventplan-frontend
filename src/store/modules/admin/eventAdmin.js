@@ -53,7 +53,7 @@ const eventAdmin = {
           },
         });
   
-        commit('SET_EVENT_ADMIN', [response.data]); // Perubahan di sini, pastikan response.data berada dalam array
+        commit('SET_EVENT_ADMIN', [response.data]);
         commit('SET_LOADING', false);
   
         return response.data;

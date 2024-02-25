@@ -4,6 +4,7 @@ import DetailEventAdmin from "../views/admin/DetailEventAdmin.vue";
 import AdminLayouts from "../layouts/AdminLayouts.vue";
 import DashboardAdmin from "../views/admin/DashboardAdmin.vue";
 import EventAdmin from "../views/admin/EventAdmin.vue";
+import AddEventAdmin from "../views/admin/AddEventAdmin.vue";
 import SettingsAdmin from "../views/admin/SettingsAdmin.vue";
 import Account from "../views/admin/layer setting/Account.vue";
 import MainLayout from "../layouts/MainLayout.vue";
@@ -92,6 +93,14 @@ const router = createRouter({
           name: "DetailEventAdmin",
           meta: {
             title: "Admin Event Detail",
+          },
+        },
+        {
+          path: "/admin/event/create",
+          component: AddEventAdmin,
+          name: "AddEventAdmin",
+          meta: {
+            title: "Admin Create Event",
           },
         },
       ],

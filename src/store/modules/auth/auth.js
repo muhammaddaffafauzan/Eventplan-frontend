@@ -59,7 +59,7 @@ const auth = {
           },
         });
 
-        const { user } = response.data;
+        const user  = response.data;
         commit("SET_USER", user);
 
         // Setelah data dimuat, atur status loading menjadi false
