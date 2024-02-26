@@ -42,8 +42,11 @@
             <p><strong>End Date:</strong> {{ event.end_date }}</p>
             <p><strong>Start Time:</strong> {{ event.start_time }}</p>
             <p><strong>End Time:</strong> {{ event.end_time }}</p>
-            <div v-if="event.tags && Array.isArray(event.tags) && event.tags.length > 0">
-              <p><strong>Tags:</strong> {{ parseTags(event.tags).join(', ') }}</p>
+            <div v-if="event.tags && event.tags.length > 0">
+              <strong>Tags:</strong>
+              <p> 
+                <el-tag v-for="(tag, index) in parseTags(event.tags)" :key="index" type="primary" class="ml-2">{{ tag }}</el-tag>
+              </p>
             </div>
           </el-card>
         </el-col>
@@ -96,17 +99,7 @@
         <el-col :span="24">
           <el-card v-if="event" class="mb-4">
             <h3 class="text-2xl font-semibold mb-4">Description</h3>
-            <div v-if="!isApproved">
-              <!-- Quill Editor as output (readonly) -->
-              <QuillEditor
-                :value="event.description"
-                theme="snow"
-                :readonly="true"
-                :options="{ readOnly: true, theme: 'snow' }"
-                style="width: 100%; height: 100%;"
-              />
-            </div>
-            <p v-else>{{ event.description }}</p>
+            <div v-html="event?.description"></div>
           </el-card>
         </el-col>
       </el-row>
@@ -145,7 +138,7 @@
 <script>
 import { ElButton, ElMessageBox, ElSkeleton, ElSkeletonItem, ElTag } from 'element-plus';
 import axios from 'axios';
-import { QuillEditor } from '@vueup/vue-quill'
+import { QuillEditor } from '@vueup/vue-quill';
 import '@vueup/vue-quill/dist/vue-quill.snow.css';
 
 export default {
@@ -164,7 +157,7 @@ export default {
     ElSkeleton,
     ElSkeletonItem,
     ElTag,
-    QuillEditor
+    QuillEditor 
   },
   computed: {
     event() {
@@ -249,30 +242,35 @@ export default {
           });
         });
     },
-    confirmAction(actionText) {
-      return ElMessageBox.confirm(`Are you sure you want to ${actionText.toLowerCase()} the event?`, 'Confirmation', {
-        confirmButtonText: 'OK',
-        cancelButtonText: 'Cancel',
-        type: 'warning',
-      }).then(() => true).catch(() => false);
-    },
-    parseTags(tagsString) {
+    async confirmAction(actionText) {
       try {
-        // Mencoba mem-parsing string tags sebagai JSON
-        const parsedTags = JSON.parse(tagsString);
-
-        // Memeriksa apakah tags yang di-parse adalah array
-        if (Array.isArray(parsedTags)) {
-          return parsedTags;
-        } else {
-          console.error("Invalid tags format. Expected an array.");
-          return [];
-        }
-      } catch (error) {
-        console.error("Error parsing tags:", error);
-        return [];
+        await ElMessageBox.confirm(`Are you sure you want to ${actionText.toLowerCase()} the event?`, 'Confirmation', {
+          confirmButtonText: 'OK',
+          cancelButtonText: 'Cancel',
+          type: 'warning',
+        });
+        return true;
+      } catch {
+        return false;
       }
     },
+    parseTags(tagsString) {
+  try {
+    // Mencoba mem-parsing string tags sebagai JSON
+    const parsedTags = JSON.parse(tagsString);
+
+    // Memeriksa apakah tags yang di-parse adalah array
+    if (Array.isArray(parsedTags)) {
+      return parsedTags;
+    } else {
+      console.error("Invalid tags format. Expected an array.");
+      return [];
+    }
+  } catch (error) {
+    console.error("Error parsing tags:", error);
+    return [];
+  }
+},
     generateGoogleMapsLink(latitude, longitude, eventTitle) {
   const encodedTitle = encodeURIComponent(eventTitle);
   const markerLabel = 'E';
