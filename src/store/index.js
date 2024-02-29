@@ -1,6 +1,7 @@
 import { createStore } from "vuex";
 import auth from "./modules/auth/auth";
 import eventAdmin from "./modules/admin/eventAdmin";
+import categories from "./modules/admin/categoryEvent";
 
 const store = createStore({
     state: {
@@ -8,7 +9,8 @@ const store = createStore({
     },
     modules: {
       auth,
-      eventAdmin
+      eventAdmin,
+      categories
     },  
 });
 
