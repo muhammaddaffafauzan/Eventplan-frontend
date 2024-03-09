@@ -1,5 +1,7 @@
 import { createWebHistory, createRouter } from "vue-router";
 import LoginAdmin from "../views/auth/LoginAdmin.vue";
+import LoginUser from "../views/auth/LoginUser.vue";
+import RegisterGuest from "../views/auth/RegisterGuest.vue";
 import DetailEventAdmin from "../views/admin/DetailEventAdmin.vue";
 import AdminLayouts from "../layouts/AdminLayouts.vue";
 import DashboardAdmin from "../views/admin/DashboardAdmin.vue";
@@ -41,6 +43,58 @@ const router = createRouter({
     },
 
     {
+      path: "/auth/login",
+      name: "LoginUser",
+      component: LoginUser,
+      meta: {
+        title: "Auth login",
+      },
+      beforeEnter: (to, from, next) => {
+        const isAuthenticated = store.getters["auth/isAuthenticated"];
+        if (isAuthenticated) {
+          // Jika pengguna sudah login, arahkan ke halaman yang sesuai dengan rolenya
+          const role = localStorage.getItem("role");
+          if (role === "user") {
+            next("/");
+          } else {
+            next("/");
+          }
+        } else {
+          // Menampilkan halaman loading selama 1 detik sebelum masuk ke komponen
+          setTimeout(() => {
+            next();
+          }, 1000);
+        }
+      },
+    },
+
+    {
+      path: "/auth/register",
+      name: "RegisterGuest",
+      component: RegisterGuest,
+      meta: {
+        title: "Auth register",
+      },
+      beforeEnter: (to, from, next) => {
+        const isAuthenticated = store.getters["auth/isAuthenticated"];
+        if (isAuthenticated) {
+          // Jika pengguna sudah login, arahkan ke halaman yang sesuai dengan rolenya
+          const role = localStorage.getItem("role");
+          if (!role) {
+            next("/");
+          } else {
+            next("/register");
+          }
+        } else {
+          // Menampilkan halaman loading selama 1 detik sebelum masuk ke komponen
+          setTimeout(() => {
+            next();
+          }, 1000);
+        }
+      },
+    },
+
+    {
       path: "/",
       component: MainLayout,
       name: "MainLayout",
@@ -58,8 +112,6 @@ const router = createRouter({
         },
       ],
     },
-
-
 
     {
       path: "/admin/dashboard",
@@ -132,7 +184,6 @@ const router = createRouter({
 router.beforeEach(async (to, from, next) => {
   const isAuthenticated = store.getters["auth/isAuthenticated"];
   const role = localStorage.getItem("role");
-
 
   if (to.meta.requiresLogin && !isAuthenticated) {
     // Redirect ke halaman login jika diperlukan login dan pengguna tidak terautentikasi

@@ -5,9 +5,9 @@
         class="lg:w-[28rem] mx-auto my-auto flex flex-col justify-center pt-8 md:justify-start md:px-6 md:pt-0"
       >
         <p class="text-left text-xl font-bold">Eventplan</p>
-        <p class="text-left text-4xl mt-2 font-bold">Log in</p>
+        <p class="text-left text-4xl mt-2 font-bold">Register</p>
         <p class="mt-3 text-left text-gray-500">
-          Welcome back, please enter your details.
+          Join us by filling out the form below.
         </p>
         <form class="flex flex-col pt-3 md:pt-5">
           <div class="flex flex-col pt-4">
@@ -15,8 +15,20 @@
               class="focus-within:border-b-gray-500 relative flex overflow-hidden border-b-2 transition"
             >
               <input
+                type="text"
+                id="register-username"
+                class="w-full flex-1 appearance-none border-gray-300 bg-white px-4 py-2 text-base text-gray-700 placeholder-gray-400 focus:outline-none"
+                placeholder="Username"
+              />
+            </div>
+          </div>
+          <div class="flex flex-col pt-4">
+            <div
+              class="focus-within:border-b-gray-500 relative flex overflow-hidden border-b-2 transition"
+            >
+              <input
                 type="email"
-                id="login-email"
+                id="register-email"
                 class="w-full flex-1 appearance-none border-gray-300 bg-white px-4 py-2 text-base text-gray-700 placeholder-gray-400 focus:outline-none"
                 placeholder="Email"
               />
@@ -28,7 +40,7 @@
             >
               <input
                 type="password"
-                id="login-password"
+                id="register-password"
                 class="w-full flex-1 appearance-none border-gray-300 bg-white px-4 py-2 text-base text-gray-700 placeholder-gray-400 focus:outline-none"
                 placeholder="Password"
               />
@@ -38,7 +50,7 @@
             type="submit"
             class="w-full rounded-lg bg-gray-900 px-4 py-2 text-center text-base font-semibold text-white shadow-md ring-gray-500 ring-offset-2 transition focus:ring-2"
           >
-            Log in
+            Register
           </button>
         </form>
         <div class="relative mt-8 flex h-px place-items-center bg-gray-200">
@@ -58,14 +70,13 @@
           />
           Log in with Google
         </button>
-
         <div class="py-12 text-center">
           <p class="whitespace-nowrap text-gray-600">
-            Don't have an account?
+            do you have an account?
             <a
-              href="/auth/register"
+              href="/auth/login"
               class="underline-offset-4 font-semibold text-gray-900 underline"
-              >Sign up for free.</a
+              >Sign in now.</a
             >
           </p>
         </div>
@@ -76,8 +87,8 @@
     >
       <div class="absolute bottom-0 z-10 px-8 text-white opacity-100">
         <p class="mb-8 text-3xl font-semibold leading-10">
-          We work 10x faster than our compeititors and stay consistant. While
-          they're bogged won with techincal debt, we're realeasing new features.
+          We work 10x faster than our competitors and stay consistent. While
+          they're bogged down with technical debt, we're releasing new features.
         </p>
         <p class="mb-4 text-3xl font-semibold">John Elmond</p>
         <p class="">Founder, Emogue</p>

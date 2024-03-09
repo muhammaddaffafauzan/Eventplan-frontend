@@ -72,19 +72,22 @@ const eventAdmin = {
         return false;
       }
     },
-    async createEvent({ commit, state }, payload) {
+    async createEvent({ commit, state }, formData) {
       try {
         commit("SET_LOADING", true);
 
         const token = localStorage.getItem("token");
-        const response = await axios.post("/event/create", payload, {
+        const response = await axios.post("/event/create", formData, {
           headers: {
             Authorization: `Bearer ${token}`,
-            "Content-Type": "multipart/form-data", // Tambahkan header ini karena request menggunakan FormData
+            "Content-Type": "multipart/form-data",
           },
         });
 
         commit("SET_LOADING", false);
+
+        // Pindah halaman hanya setelah pengiriman data berhasil
+        this.$router.push({ name: "EventAdmin" });
 
         return response.data;
       } catch (error) {

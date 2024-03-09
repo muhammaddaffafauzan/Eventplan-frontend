@@ -1,11 +1,9 @@
 <template>
   <div class="event-form-container">
     <h2 class="text-2xl font-semibold mb-4">Add Event</h2>
-
     <!-- Event Form -->
     <el-card>
-      <el-form ref="addEventForm" :model="eventForm" label-width="120px">
-        <!-- Title Field -->
+      <form @submit.prevent="validateBeforeSubmit">
         <el-form-item
           label="Title"
           prop="title"
@@ -224,23 +222,11 @@
         <el-collapse>
           <el-collapse-item title="Description" name="description">
             <el-col :span="24">
-              <el-form-item
-                label="Description"
-                prop="description"
-                class="editor-container"
-              >
-                <QuillEditor
-                  ref="quillEditor"
+              <el-form-item label="Description" prop="description">
+                <quill-editor
                   v-model="eventForm.description"
-                  theme="snow"
-                  style="width: 100%; height: 100%"
-                  @change="updateQuillContent"
-                >
-                  <!-- Customize toolbar layout if needed -->
-                  <div slot="toolbar" class="ql-toolbar full-width-toolbar">
-                    <!-- Toolbar buttons go here -->
-                  </div>
-                </QuillEditor>
+                  :options="quillOptions"
+                ></quill-editor>
               </el-form-item>
             </el-col>
           </el-collapse-item>
@@ -274,6 +260,7 @@
           <el-input
             v-model="tagInput"
             @keyup.enter="addTag"
+            @keypress.enter="handleTagInputKeyPress"
             placeholder="Enter tag"
           ></el-input>
         </el-form-item>
@@ -298,41 +285,66 @@
           </svg>
 
           <h2 class="mt-4 text-xl font-medium text-gray-700 tracking-wide">
-            Payment File
+            Event Image
           </h2>
 
           <p class="mt-2 text-gray-500 tracking-wide">
-            Upload or drag & drop your file SVG, PNG, JPG or GIF.
+            Upload or drag & drop your file PNG, JPG or JPEG.
           </p>
-
           <input
             id="dropzone-file"
             type="file"
             class="hidden"
+            ref="fileInput"
             @change="handleFileUpload"
+            name="inputFile"
+            :rules="[
+              {
+                required: true,
+                message: 'Please upload an image file',
+                trigger: 'change',
+              },
+              {
+                validator: this.validateFile,
+                trigger: 'change',
+              },
+            ]"
           />
           <!-- Pratinjau (preview) file -->
           <div v-if="eventForm.inputFile" class="mt-4">
             <strong>File Preview:</strong>
             <img
               v-if="isImageFile(eventForm.inputFile)"
-              :src="URL.createObjectURL(eventForm.inputFile)"
+              :src="filePreview"
               alt="File Preview"
               class="mt-2 max-w-full"
             />
             <span v-else>{{ eventForm.inputFile.name }}</span>
+
+            <!-- Tombol hapus -->
+            <button
+              type="button"
+              class="mt-2 text-red-600 cursor-pointer"
+              @click="deleteFile"
+            >
+              Delete
+            </button>
           </div>
         </label>
 
         <!-- Submit Button -->
         <el-form-item>
-          <el-button type="primary" plain @click="validateBeforeSubmit"
-            >Submit</el-button
+          <el-button
+            type="primary"
+            plain
+            :loading="isLoading"
+            native-type="submit"
           >
+            Submit
+          </el-button>
         </el-form-item>
-      </el-form>
+      </form>
     </el-card>
-    <div class="description-preview" v-html="formattedDescription"></div>
   </div>
 </template>
 <script>
@@ -353,6 +365,7 @@ import {
   ElRadioGroup,
   ElSelect,
   ElOption,
+  ElMessageBox,
 } from "element-plus";
 import { QuillEditor } from "@vueup/vue-quill";
 import "@vueup/vue-quill/dist/vue-quill.snow.css";
@@ -363,7 +376,6 @@ export default {
     return {
       eventForm: {
         title: "",
-        organizer: "",
         categoryId: null,
         price: "1",
         customPrice: null,
@@ -393,6 +405,7 @@ export default {
       marker: null,
       locationLabel: "Event Location",
       filePreview: null,
+      isLoading: false,
       startDatePickerOptions: {
         // Disable dates before today
         disabledDate(time) {
@@ -408,6 +421,27 @@ export default {
           );
         },
       },
+      quillOptions: {
+        modules: {
+          toolbar: [
+            ["bold", "italic", "underline", "strike"],
+            ["blockquote", "code-block"],
+            [{ header: 1 }, { header: 2 }],
+            [{ list: "ordered" }, { list: "bullet" }],
+            [{ script: "sub" }, { script: "super" }],
+            [{ indent: "-1" }, { indent: "+1" }],
+            [{ direction: "rtl" }],
+            [{ size: ["small", false, "large", "huge"] }],
+            [{ header: [1, 2, 3, 4, 5, 6, false] }],
+            [{ color: [] }, { background: [] }],
+            [{ font: [] }],
+            [{ align: [] }],
+            ["clean"],
+          ],
+        },
+        placeholder: "Event description...",
+        theme: "snow",
+      },
     };
   },
   components: {
@@ -422,6 +456,7 @@ export default {
     ElSelect,
     ElOption,
     UploadFilled,
+    ElMessageBox,
   },
   computed: {
     ...mapGetters("categories", ["getCategories", "isLoading"]),
@@ -487,18 +522,19 @@ export default {
     },
     async validateBeforeSubmit() {
       try {
-        await this.$refs.addEventForm.validate();
+        await this.$refs.eventForm.validate();
 
         // Jika validasi berhasil, lanjutkan dengan submitForm
         this.submitForm();
       } catch (error) {
         // Jika terdapat error validasi, tampilkan pesan kesalahan
-        console.error("Form validation error:", error);
-        this.$message.error("Please fill in all required fields.");
+        console.error("Error validasi formulir:", error);
+        this.$message.error("Harap isi semua kolom yang diperlukan.");
       }
     },
     async submitForm() {
       try {
+        this.isLoading = true;
         // 1. Sesuaikan harga
         this.eventForm.price = parseFloat(this.eventForm.price);
         if (this.eventForm.price === 1) {
@@ -511,7 +547,7 @@ export default {
 
         // 2. Sesuaikan tipe lokasi
         if (this.eventForm.type_location !== "location") {
-          // Jika tipe lokasi bukan 'location', kosongkan informasi lokasi
+          // Jika tipe lokasi bukan 'location', bersihkan informasi lokasi
           this.location = {
             country: "",
             state: "",
@@ -522,57 +558,107 @@ export default {
           };
         }
 
-        // 3. Sesuaikan teknis
+        // 3. Sesuaikan detail teknis
         if (this.eventForm.technical === "repeat") {
-          // Jika teknis adalah 'repeat', kosongkan informasi waktu akhir
+          // Jika teknisnya 'repeat', bersihkan tanggal dan waktu selesai
           this.eventForm.end_date = null;
           this.eventForm.end_time = null;
         }
 
-        // 4. Panggil aksi di store untuk membuat event
-        const response = await this.createEvent({
-          event: this.eventForm,
-          location: this.location,
+        // 4. Persiapkan payload untuk backend
+        const formData = new FormData();
+
+        // Menggunakan `forEach` untuk menghindari masalah dengan for...in pada objek FormData
+        Object.keys(this.eventForm).forEach((key) => {
+          if (key !== "inputFile" && key !== "fileObject") {
+            formData.append(key, this.eventForm[key]);
+          }
         });
 
-        // Reset formulir atau lakukan tindakan lainnya sesuai kebutuhan
+        // Menambahkan file ke FormData
+        formData.append("inputFile", this.eventForm.fileObject);
+
+        // Panggil aksi di toko untuk membuat event
+        await this.$store.dispatch("eventAdmin/createEvent", formData); // Reset formulir atau lakukan tindakan lain yang diperlukan
+        this.$router.push({ name: "EventAdmin" });
         this.$refs.addEventForm.resetFields();
       } catch (error) {
-        // Handle error jika diperlukan
+        this.isLoading = false;
+        // Tangani kesalahan jika diperlukan
         console.error("Error creating event:", error);
 
-        // Menampilkan pesan kesalahan jika diperlukan
-        this.$message.error("Failed to create event. Please try again.");
+        // Tampilkan pesan kesalahan jika diperlukan
+        this.$message.error("Gagal membuat event. Silakan coba lagi.");
+      } finally {
+        // Setelah pengiriman data selesai, set isLoading menjadi false
+        this.isLoading = false;
       }
     },
 
-    handleFileUpload(event) {
-      const fileInput = event.target;
-      const file = fileInput.files[0];
+    validateFile(rule, value, callback) {
+      if (!value) {
+        callback(new Error("Please upload an image file"));
+      } else {
+        const isImage = this.isImageFile(value);
+        const isLt2M = value.size / 1024 / 1024 < 2;
 
-      if (file) {
-        console.log("Selected File:", file);
-
-        // Simpan file di dalam eventForm
-        this.eventForm.inputFile = file;
-
-        // Menampilkan pratinjau file jika itu adalah gambar
-        if (this.isImageFile(file)) {
-          if (URL.createObjectURL) {
-            this.filePreview = URL.createObjectURL(file);
-          } else {
-            this.filePreview = window.URL.createObjectURL(file);
-          }
+        if (!isImage) {
+          callback(
+            new Error(
+              "Invalid image file type. Please upload a valid image file."
+            )
+          );
+        } else if (!isLt2M) {
+          callback(new Error("Image size must be less than 2MB"));
         } else {
-          // Reset pratinjau jika file bukan gambar
-          this.filePreview = null;
+          callback();
         }
       }
     },
+    handleFileUpload(event) {
+      const fileInput = event.target; // Use event.target to get the input element
+      const file = fileInput.files[0];
 
+      if (file) {
+        const imageUrl = URL.createObjectURL(file);
+        this.eventForm.inputFile = file;
+
+        const allowedTypes = ["image/png", "image/jpeg", "image/jpg"];
+        if (!allowedTypes.includes(file.type)) {
+          this.$refs.addEventForm.validateField("inputFile");
+          return;
+        }
+
+        const maxSize = 2 * 1024 * 1024; // 2 MB in bytes
+        if (file.size > maxSize) {
+          this.$refs.addEventForm.validateField("inputFile");
+          return;
+        }
+
+        if (URL.createObjectURL) {
+          this.filePreview = URL.createObjectURL(file);
+        } else {
+          this.filePreview = window.URL.createObjectURL(file);
+        }
+      } else {
+        this.eventForm.inputFile = null;
+        this.filePreview = null;
+      }
+      this.$refs.addEventForm.fields.forEach((field) => {
+        if (field.prop === "inputFile") {
+          field.validate();
+        }
+      });
+    },
     // Fungsi bantuan untuk memeriksa apakah file adalah gambar
     isImageFile(file) {
       return file.type.startsWith("image/");
+    },
+
+    deleteFile() {
+      // Hapus pratinjau dan reset nilai file input
+      this.filePreview = null;
+      this.eventForm.inputFile = null;
     },
 
     addTag() {
@@ -581,6 +667,14 @@ export default {
         this.tagInput = "";
       }
     },
+
+    handleTagInputKeyPress(event) {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        this.addTag();
+      }
+    },
+
     removeTag(tag) {
       const index = this.eventForm.tags.indexOf(tag);
       if (index !== -1) {
@@ -608,7 +702,7 @@ export default {
         this.$set(this.eventForm, "description", cleanContent);
       }
     },
-      getUserLocation() {
+    getUserLocation() {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
           (position) => {
@@ -690,11 +784,14 @@ export default {
           this.location.state = (properties && properties.address.state) || "";
           this.location.country =
             (properties && properties.address.country) || "";
+          this.location.address =
+            (properties && properties.address.address) || "";
 
           // Update the form fields based on the location data
           this.eventForm.city = this.location.city;
           this.eventForm.state = this.location.state;
           this.eventForm.country = this.location.country;
+          this.eventForm.address = this.location.address;
         }
       });
       // Handle 'dragend' event on the marker
@@ -722,6 +819,8 @@ export default {
             (response.data.address && response.data.address.state) || "";
           this.location.country =
             (response.data.address && response.data.address.country) || "";
+          this.location.address =
+            (response.data.address && response.data.address.address) || "";
 
           this.updateLocationFields();
         } catch (error) {
