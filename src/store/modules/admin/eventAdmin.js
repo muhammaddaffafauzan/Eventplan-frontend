@@ -37,13 +37,6 @@ const eventAdmin = {
           "Error fetching event admin data:",
           error.response.data.msg
         );
-        ElMessage({
-          type: "error",
-          message:
-            "Gagal Mereset Password: " +
-            (error.response.data.msg ||
-              "Terjadi kesalahan saat mereset password. Silakan coba lagi."),
-        });
         commit("SET_LOADING", false);
         return false;
       }
@@ -72,7 +65,7 @@ const eventAdmin = {
         return false;
       }
     },
-    async createEvent({ commit, state }, formData) {
+    async createEvent({ commit }, formData) {
       try {
         commit("SET_LOADING", true);
 
@@ -86,19 +79,28 @@ const eventAdmin = {
 
         commit("SET_LOADING", false);
 
+        ElMessage({
+          type: "success",
+          message: "Event created successfully!",
+        });
+
         // Pindah halaman hanya setelah pengiriman data berhasil
         this.$router.push({ name: "EventAdmin" });
 
         return response.data;
       } catch (error) {
-        console.error("Error creating event:", error.response.data.msg);
+        console.error("Error creating event:", error);
+
+        // Periksa apakah error.response terdefinisi sebelum mencoba mengakses properti 'data'
+        const errorMessage = error.response
+          ? error.response.data.msg
+          : "An error occurred while creating the event. Please try again.";
+
         ElMessage({
           type: "error",
-          message:
-            "Gagal membuat event: " +
-            (error.response.data.msg ||
-              "Terjadi kesalahan saat membuat event. Silakan coba lagi."),
+          message: "Failed to create event: " + errorMessage,
         });
+
         commit("SET_LOADING", false);
         return false;
       }

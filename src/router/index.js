@@ -2,6 +2,7 @@ import { createWebHistory, createRouter } from "vue-router";
 import LoginAdmin from "../views/auth/LoginAdmin.vue";
 import LoginUser from "../views/auth/LoginUser.vue";
 import RegisterGuest from "../views/auth/RegisterGuest.vue";
+import VerificationEmail from "../views/auth/VerificationEmail.vue";
 import DetailEventAdmin from "../views/admin/DetailEventAdmin.vue";
 import AdminLayouts from "../layouts/AdminLayouts.vue";
 import DashboardAdmin from "../views/admin/DashboardAdmin.vue";
@@ -80,10 +81,10 @@ const router = createRouter({
         if (isAuthenticated) {
           // Jika pengguna sudah login, arahkan ke halaman yang sesuai dengan rolenya
           const role = localStorage.getItem("role");
-          if (!role) {
+          if (role === "user") {
             next("/");
           } else {
-            next("/register");
+            next("/");
           }
         } else {
           // Menampilkan halaman loading selama 1 detik sebelum masuk ke komponen
@@ -91,6 +92,14 @@ const router = createRouter({
             next();
           }, 1000);
         }
+      },
+    },
+    {
+      path: "/auth/verify",
+      name: "VerificationEmail",
+      component: VerificationEmail,
+      meta: {
+        title: "Auth verification",
       },
     },
 

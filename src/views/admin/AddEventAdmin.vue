@@ -3,36 +3,17 @@
     <h2 class="text-2xl font-semibold mb-4">Add Event</h2>
     <!-- Event Form -->
     <el-card>
-      <form @submit.prevent="validateBeforeSubmit">
-        <el-form-item
-          label="Title"
-          prop="title"
-          :rules="[
-            {
-              required: true,
-              message: 'Please enter event title',
-              trigger: 'blur',
-            },
-          ]"
-        >
+      <form @submit.prevent="submitForm">
+        <el-form-item label="Title" prop="title">
           <el-input
             v-model="eventForm.title"
             placeholder="Enter event title"
+            required
           ></el-input>
         </el-form-item>
 
         <!-- Category Field -->
-        <el-form-item
-          label="Category"
-          prop="categoryId"
-          :rules="[
-            {
-              required: true,
-              message: 'Please select a category',
-              trigger: 'change',
-            },
-          ]"
-        >
+        <el-form-item label="Category" prop="categoryId">
           <el-select
             v-model="eventForm.categoryId"
             placeholder="Select category"
@@ -61,17 +42,7 @@
         </el-form-item>
 
         <!-- Type Location Field -->
-        <el-form-item
-          label="Type Location"
-          prop="type_location"
-          :rules="[
-            {
-              required: true,
-              message: 'Please select a location type',
-              trigger: 'change',
-            },
-          ]"
-        >
+        <el-form-item label="Type Location" prop="type_location">
           <el-radio-group v-model="eventForm.type_location">
             <el-radio :label="'location'">Location</el-radio>
             <el-radio :label="'online'">Online</el-radio>
@@ -389,6 +360,12 @@ export default {
         language: "",
         tags: [],
         inputFile: null,
+         city: "",
+        state: "",
+        country: "",
+        address: "",
+        lat: null,
+        long: null,
       },
       location: {
         city: "",
@@ -403,24 +380,9 @@ export default {
       isLanguagesLoading: false,
       map: null,
       marker: null,
-      locationLabel: "Event Location",
+      locationLabel: null,
       filePreview: null,
       isLoading: false,
-      startDatePickerOptions: {
-        // Disable dates before today
-        disabledDate(time) {
-          return time.getTime() < new Date().setHours(0, 0, 0, 0);
-        },
-      },
-      endDatePickerOptions: {
-        // Disable dates before the selected start date
-        disabledDate(time) {
-          return (
-            time.getTime() <=
-            new Date(eventForm.start_date).setHours(0, 0, 0, 0)
-          );
-        },
-      },
       quillOptions: {
         modules: {
           toolbar: [
@@ -522,77 +484,124 @@ export default {
     },
     async validateBeforeSubmit() {
       try {
-        await this.$refs.eventForm.validate();
+        // Pastikan referensi ke el-form adalah eventFormRef
+        if (this.$refs.eventFormRef) {
+          // Panggil metode validate dari referensi el-form
+          const isValid = await this.$refs.eventFormRef.validate();
 
-        // Jika validasi berhasil, lanjutkan dengan submitForm
-        this.submitForm();
+          if (isValid) {
+            // Lanjutkan dengan pengiriman formulir jika validasi berhasil
+            this.submitForm();
+          } else {
+            // Tangani ketika validasi gagal
+            this.$message.error("Please fill in all required fields.");
+          }
+        } else {
+          throw new Error("Form reference is not available");
+        }
       } catch (error) {
-        // Jika terdapat error validasi, tampilkan pesan kesalahan
-        console.error("Error validasi formulir:", error);
-        this.$message.error("Harap isi semua kolom yang diperlukan.");
+        // Tangani kesalahan validasi atau referensi yang tidak tersedia
+        console.error("Form validation error:", error);
+        this.$message.error(
+          error.message || "An error occurred while validating the form."
+        );
       }
     },
-    async submitForm() {
-      try {
-        this.isLoading = true;
-        // 1. Sesuaikan harga
-        this.eventForm.price = parseFloat(this.eventForm.price);
-        if (this.eventForm.price === 1) {
-          // Jika berbayar, gunakan harga kustom
-          this.eventForm.price = parseFloat(this.eventForm.customPrice);
-        } else {
-          // Jika gratis, set harga ke 0.0
-          this.eventForm.price = 0.0;
-        }
 
-        // 2. Sesuaikan tipe lokasi
-        if (this.eventForm.type_location !== "location") {
-          // Jika tipe lokasi bukan 'location', bersihkan informasi lokasi
-          this.location = {
-            country: "",
-            state: "",
-            city: "",
-            address: "",
-            lat: null,
-            long: null,
-          };
-        }
+    // Submit form
+   async submitForm() {
+  try {
+    this.isLoading = true;
 
-        // 3. Sesuaikan detail teknis
-        if (this.eventForm.technical === "repeat") {
-          // Jika teknisnya 'repeat', bersihkan tanggal dan waktu selesai
-          this.eventForm.end_date = null;
-          this.eventForm.end_time = null;
-        }
+    // Adjusting price
+    this.eventForm.price = parseFloat(this.eventForm.price);
+    if (this.eventForm.price === 1) {
+      this.eventForm.price = parseFloat(this.eventForm.customPrice);
+    } else {
+      this.eventForm.price = 0.0;
+    }
 
-        // 4. Persiapkan payload untuk backend
-        const formData = new FormData();
+    // Adjusting location type
+    if (this.eventForm.type_location !== "location") {
+      this.location = {
+        country: "",
+        state: "",
+        city: "",
+        address: "",
+        lat: null,
+        long: null,
+      };
+    }
 
-        // Menggunakan `forEach` untuk menghindari masalah dengan for...in pada objek FormData
-        Object.keys(this.eventForm).forEach((key) => {
-          if (key !== "inputFile" && key !== "fileObject") {
-            formData.append(key, this.eventForm[key]);
-          }
-        });
+    // Adjusting technical details
+    if (this.eventForm.technical === "repeat") {
+      this.eventForm.end_date = null;
+      this.eventForm.end_time = null;
+    }
 
-        // Menambahkan file ke FormData
-        formData.append("inputFile", this.eventForm.fileObject);
+    // Adjusting date and time format before sending to backend
+    this.adjustDateTimeFormat();
 
-        // Panggil aksi di toko untuk membuat event
-        await this.$store.dispatch("eventAdmin/createEvent", formData); // Reset formulir atau lakukan tindakan lain yang diperlukan
-        this.$router.push({ name: "EventAdmin" });
-        this.$refs.addEventForm.resetFields();
-      } catch (error) {
-        this.isLoading = false;
-        // Tangani kesalahan jika diperlukan
-        console.error("Error creating event:", error);
+    // Call isLocation() to ensure lat and long are updated
+    this.isLocation();
 
-        // Tampilkan pesan kesalahan jika diperlukan
-        this.$message.error("Gagal membuat event. Silakan coba lagi.");
-      } finally {
-        // Setelah pengiriman data selesai, set isLoading menjadi false
-        this.isLoading = false;
+    // Prepare payload for backend
+    const formData = new FormData();
+    Object.keys(this.eventForm).forEach((key) => {
+      if (key !== "inputFile") {
+        formData.append(key, this.eventForm[key]);
       }
+    });
+
+    // Adding file to FormData
+    formData.append("inputFile", this.eventForm.inputFile);
+
+    // Calling action in store to create event
+    await this.createEvent(formData);
+
+    // Redirecting to EventAdmin page
+    this.$router.push({ name: "EventAdmin" });
+  } catch (error) {
+    console.error("Error creating event:", error);
+  } finally {
+    this.isLoading = false;
+  }
+},
+
+
+    // Adjust time and date format before sending to backend
+    adjustDateTimeFormat() {
+      // Adjust start date format
+      if (this.eventForm.start_date) {
+        this.eventForm.start_date = this.formatDate(this.eventForm.start_date);
+      }
+
+      // Adjust end date format
+      if (this.eventForm.end_date) {
+        this.eventForm.end_date = this.formatDate(this.eventForm.end_date);
+      }
+
+      // Adjust start time format
+      if (this.eventForm.start_time) {
+        this.eventForm.start_time = this.formatTime(this.eventForm.start_time);
+      }
+
+      // Adjust end time format
+      if (this.eventForm.end_time) {
+        this.eventForm.end_time = this.formatTime(this.eventForm.end_time);
+      }
+    },
+
+    // Helper function to format date
+    formatDate(date) {
+      const formattedDate = new Date(date);
+      return formattedDate.toISOString().split("T")[0];
+    },
+
+    // Helper function to format time
+    formatTime(time) {
+      const formattedTime = new Date(`1970-01-01T${time}`);
+      return formattedTime.toTimeString().split(" ")[0];
     },
 
     validateFile(rule, value, callback) {
@@ -616,39 +625,34 @@ export default {
       }
     },
     handleFileUpload(event) {
-      const fileInput = event.target; // Use event.target to get the input element
-      const file = fileInput.files[0];
-
-      if (file) {
-        const imageUrl = URL.createObjectURL(file);
-        this.eventForm.inputFile = file;
-
+      const fileInput = event.target.files[0];
+      if (!fileInput) return; // Tambahkan pengecekan null di sini
+      if (fileInput) {
         const allowedTypes = ["image/png", "image/jpeg", "image/jpg"];
-        if (!allowedTypes.includes(file.type)) {
-          this.$refs.addEventForm.validateField("inputFile");
+        if (!allowedTypes.includes(fileInput.type)) {
+          this.$message.error(
+            "Invalid file type. Please upload a valid image file."
+          );
           return;
         }
 
-        const maxSize = 2 * 1024 * 1024; // 2 MB in bytes
-        if (file.size > maxSize) {
-          this.$refs.addEventForm.validateField("inputFile");
+        const maxSize = 5 * 1024 * 1024; // 5 MB in bytes
+        if (fileInput.size > maxSize) {
+          this.$message.error(
+            "File size exceeds the limit. Please upload a file less than 5 MB."
+          );
           return;
         }
 
-        if (URL.createObjectURL) {
-          this.filePreview = URL.createObjectURL(file);
-        } else {
-          this.filePreview = window.URL.createObjectURL(file);
-        }
+        const imageUrl = URL.createObjectURL(fileInput);
+        this.filePreview = imageUrl;
+
+        // Set file object to eventForm
+        this.eventForm.inputFile = fileInput;
       } else {
-        this.eventForm.inputFile = null;
         this.filePreview = null;
+        this.eventForm.inputFile = null;
       }
-      this.$refs.addEventForm.fields.forEach((field) => {
-        if (field.prop === "inputFile") {
-          field.validate();
-        }
-      });
     },
     // Fungsi bantuan untuk memeriksa apakah file adalah gambar
     isImageFile(file) {
@@ -711,10 +715,12 @@ export default {
           },
           (error) => {
             console.error("Error getting user location:", error);
+            // Tambahkan penanganan kesalahan di sini, seperti menampilkan pesan kesalahan kepada pengguna
           }
         );
       } else {
         console.error("Geolocation is not supported by this browser.");
+        // Tambahkan penanganan kesalahan di sini, seperti menampilkan pesan kesalahan kepada pengguna
       }
     },
 
@@ -735,106 +741,143 @@ export default {
       this.updateLocationFields();
     },
 
-    initializeMap() {
-      this.map = L.map("map").setView([0, 0], 2);
+initializeMap() {
+  this.map = L.map("map").setView([0, 0], 2);
 
-      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        attribution: "© OpenStreetMap contributors",
-      }).addTo(this.map);
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    attribution: "© OpenStreetMap contributors",
+  }).addTo(this.map);
 
-      // Create a draggable marker without adding it to the map initially
-      this.marker = L.marker([0, 0], { draggable: true });
+  // Create a draggable marker without adding it to the map initially
+  this.marker = L.marker([0, 0], { draggable: true });
 
-      // Add the marker to the map when initializing
-      this.marker.addTo(this.map);
+  // Add the marker to the map when initializing
+  this.marker.addTo(this.map);
 
-      this.marker.bindPopup(this.locationLabel).openPopup();
+  this.marker.bindPopup(this.locationLabel).openPopup();
 
-      // Initialize geocoder control
-      const geocoder = L.Control.geocoder({
-        defaultMarkGeocode: false,
-      }).addTo(this.map);
+  // Initialize geocoder control
+  const geocoder = L.Control.geocoder({
+    defaultMarkGeocode: false,
+  }).addTo(this.map);
 
-      // Handle 'markgeocode' event
-      geocoder.on("markgeocode", async (event) => {
-        const { latlng, name, properties } = event.geocode;
+  // Handle 'markgeocode' event
+  geocoder.on("markgeocode", async (event) => {
+    const { latlng, name, properties } = event.geocode;
 
-        // Pemeriksaan keberadaan latlng
-        if (latlng) {
-          // Update location data
-          this.location.lat = latlng.lat;
-          this.location.long = latlng.lng;
-          this.location.address = name;
+    // Pemeriksaan keberadaan latlng
+    if (latlng) {
+      // Update location data
+      this.location.lat = latlng.lat;
+      this.location.long = latlng.lng;
+      this.location.address = name;
 
-          // Set marker position
-          this.marker.setLatLng(latlng);
+      // Set marker position
+      this.marker.setLatLng(latlng);
 
-          // Pan to the searched location
-          this.map.panTo(latlng);
+      // Pan to the searched location
+      this.map.panTo(latlng);
 
-          // Ensure that the marker remains draggable after the search
-          this.marker.dragging.enable();
-          this.updateLocationFields();
+      // Ensure that the marker remains draggable after the search
+      this.marker.dragging.enable();
+      this.updateLocationFields();
 
-          // Log response untuk pemeriksaan lebih lanjut
-          console.log("Geocoding Response:", event.geocode);
+      // Log response untuk pemeriksaan lebih lanjut
+      console.log("Geocoding Response:", event.geocode);
 
-          // Update City, State, Country based on geocoding result
-          this.location.city = (properties && properties.address.city) || "";
-          this.location.state = (properties && properties.address.state) || "";
-          this.location.country =
-            (properties && properties.address.country) || "";
-          this.location.address =
-            (properties && properties.address.address) || "";
+      // Update City, State, Country based on geocoding result
+      this.location.city = (properties && properties.address.city) || "";
+      this.location.state = (properties && properties.address.state) || "";
+      this.location.country =
+        (properties && properties.address.country) || "";
+      this.location.address =
+        (properties && properties.address.address) || "";
 
-          // Update the form fields based on the location data
-          this.eventForm.city = this.location.city;
-          this.eventForm.state = this.location.state;
-          this.eventForm.country = this.location.country;
-          this.eventForm.address = this.location.address;
-        }
-      });
-      // Handle 'dragend' event on the marker
-      this.marker.on("dragend", async () => {
-        const { lat, lng } = this.marker.getLatLng();
-        this.location.lat = lat;
-        this.location.long = lng;
+      // Update the form fields based on the location data
+      this.eventForm.city = this.location.city;
+      this.eventForm.state = this.location.state;
+      this.eventForm.country = this.location.country;
+      this.eventForm.address = this.location.address;
 
-        // Reverse geocode to get the location name based on coordinates
-        try {
-          const response = await axios.get(
-            `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`
-          );
+      // Call isLocation() after obtaining user location
+      this.isLocation();
+    }
+  });
 
-          const locationName = response.data.display_name || "Unknown Location";
+  // Handle 'dragend' event on the marker
+  this.marker.on("dragend", async () => {
+    const { lat, lng } = this.marker.getLatLng();
+    this.location.lat = lat;
+    this.location.long = lng;
 
-          // Update locationLabel based on the reverse geocoding result
-          this.locationLabel = `Location: ${locationName}`;
-          this.marker.setPopupContent(this.locationLabel).openPopup();
+    // Reverse geocode to get the location name based on coordinates
+    try {
+      const response = await axios.get(
+        `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`
+      );
 
-          // Update City, State, Country based on reverse geocoding result
-          this.location.city =
-            (response.data.address && response.data.address.city) || "";
-          this.location.state =
-            (response.data.address && response.data.address.state) || "";
-          this.location.country =
-            (response.data.address && response.data.address.country) || "";
-          this.location.address =
-            (response.data.address && response.data.address.address) || "";
+      const locationName = response.data.display_name || "Unknown Location";
 
-          this.updateLocationFields();
-        } catch (error) {
-          console.error("Error reverse geocoding:", error);
-        }
-      });
-      this.getUserLocation();
-    },
+      // Update locationLabel based on the reverse geocoding result
+      this.locationLabel = `Location: ${locationName}`;
+      this.marker.setPopupContent(this.locationLabel).openPopup();
+
+      // Update City, State, Country based on reverse geocoding result
+      this.location.city =
+        (response.data.address && response.data.address.city) || "";
+      this.location.state =
+        (response.data.address && response.data.address.state) || "";
+      this.location.country =
+        (response.data.address && response.data.address.country) || "";
+      this.location.address =
+        (response.data.address && response.data.address.address) || "";
+
+      this.updateLocationFields();
+
+      // Call isLocation() after marker drag ends
+      this.isLocation();
+    } catch (error) {
+      console.error("Error reverse geocoding:", error);
+    }
+  });
+
+  this.getUserLocation();
+},
+
     updateLocationFields() {
       // Update the form fields based on the location data
       this.eventForm.city = this.location.city;
       this.eventForm.state = this.location.state;
       this.eventForm.country = this.location.country;
     },
+isLocation() {
+  if (this.eventForm.type_location === 'location') {
+    this.eventForm.country = this.location.country;
+    this.eventForm.state = this.location.state;
+    this.eventForm.city = this.location.city;
+    this.eventForm.address = this.location.address;
+    this.eventForm.lat = this.location.lat;
+    this.eventForm.long = this.location.long;
+  } else {
+    // Jika jenis lokasi bukan 'location', reset nilai objek location
+    this.location = {
+      country: '',
+      state: '',
+      city: '',
+      address: '',
+      lat: null,
+      long: null,
+    };
+    // Reset juga nilai pada eventForm
+    this.eventForm.country = '';
+    this.eventForm.state = '';
+    this.eventForm.city = '';
+    this.eventForm.address = '';
+    this.eventForm.lat = null;
+    this.eventForm.long = null;
+  }
+}
+
   },
   watch: {
     "eventForm.type_location": function (newTypeLocation) {
@@ -854,6 +897,7 @@ export default {
     this.fetchLanguages();
     this.fetchCategories();
     this.initializeMap();
+    this.isLocation();
   },
 };
 </script>

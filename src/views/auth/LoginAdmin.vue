@@ -6,7 +6,7 @@
       <div class="bg-white shadow w-full rounded-lg divide-y divide-gray-200">
         <div class="px-5 py-7">
           <label class="font-semibold text-sm text-gray-600 pb-1 block">E-mail</label>
-          <input v-model="auth.email" type="text" class="border rounded-lg px-3 py-2 mt-1 mb-5 text-sm w-full" />
+          <input v-model="auth.identifier" type="text" class="border rounded-lg px-3 py-2 mt-1 mb-5 text-sm w-full" />
           <label class="font-semibold text-sm text-gray-600 pb-1 block">Password</label>
           <input v-model="auth.password" type="password" class="border rounded-lg px-3 py-2 mt-1 mb-5 text-sm w-full" />
           <button
@@ -96,7 +96,7 @@ export default {
   data() {
     return {
       auth: {
-        email: '',
+        identifier: '',
         password: '',
       },
       defaultDomain: '',
@@ -107,13 +107,13 @@ export default {
     this.getDefaultDomain();
   },
   computed: {
-    ...mapGetters('auth', ['loginError', 'isAuthenticated', 'isError']),
+    ...mapGetters('auth', [ 'isAuthenticated']),
   },
   methods: {
     ...mapActions('auth', ['login']),
     async showLoginMessageBox() {
       const credentials = {
-        email: this.auth.email,
+        identifier: this.auth.identifier,
         password: this.auth.password,
       };
 

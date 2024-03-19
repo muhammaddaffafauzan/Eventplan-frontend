@@ -9,7 +9,7 @@
         <p class="mt-3 text-left text-gray-500">
           Welcome back, please enter your details.
         </p>
-        <form class="flex flex-col pt-3 md:pt-5">
+        <form @submit.prevent="loginUser" class="flex flex-col pt-3 md:pt-5">
           <div class="flex flex-col pt-4">
             <div
               class="focus-within:border-b-gray-500 relative flex overflow-hidden border-b-2 transition"
@@ -19,6 +19,7 @@
                 id="login-email"
                 class="w-full flex-1 appearance-none border-gray-300 bg-white px-4 py-2 text-base text-gray-700 placeholder-gray-400 focus:outline-none"
                 placeholder="Email"
+                v-model="formKey.identifier"
               />
             </div>
           </div>
@@ -31,6 +32,7 @@
                 id="login-password"
                 class="w-full flex-1 appearance-none border-gray-300 bg-white px-4 py-2 text-base text-gray-700 placeholder-gray-400 focus:outline-none"
                 placeholder="Password"
+                v-model="formKey.password"
               />
             </div>
           </div>
@@ -90,3 +92,51 @@
     </div>
   </div>
 </template>
+
+<script>
+import { ElLoading } from "element-plus";
+
+export default {
+  data() {
+    return {
+      formKey: {
+        identifier: "",
+        password: "",
+      },
+    };
+  },
+  methods: {
+    async loginUser() {
+      const credentials = {
+        identifier: this.formKey.identifier,
+        password: this.formKey.password,
+      };
+
+      try {
+        // Menampilkan loading full screen dengan delay 5 detik
+        this.loadingInstance = ElLoading.service({
+          fullscreen: true,
+          text: "Logging in...", // Teks yang ditampilkan pada loading
+        });
+
+        // Menambahkan delay 5 detik sebelum melanjutkan
+        await new Promise((resolve) => setTimeout(resolve, 5000));
+
+        const success = await this.$store.dispatch("auth/login", credentials);
+
+        if (success) {
+          // Redirect ke halaman setelah login sukses
+          this.$router.push("/");
+        }
+      } catch (error) {
+        console.error("An error occurred during login", error);
+      } finally {
+        // Sembunyikan loading setelah login selesai
+        if (this.loadingInstance) {
+          this.loadingInstance.close();
+        }
+      }
+    },
+  },
+};
+</script>
