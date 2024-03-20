@@ -236,23 +236,16 @@
           <ul class="py-2" aria-labelledby="dropdownHoverButton">
             <li>
               <a
-                href="#"
+                href="/organizer/dashboard"
                 class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white"
                 >Dashboard</a
               >
             </li>
             <li>
               <a
-                href="#"
+                href="/settings"
                 class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white"
                 >Settings</a
-              >
-            </li>
-            <li>
-              <a
-                href="#"
-                class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white"
-                >Earnings</a
               >
             </li>
             <li>
@@ -348,7 +341,7 @@ export default {
   methods: {
     ...mapActions("auth", ["fetchMe", "logout"]),
     toLogin() {
-      this.$router.push('/auth/login')
+      this.$router.push("/auth/login");
     },
     logoutUser() {
       // Show confirmation using ElMessageBox

@@ -5,10 +5,13 @@ const eventMain = {
   namespaced: true,
   state: {
     event: [],
+    myEvent: [],
     isLoading: false,
   },
   getters: {
     getEventMain: (state) => state.event,
+    getMyEvent: (state) => state.myEvent,
+    isLoading: (state) => state.isLoading,
   },
   actions: {
     async fetchEventMain({ commit }) {
@@ -33,6 +36,30 @@ const eventMain = {
         return false;
       }
     },
+    async fetchMyEvents({ commit, state }) {
+      try {
+        commit("SET_LOADING", true);
+
+        const token = localStorage.getItem("token");
+        const response = await axios.get("/event/user", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        commit("SET_MY_EVENT", response.data);
+        commit("SET_LOADING", false);
+
+        return response.data;
+      } catch (error) {
+        console.error(
+          "Error fetching event admin data:",
+          error.response.data.msg
+        );
+        commit("SET_LOADING", false);
+        return false;
+      }
+    },
   },
   mutations: {
     SET_LOADING(state, isLoading) {
@@ -40,6 +67,9 @@ const eventMain = {
     },
     SET_EVENT_MAIN(state, eventMain) {
       state.event = eventMain;
+    },
+    SET_MY_EVENT(state, eventMain) {
+      state.myEvent = eventMain;
     },
   },
 };

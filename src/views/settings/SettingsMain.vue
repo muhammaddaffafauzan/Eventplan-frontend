@@ -113,10 +113,24 @@ export default {
         // Reset isClosed setelah animasi selesai
         this.isClosed = false;
       }, 500);
-      this.$router.push('/admin/dashboard');
+      // Simpan URL halaman terakhir di localStorage
+      localStorage.setItem('lastVisitedPage', this.$route.fullPath);
+      // Kembali ke halaman sebelumnya
+      this.$router.go(-1);
     },
   },
+  mounted() {
+    // Periksa apakah ada URL halaman terakhir yang disimpan di localStorage
+    const lastVisitedPage = localStorage.getItem('lastVisitedPage');
+    // Jika ada, arahkan pengguna ke halaman terakhir yang disimpan
+    if (lastVisitedPage) {
+      this.$router.push(lastVisitedPage);
+      // Hapus URL halaman terakhir dari localStorage setelah mengarahkan ke halaman tersebut
+      localStorage.removeItem('lastVisitedPage');
+    }
+  }
 };
+
 </script>
 
 <style>

@@ -8,10 +8,13 @@ import AdminLayouts from "../layouts/AdminLayouts.vue";
 import DashboardAdmin from "../views/admin/DashboardAdmin.vue";
 import EventAdmin from "../views/admin/EventAdmin.vue";
 import AddEventAdmin from "../views/admin/AddEventAdmin.vue";
-import SettingsAdmin from "../views/admin/SettingsAdmin.vue";
-import Account from "../views/admin/layer setting/Account.vue";
+import SettingsAdmin from "../views/settings/SettingsMain.vue";
+import Account from "../views/settings/layer/Account.vue";
 import MainLayout from "../layouts/MainLayout.vue";
 import HomeMain from "../views/main/HomeMain.vue";
+import UserLayouts from "../layouts/UserLayouts.vue";
+import DashboardUser from "../views/user/DashboardUser.vue";
+import MyEvent from "../views/user/MyEvent.vue";
 import store from "../store";
 
 const router = createRouter({
@@ -123,6 +126,33 @@ const router = createRouter({
     },
 
     {
+      path: "/organizer/dashboard",
+      component: UserLayouts,
+      name: "UserLayouts",
+      meta: {
+        title: "Dashboard",
+      },
+      children: [
+        {
+          path: "/organizer/dashboard",
+          component: DashboardUser,
+          name: "DashboardUser",
+          meta: {
+            title: "home",
+          },
+        },
+        {
+          path: "/organizer/events",
+          component: MyEvent,
+          name: "MyEvent",
+          meta: {
+            title: "events",
+          },
+        },
+      ],
+    },
+
+    {
       path: "/admin/dashboard",
       component: AdminLayouts,
       name: "AdminLayouts",
@@ -168,17 +198,16 @@ const router = createRouter({
     },
     // settings
     {
-      path: "/admin/settings",
+      path: "/settings",
       component: SettingsAdmin,
       name: "SettingsAdmin",
       meta: {
         title: "settings",
         requiresLogin: true,
-        requiresAdmin: true,
       },
       children: [
         {
-          path: "/admin/settings",
+          path: "/settings",
           component: Account,
           name: "Account",
           meta: {
