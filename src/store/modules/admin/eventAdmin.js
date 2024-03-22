@@ -84,9 +84,6 @@ const eventAdmin = {
           message: "Event created successfully!",
         });
 
-        // Pindah halaman hanya setelah pengiriman data berhasil
-        this.$router.push({ name: "EventAdmin" });
-
         return response.data;
       } catch (error) {
         console.error("Error creating event:", error);

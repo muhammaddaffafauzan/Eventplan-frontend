@@ -8,13 +8,16 @@ import AdminLayouts from "../layouts/AdminLayouts.vue";
 import DashboardAdmin from "../views/admin/DashboardAdmin.vue";
 import EventAdmin from "../views/admin/EventAdmin.vue";
 import AddEventAdmin from "../views/admin/AddEventAdmin.vue";
-import SettingsAdmin from "../views/settings/SettingsMain.vue";
+import SettingsMain from "../views/settings/SettingsMain.vue";
 import Account from "../views/settings/layer/Account.vue";
 import MainLayout from "../layouts/MainLayout.vue";
 import HomeMain from "../views/main/HomeMain.vue";
 import UserLayouts from "../layouts/UserLayouts.vue";
 import DashboardUser from "../views/user/DashboardUser.vue";
 import MyEvent from "../views/user/MyEvent.vue";
+import CreateEvent from "../views/user/CreateEvent.vue";
+import EventDetailUser from "../views/user/EventDetailUser.vue";
+import EditEventUser from "../views/user/EditEventUser.vue";
 import store from "../store";
 
 const router = createRouter({
@@ -138,7 +141,7 @@ const router = createRouter({
           component: DashboardUser,
           name: "DashboardUser",
           meta: {
-            title: "home",
+            title: "Home",
           },
         },
         {
@@ -146,7 +149,31 @@ const router = createRouter({
           component: MyEvent,
           name: "MyEvent",
           meta: {
-            title: "events",
+            title: "Events",
+          },
+        },
+        {
+          path: "/organizer/create-event",
+          component: CreateEvent,
+          name: "CreateEvent",
+          meta: {
+            title: "Create event",
+          },
+        },
+        {
+          path: "/organizer/event/:eventName/:uuid",
+          component: EventDetailUser,
+          name: "EventDetailUser",
+          meta: {
+            title: "Event detail",
+          },
+        },
+        {
+          path: "/organizer/edit/:eventName/:uuid",
+          component: EditEventUser,
+          name: "EditEventUser",
+          meta: {
+            title: "Event Edit",
           },
         },
       ],
@@ -199,8 +226,8 @@ const router = createRouter({
     // settings
     {
       path: "/settings",
-      component: SettingsAdmin,
-      name: "SettingsAdmin",
+      component: SettingsMain,
+      name: "SettingsMain",
       meta: {
         title: "settings",
         requiresLogin: true,

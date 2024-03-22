@@ -60,6 +60,52 @@ const eventMain = {
         return false;
       }
     },
+    async fetchEventByUuidForUser({ commit }, uuid) {
+      try {
+        commit("SET_LOADING", true);
+
+        const token = localStorage.getItem("token");
+        const response = await axios.get(`/event/user/${uuid}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        commit("SET_EVENT_MAIN", [response.data]); // Simpan detail acara ke dalam state eventMain
+        commit("SET_LOADING", false);
+
+        return response.data;
+      } catch (error) {
+        ElMessage({
+          type: "error",
+          message:
+            "Failed to load event details: " +
+            (error.response.data.msg ||
+              "An error occurred while loading the event details. Please try again."),
+        });
+        commit("SET_LOADING", false);
+        return false;
+      }
+    },
+    async deleteEvent({ commit }, uuid) {
+      try {
+        const token = localStorage.getItem("token");
+        const response = await axios.delete(`/event/delete/${uuid}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        ElMessage.success(response.data.msg);
+      } catch (error) {
+        console.error("Error deleting event:", error.response.data.msg);
+        ElMessage.error(
+          "Failed to delete event: " +
+            (error.response.data.msg ||
+              "An error occurred while deleting the event. Please try again.")
+        );
+      }
+    },
   },
   mutations: {
     SET_LOADING(state, isLoading) {

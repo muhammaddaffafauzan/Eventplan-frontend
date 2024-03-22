@@ -43,7 +43,7 @@
               plain
               class="ml-auto"
             >
-              Add Event
+              Create Event
             </el-button>
           </div>
           <div
@@ -83,23 +83,11 @@
                 <thead class="bg-gray-50 dark:bg-gray-800">
                   <tr>
                     <th
+                      colspan="2"
                       scope="col"
                       class="py-3.5 px-4 text-sm font-normal text-left rtl:text-right text-gray-500 dark:text-gray-400"
                     >
-                      Id
-                    </th>
-
-                    <th
-                      scope="col"
-                      class="px-4 py-3.5 text-sm font-normal text-left rtl:text-right text-gray-500 dark:text-gray-400"
-                    >
-                      Date
-                    </th>
-                    <th
-                      scope="col"
-                      class="px-4 py-3.5 text-sm font-normal text-left rtl:text-right text-gray-500 dark:text-gray-400"
-                    >
-                      title
+                      Event
                     </th>
                     <th
                       scope="col"
@@ -120,27 +108,29 @@
                     <td
                       class="px-4 py-4 text-sm font-medium text-gray-700 dark:text-gray-200 whitespace-nowrap"
                     >
-                      <div class="inline-flex items-center gap-x-3">
-                        <span>#{{ item.id }}</span>
+                      <div class="inline-flex flex-col items-center gap-y-1">
+                        <!-- First row for short month name -->
+                        <span class="font-medium text-red-600">{{
+                          getShortMonth(item.createdAt)
+                        }}</span>
+                        <!-- Second row for day -->
+                        <span class="font-semibold text-gray-500 text-lg">{{
+                          getDay(item.createdAt)
+                        }}</span>
                       </div>
                     </td>
                     <td
                       class="px-4 py-4 text-sm font-medium text-gray-700 dark:text-gray-200 whitespace-nowrap"
                     >
                       <div class="inline-flex items-center gap-x-3">
-                        <span>{{
-                          new Intl.DateTimeFormat("en-US", {
-                            year: "numeric",
-                            month: "2-digit",
-                            day: "2-digit",
-                          }).format(new Date(item.createdAt))
-                        }}</span>
+                        <span class="font-medium text-gray-500">
+                          {{ item?.title }}
+                          <p class="text-sm font-light">
+                            {{ formatDateWithAccent(item.start_date) }},
+                            {{ formatTime(item.start_time) }}
+                          </p>
+                        </span>
                       </div>
-                    </td>
-                    <td
-                      class="px-4 py-4 text-sm text-gray-500 dark:text-gray-300 whitespace-nowrap"
-                    >
-                      {{ item?.title }}
                     </td>
                     <td
                       class="px-4 py-4 text-sm font-medium text-gray-700 whitespace-nowrap"
@@ -155,16 +145,43 @@
                       </div>
                     </td>
                     <td class="px-4 py-4 text-sm whitespace-nowrap">
-                      <div class="flex items-center gap-x-6">
-                        <!-- <button @click="handleArchive(item)" class="text-gray-500 transition-colors duration-200 dark:hover:text-indigo-500 dark:text-gray-300 hover:text-indigo-500 focus:outline-none">
-                                    Archive
-                                  </button> -->
-                        <button
-                          @click="handleDetail(item)"
-                          class="text-blue-500 transition-colors duration-200 hover:text-indigo-500 focus:outline-none"
-                        >
-                          Detail
-                        </button>
+                      <div class="relative inline-block text-left">
+                        <el-dropdown trigger="click">
+                          <span class="cursor-pointer">
+                            <svg
+                              class="w-6 h-6 text-gray-800 dark:text-white"
+                              aria-hidden="true"
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="24"
+                              height="24"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                stroke="currentColor"
+                                stroke-linecap="round"
+                                stroke-width="2"
+                                d="M12 6h.01M12 12h.01M12 18h.01"
+                              />
+                            </svg>
+                          </span>
+                          <template #dropdown>
+                            <el-dropdown-menu class="text-sm">
+                              <el-dropdown-item @click="viewItem(item)"
+                                >View</el-dropdown-item
+                              >
+                              <el-dropdown-item @click="editItem(item)"
+                                >Edit</el-dropdown-item
+                              >
+                              <el-dropdown-item @click="deleteItem(item)"
+                                >Delete</el-dropdown-item
+                              >
+                              <el-dropdown-item @click="copyURL(item)"
+                                >Copy URL</el-dropdown-item
+                              >
+                            </el-dropdown-menu>
+                          </template>
+                        </el-dropdown>
                       </div>
                     </td>
                   </tr>
@@ -239,7 +256,14 @@
 </template>
 <script>
 import { mapActions, mapGetters } from "vuex";
-import { ElLoading } from "element-plus";
+import {
+  ElLoading,
+  ElDropdown,
+  ElDropdownMenu,
+  ElDropdownItem,
+  ElMessage,
+  ElMessageBox,
+} from "element-plus";
 
 export default {
   data() {
@@ -255,6 +279,9 @@ export default {
   },
   components: {
     ElLoading,
+    ElDropdown,
+    ElDropdownMenu,
+    ElDropdownItem,
   },
   computed: {
     // Remove the duplicate definition of handleSearchResultClick from computed
@@ -314,6 +341,50 @@ export default {
   },
   methods: {
     ...mapActions("eventMain", ["fetchMyEvents"]),
+    viewItem(item) {
+      const uuid = item.uuid; // Ambil UUID dari item
+      const eventName = item.title.replace(/\s+/g, "-").toLowerCase(); // Buat nama acara dan konversikan ke format slug
+      this.$router.push({
+        path: `/organizer/event/${eventName}/${uuid}`, // Pindah halaman dengan path yang sesuai
+      });
+    },
+    editItem(item) {
+      const { uuid, title } = item; // Ambil UUID dan judul dari item
+      const eventName = title.replace(/\s+/g, "-").toLowerCase(); // Buat nama acara dan konversikan ke format slug
+      this.$router.push({
+        path: `/organizer/edit/${eventName}/${uuid}`, // Pindah halaman dengan path yang sesuai
+      });
+    },
+    async deleteItem(item) {
+      try {
+        const confirmed = await ElMessageBox.confirm(
+          "Are you sure you want to delete this event?",
+          "Confirmation",
+          {
+            type: "warning",
+            confirmButtonText: "Delete",
+            cancelButtonText: "Cancel",
+            center: true,
+          }
+        );
+
+        if (confirmed) {
+          // Dispatch action deleteEvent dengan item.uuid sebagai payload
+          await this.$store.dispatch("eventMain/deleteEvent", item.uuid);
+          this.fetchMyEvents();
+        } else {
+          // Jika pengguna membatalkan penghapusan, tampilkan pesan bahwa penghapusan dibatalkan
+          ElMessage.info("Deletion canceled");
+        }
+      } catch (error) {
+        // Handle jika terjadi kesalahan saat penghapusan
+        ElMessage.error(`Failed to delete event: ${error.response.data.msg}`);
+      }
+    },
+    copyURL(item) {
+      console.log("Copy URL of item:", item);
+      // Handle copy URL action
+    },
     applyFilter() {
       this.fetchEventAdmin();
     },
@@ -363,23 +434,79 @@ export default {
     changePage(pageNumber) {
       this.currentPage = pageNumber;
     },
-    handleSearchResultClick(command) {
-      this.searchKeyword = command.title;
-      this.searchResults = [];
-      this.searching = true;
-
-      try {
-        // Perform your search logic
-        // await this.fetchEventAdmin();
-      } finally {
-        this.searching = false;
-        this.$nextTick(() => {
-          this.$refs.searchInput.$refs.input.focus();
-        });
-      }
+    // Method to format date with accent hari
+    formatDateWithAccent(dateString) {
+      const date = new Date(dateString);
+      const days = [
+        "Sunday",
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
+      ];
+      const dayIndex = date.getDay();
+      const formattedDate = `${
+        days[dayIndex]
+      }, ${date.getDate()} ${this.getMonthName(
+        date.getMonth()
+      )} ${date.getFullYear()}`;
+      return formattedDate;
+    },
+    // Method to get month name from index
+    getMonthName(monthIndex) {
+      const months = [
+        "January",
+        "February",
+        "March",
+        "April",
+        "May",
+        "June",
+        "July",
+        "August",
+        "September",
+        "October",
+        "November",
+        "December",
+      ];
+      return months[monthIndex];
     },
     goToAddEvent() {
-      this.$router.push({ name: "AddEventAdmin" });
+      this.$router.push({ name: "CreateEvent" });
+    },
+    formatTime(timeString) {
+      const time = new Date(`1970-01-01T${timeString}`);
+      const hours = time.getHours();
+      const minutes = time.getMinutes();
+      const ampm = hours >= 12 ? "PM" : "AM"; // Determine AM/PM
+      const formattedHours = hours % 12 || 12; // Convert hours to 12-hour format
+      const formattedMinutes = minutes < 10 ? `0${minutes}` : minutes; // Add leading zero to minutes if needed
+      return `${formattedHours}:${formattedMinutes} ${ampm}`; // Return formatted time
+    },
+    getShortMonth(createdAt) {
+      const date = new Date(createdAt);
+      const monthIndex = date.getMonth();
+      const months = [
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr",
+        "May",
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sep",
+        "Oct",
+        "Nov",
+        "Dec",
+      ];
+      return months[monthIndex];
+    },
+    // Method to get day of the month
+    getDay(createdAt) {
+      const date = new Date(createdAt);
+      return date.getDate();
     },
   },
   mounted() {
@@ -399,6 +526,23 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.5s;
+}
+.fade-enter,
+.fade-leave-to {
+  opacity: 0;
+}
+.search-loading {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+</style>
 
 <style scoped>
 .fade-enter-active,
