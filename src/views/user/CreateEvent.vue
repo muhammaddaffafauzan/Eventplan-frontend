@@ -506,8 +506,6 @@ export default {
         );
       }
     },
-    // Submit form
-    // Submit form
     async submitForm() {
       try {
         this.isLoading = true;

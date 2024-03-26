@@ -3,7 +3,12 @@
     <h2 class="text-2xl font-semibold mb-4">Edit Event</h2>
     <!-- Event Form -->
     <el-card>
-      <form @submit.prevent="submitForm">
+      <el-form
+        ref="eventFormRef"
+        :model="eventForm"
+        :rules="rules"
+        @submit.prevent="validateBeforeSubmit"
+      >
         <el-form-item label="Title" prop="title">
           <el-input
             v-model="eventForm.title"
@@ -19,10 +24,10 @@
             placeholder="Select category"
           >
             <el-option
-              v-for="item in categories"
-              :key="item.id"
-              :label="item.category"
-              :value="item.id"
+              v-for="category in categories"
+              :key="category.id"
+              :label="category.category"
+              :value="category.id"
             ></el-option>
           </el-select>
         </el-form-item>
@@ -241,72 +246,61 @@
           ></el-input>
         </el-form-item>
         <!-- file upload -->
-        <label
-          for="dropzone-file"
-          class="mb-5 mx-20 cursor-pointer flex w-full max-w-lg flex-col items-center rounded-xl border-2 border-dashed border-blue-400 bg-white p-6 text-center"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            class="h-10 w-10 text-blue-500"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            stroke-width="2"
+        <el-form-item>
+          <label
+            for="dropzone-file"
+            class="mb-5 mx-20 cursor-pointer flex w-full max-w-lg flex-col items-center rounded-xl border-2 border-dashed border-blue-400 bg-white p-6 text-center"
           >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-            />
-          </svg>
-
-          <h2 class="mt-4 text-xl font-medium text-gray-700 tracking-wide">
-            Event Image
-          </h2>
-
-          <p class="mt-2 text-gray-500 tracking-wide">
-            Upload or drag & drop your file PNG, JPG or JPEG.
-          </p>
-          <input
-            id="dropzone-file"
-            type="file"
-            class="hidden"
-            ref="fileInput"
-            @change="handleFileUpload"
-            name="inputFile"
-            :rules="[
-              {
-                required: true,
-                message: 'Please upload an image file',
-                trigger: 'change',
-              },
-              {
-                validator: this.validateFile,
-                trigger: 'change',
-              },
-            ]"
-          />
-          <!-- Pratinjau (preview) file -->
-          <div v-if="eventForm.inputFile" class="mt-4">
-            <strong>File Preview:</strong>
-            <img
-              v-if="isImageFile(eventForm.inputFile)"
-              :src="filePreview"
-              alt="File Preview"
-              class="mt-2 max-w-full"
-            />
-            <span v-else>{{ eventForm.inputFile.name }}</span>
-
-            <!-- Tombol hapus -->
-            <button
-              type="button"
-              class="mt-2 text-red-600 cursor-pointer"
-              @click="deleteFile"
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-10 w-10 text-blue-500"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              stroke-width="2"
             >
-              Delete
-            </button>
-          </div>
-        </label>
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+              />
+            </svg>
+
+            <h2 class="mt-4 text-xl font-medium text-gray-700 tracking-wide">
+              Event Image
+            </h2>
+
+            <p class="mt-2 text-gray-500 tracking-wide">
+              Upload or drag & drop your file PNG, JPG or JPEG.
+            </p>
+            <input
+              id="dropzone-file"
+              type="file"
+              class="hidden"
+              ref="fileInput"
+              @change="handleFileUpload"
+              name="inputFile"
+            />
+            <!-- Pratinjau (preview) file -->
+            <div class="mt-4">
+              <strong>File Preview:</strong>
+              <img
+                :src="filePreview"
+                alt="File Preview"
+                class="mt-2 max-w-full"
+              />
+
+              <!-- Tombol hapus -->
+              <button
+                type="button"
+                class="mt-2 text-red-600 cursor-pointer"
+                @click="deleteFile"
+              >
+                Delete
+              </button>
+            </div>
+          </label>
+        </el-form-item>
 
         <!-- Submit Button -->
         <el-form-item>
@@ -319,7 +313,7 @@
             Submit
           </el-button>
         </el-form-item>
-      </form>
+      </el-form>
     </el-card>
   </div>
 </template>
@@ -389,6 +383,7 @@ export default {
       marker: null,
       locationLabel: null,
       filePreview: null,
+      originalFilePreview: null,
       isLoading: false,
       quillContent: "",
       dataProperty: "",
@@ -441,7 +436,7 @@ export default {
   },
   methods: {
     ...mapActions("categories", ["fetchCategories"]),
-    ...mapActions("eventAdmin", ["createEvent"]),
+    ...mapActions("eventMain", ["updateEvent"]),
     async loadEventData(uuid) {
       try {
         // Panggil API untuk mendapatkan detail event berdasarkan UUID
@@ -453,10 +448,26 @@ export default {
         });
         const eventData = response.data;
 
+        const categories = this.getCategories;
+
+        // Temukan ID kategori yang sesuai dengan nama kategori dari data event
+        let categoryId = null;
+        if (categories && categories.length > 0) {
+          const category = categories.find(
+            (category) => category.category === eventData.category
+          );
+          if (category) {
+            categoryId = category.id;
+          } else {
+            console.error("Category not found for event:", eventData.title);
+          }
+        } else {
+          console.error("No categories available.");
+        }
         // Isi formulir dengan data event yang dimuat
         this.eventForm = {
           title: eventData.title,
-          category: eventData.category,
+          categoryId: categoryId,
           price: eventData.price.toString(),
           start_date: eventData.start_date,
           end_date: eventData.end_date,
@@ -468,7 +479,10 @@ export default {
           language: eventData.language,
           tags: JSON.parse(eventData.tags),
         };
-        
+
+        this.filePreview = eventData.url;
+
+        this.originalFilePreview = eventData.url;
 
         this.location = {
           city: eventData.event_locations[0].city,
@@ -478,7 +492,7 @@ export default {
           lat: eventData.event_locations[0].lat,
           long: eventData.event_locations[0].long,
         };
- 
+
         // Set marker position based on event location
         this.setLocationMarker(
           eventData.event_locations[0].lat,
@@ -487,6 +501,8 @@ export default {
 
         // Atur konten Quill Editor
         this.quillContent = eventData.description;
+
+        this.eventId = uuid;
       } catch (error) {
         ElMessage({
           type: "error",
@@ -534,32 +550,33 @@ export default {
       }
     },
     async validateBeforeSubmit() {
-      try {
-        // Pastikan referensi ke el-form adalah eventFormRef
-        if (this.$refs.eventFormRef) {
-          // Panggil metode validate dari referensi el-form
-          const isValid = await this.$refs.eventFormRef.validate();
+      // Periksa apakah referensi ke el-form tersedia
+      if (!this.$refs.eventFormRef) {
+        // Tangani kasus ketika referensi tidak tersedia
+        this.$message.error("Form reference is not available");
+        return;
+      }
 
-          if (isValid) {
-            // Lanjutkan dengan pengiriman formulir jika validasi berhasil
-            this.submitForm();
-          } else {
-            // Tangani ketika validasi gagal
-            this.$message.error("Please fill in all required fields.");
-          }
+      try {
+        // Panggil metode validate dari referensi el-form
+        const isValid = await this.$refs.eventFormRef.validate();
+
+        if (isValid) {
+          // Lanjutkan dengan pengiriman formulir jika validasi berhasil
+          this.submitForm();
         } else {
-          throw new Error("Form reference is not available");
+          // Tangani ketika validasi gagal
+          this.$message.error("Please fill in all required fields.");
         }
       } catch (error) {
-        // Tangani kesalahan validasi atau referensi yang tidak tersedia
+        // Tangani kesalahan saat validasi
         console.error("Form validation error:", error);
         this.$message.error(
           error.message || "An error occurred while validating the form."
         );
       }
     },
-    // Submit form
-    // Submit form
+
     async submitForm() {
       try {
         this.isLoading = true;
@@ -610,11 +627,20 @@ export default {
           }
         });
 
-        // Adding file to FormData
-        formData.append("inputFile", this.eventForm.inputFile);
+        // Check if the file preview has changed before calling convertFilePreviewToFile()
+        if (this.filePreview !== this.originalFilePreview) {
+          await this.convertFilePreviewToFile();
+        }
 
-        // Calling action in store to create event
-        await this.createEvent(formData);
+        // Only append inputFile to formData if it's not null
+        if (this.eventForm.inputFile) {
+          formData.append("inputFile", this.eventForm.inputFile);
+        }
+
+        await this.$store.dispatch("eventMain/updateEvent", {
+          uuid: this.$route.params.uuid,
+          formData: formData,
+        });
 
         // Redirecting to EventAdmin page
         this.$router.push({ name: "MyEvent" });
@@ -625,7 +651,6 @@ export default {
       }
     },
 
-    // Adjust time and date format before sending to backend
     adjustDateTimeFormat() {
       // Adjust start date format
       if (this.eventForm.start_date) {
@@ -660,69 +685,76 @@ export default {
       return formattedTime.toTimeString().split(" ")[0];
     },
 
-    validateFile(rule, value, callback) {
-      if (!value) {
-        callback(new Error("Please upload an image file"));
-      } else {
-        const isImage = this.isImageFile(value);
-        const isLt2M = value.size / 1024 / 1024 < 2;
+    async handleFileUpload(event) {
+      const fileInput = event.target.files[0];
+      if (!fileInput) return;
 
-        if (!isImage) {
-          callback(
-            new Error(
-              "Invalid image file type. Please upload a valid image file."
-            )
-          );
-        } else if (!isLt2M) {
-          callback(new Error("Image size must be less than 2MB"));
-        } else {
-          callback();
-        }
+      const allowedTypes = ["image/png", "image/jpeg", "image/jpg"];
+      const maxSize = 2 * 1024 * 1024; // 2 MB in bytes
+
+      // Check file type
+      if (!allowedTypes.includes(fileInput.type)) {
+        this.$message.error(
+          "Invalid file type. Please upload a valid image file."
+        );
+        return;
       }
-      },
-    
-    handleFileUpload(event) {
-    const fileInput = event.target.files[0];
-    if (!fileInput) return; // Check for null input
-    if (fileInput) {
-        const allowedTypes = ["image/png", "image/jpeg", "image/jpg"];
-        if (!allowedTypes.includes(fileInput.type)) {
-        // Display error message if the selected file type is not an image
-        this.$message.error(
-            "Invalid file type. Please upload a valid image file."
-        );
+
+      // Check file size
+      if (fileInput.size > maxSize) {
+        this.$message.error("Image size must be less than 2MB");
         return;
-        }
+      }
 
-        const maxSize = 5 * 1024 * 1024; // 5 MB in bytes
-        if (fileInput.size > maxSize) {
-        // Display error message if the file size exceeds the limit
-        this.$message.error(
-            "File size exceeds the limit. Please upload a file less than 5 MB."
-        );
-        return;
-        }
+      // Create a preview URL for the selected image file
+      const imageUrl = URL.createObjectURL(fileInput);
+      this.filePreview = imageUrl;
 
-        // Create a preview URL for the selected image file
-        const imageUrl = URL.createObjectURL(fileInput);
-        this.filePreview = imageUrl;
-
-        // Set the selected file object to the eventForm
-        this.eventForm.inputFile = fileInput;
-    } else {
-        this.filePreview = null;
-        this.eventForm.inputFile = null;
-    }
-    },
-    // Fungsi bantuan untuk memeriksa apakah file adalah gambar
-    isImageFile(file) {
-      return file.type.startsWith("image/");
+      // Set the selected file object to the eventForm
+      this.eventForm.inputFile = fileInput; // Langsung menetapkan nilai, tidak perlu menggunakan this.$set
     },
 
     deleteFile() {
-      // Hapus pratinjau dan reset nilai file input
+      // Clear the file preview and reset the file input value
+      this.clearFileInput();
+
+      // Reload event data with the saved UUID
+      this.loadEventData(this.eventId);
+    },
+
+    clearFileInput() {
       this.filePreview = null;
       this.eventForm.inputFile = null;
+    },
+
+    async convertFilePreviewToFile() {
+      try {
+        // Check if there's a file preview and inputFile is not set
+        if (this.filePreview && !this.eventForm.inputFile) {
+          // Check if the file preview is an image
+          if (this.isImageFile(this.filePreview)) {
+            // Retrieve the file preview from the URL
+            const response = await fetch(this.filePreview);
+            const blob = await response.blob();
+            // Create a file object from the blob
+            const file = new File([blob], "preview_file", { type: blob.type });
+            // Set the file object to the eventForm.inputFile
+            this.eventForm.inputFile = file;
+          } else {
+            console.error("Invalid file type for preview.");
+            // Handle invalid file type for preview
+            this.$message.error("Invalid file type for preview.");
+          }
+        }
+      } catch (error) {
+        console.error("Error converting file preview to file object:", error);
+        // Handle error
+        this.$message.error("Error converting file preview to file object.");
+      }
+    },
+
+    isImageFile(file) {
+      return file.type.startsWith("image/");
     },
 
     addTag() {
@@ -750,7 +782,6 @@ export default {
       return this.eventForm.description;
     },
 
-    // Existing method for updating Quill content
     initializeQuillEditor() {
       // Setelah Quill Editor terinisialisasi, dapatkan editor instance
       this.$nextTick(() => {
@@ -769,7 +800,6 @@ export default {
     updateQuillContent(content) {
       this.quillContent = content;
     },
-
     // New method to set location marker based on coordinates
     setLocationMarker(latitude, longitude) {
       // Update location data
@@ -955,6 +985,7 @@ export default {
     this.initializeQuillEditor();
   },
   created() {
+    this.fetchCategories();
     // Pemanggilan metode loadEventData dengan UUID dari parameter
     const uuid = this.$route.params.uuid; // Mengambil UUID dari parameter route
     this.loadEventData(uuid);

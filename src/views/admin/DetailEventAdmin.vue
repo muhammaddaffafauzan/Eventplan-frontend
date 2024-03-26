@@ -23,10 +23,11 @@
           <h2 class="text-3xl font-semibold">{{ event?.title }}</h2>
           <p class="text-gray-600 mb-4">{{ event?.organizer }}</p>
           <el-card v-if="event && event.url" class="mb-4">
-            <img
+            <el-image
               :src="event.url"
-              alt="Event Image"
-              class="w-full h-80 object-cover rounded-lg overflow-hidden"
+              style="width: 100%; height: auto"
+              :preview-src-list="[event.url]"
+              fit="cover"
             />
           </el-card>
         </el-col>
@@ -50,23 +51,48 @@
             </div>
           </el-card>
         </el-col>
-
         <el-col :span="24">
           <!-- Event Location -->
-          <el-card v-if="event && event.event_locations && event.event_locations.length > 0" class="mb-4">
+          <el-card
+            v-if="
+              event && event.event_locations && event.event_locations.length > 0
+            "
+            class="mb-4"
+          >
             <h3 class="text-2xl font-semibold mb-4">Location</h3>
             <el-divider></el-divider>
-            <p><strong>City:</strong> {{ event.event_locations[0].city }}</p>
-            <p><strong>State:</strong> {{ event.event_locations[0].state }}</p>
-            <p><strong>Country:</strong> {{ event.event_locations[0].country }}</p>
-            <p><strong>Address:</strong> {{ event.event_locations[0].address }}</p>
-
+            <!-- Kondisional untuk menampilkan informasi lokasi -->
+            <template v-if="event.type_location === 'location'">
+              <p><strong>City:</strong> {{ event.event_locations[0].city }}</p>
+              <p>
+                <strong>State:</strong> {{ event.event_locations[0].state }}
+              </p>
+              <p>
+                <strong>Country:</strong> {{ event.event_locations[0].country }}
+              </p>
+              <p>
+                <strong>Address:</strong> {{ event.event_locations[0].address }}
+              </p>
+            </template>
+            <template v-else-if="event.type_location === 'online'">
+              <h1 class="text-center font-bold text-3xl text-gray-600">
+                Online
+              </h1>
+            </template>
+            <template v-else-if="event.type_location === 'tba'">
+              <h1 class="text-center font-bold text-3xl text-gray-600">
+                To be announced
+              </h1>
+            </template>
+            <!-- End of kondisional -->
             <!-- Google Maps iFrame -->
-            <div class="mb-4">
+            <div v-if="event.type_location === 'location'" class="mb-4">
               <el-collapse>
                 <el-collapse-item title="Google Maps">
                   <el-card>
-                    <el-button @click="toggleMapHeight">{{ collapsedMap ? 'Expand Map' : 'Collapse Map' }}</el-button>
+                    <el-button @click="toggleMapHeight">{{
+                      collapsedMap ? "Expand Map" : "Collapse Map"
+                    }}</el-button>
                     <iframe
                       v-if="!collapsedMap"
                       width="100%"
@@ -75,7 +101,13 @@
                       scrolling="no"
                       marginheight="0"
                       marginwidth="0"
-                      :src="generateGoogleMapsLink(event.event_locations[0].lat, event.event_locations[0].long, event.title)"
+                      :src="
+                        generateGoogleMapsLink(
+                          event.event_locations[0].lat,
+                          event.event_locations[0].long,
+                          event.title
+                        )
+                      "
                       loading="lazy"
                     ></iframe>
                     <iframe
@@ -86,7 +118,13 @@
                       scrolling="no"
                       marginheight="0"
                       marginwidth="0"
-                      :src="generateGoogleMapsLink(event.event_locations[0].lat, event.event_locations[0].long, event.title)"
+                      :src="
+                        generateGoogleMapsLink(
+                          event.event_locations[0].lat,
+                          event.event_locations[0].long,
+                          event.title
+                        )
+                      "
                       loading="lazy"
                     ></iframe>
                   </el-card>
@@ -95,11 +133,14 @@
             </div>
           </el-card>
         </el-col>
-
         <el-col :span="24">
+          <!-- Description -->
           <el-card v-if="event" class="mb-4">
             <h3 class="text-2xl font-semibold mb-4">Description</h3>
-            <div v-html="event?.description"></div>
+            <el-empty v-if="!event.description">
+              <span slot="description">No description available</span>
+            </el-empty>
+            <div v-else v-html="event.description"></div>
           </el-card>
         </el-col>
       </el-row>

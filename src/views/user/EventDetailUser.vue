@@ -24,9 +24,9 @@
           <h2 class="text-3xl font-semibold">{{ event?.title }}</h2>
           <p class="text-gray-600 mb-4">{{ event?.organizer }}</p>
           <el-card v-if="event && event.url" class="mb-4">
-             <el-image
+            <el-image
               :src="event.url"
-              style="width: 100%; height: auto;"
+              style="width: 100%; height: auto"
               :preview-src-list="[event.url]"
               fit="cover"
             />
@@ -78,17 +78,32 @@
           >
             <h3 class="text-2xl font-semibold mb-4">Location</h3>
             <el-divider></el-divider>
-            <p><strong>City:</strong> {{ event.event_locations[0].city }}</p>
-            <p><strong>State:</strong> {{ event.event_locations[0].state }}</p>
-            <p>
-              <strong>Country:</strong> {{ event.event_locations[0].country }}
-            </p>
-            <p>
-              <strong>Address:</strong> {{ event.event_locations[0].address }}
-            </p>
-
+            <!-- Kondisional untuk menampilkan informasi lokasi -->
+            <template v-if="event.type_location === 'location'">
+              <p><strong>City:</strong> {{ event.event_locations[0].city }}</p>
+              <p>
+                <strong>State:</strong> {{ event.event_locations[0].state }}
+              </p>
+              <p>
+                <strong>Country:</strong> {{ event.event_locations[0].country }}
+              </p>
+              <p>
+                <strong>Address:</strong> {{ event.event_locations[0].address }}
+              </p>
+            </template>
+            <template v-else-if="event.type_location === 'online'">
+              <h1 class="text-center font-bold text-3xl text-gray-600">
+                Online
+              </h1>
+            </template>
+            <template v-else-if="event.type_location === 'tba'">
+              <h1 class="text-center font-bold text-3xl text-gray-600">
+                To be announced
+              </h1>
+            </template>
+            <!-- End of kondisional -->
             <!-- Google Maps iFrame -->
-            <div class="mb-4">
+            <div v-if="event.type_location === 'location'" class="mb-4">
               <el-collapse>
                 <el-collapse-item title="Google Maps">
                   <el-card>
@@ -314,7 +329,7 @@ export default {
     ElFormItem,
     ElInput,
   },
-    methods: {
+  methods: {
     showImageDetailDialog() {
       this.showImageDialog = true;
     },

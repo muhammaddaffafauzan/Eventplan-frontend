@@ -106,6 +106,43 @@ const eventMain = {
         );
       }
     },
+    async updateEvent({ commit }, { uuid, formData }) {
+      try {
+        commit("SET_LOADING", true);
+
+        const token = localStorage.getItem("token");
+        const response = await axios.put(`/event/update/${uuid}`, formData, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        });
+
+        commit("SET_LOADING", false);
+
+        ElMessage({
+          type: "success",
+          message: "Event Update successfully!",
+        });
+
+        return response.data;
+      } catch (error) {
+        console.error("Error Update event:", error);
+
+        // Periksa apakah error.response terdefinisi sebelum mencoba mengakses properti 'data'
+        const errorMessage = error.response
+          ? error.response.data.msg
+          : "An error occurred while Update the event. Please try again.";
+
+        ElMessage({
+          type: "error",
+          message: "Failed to Update event: " + errorMessage,
+        });
+
+        commit("SET_LOADING", false);
+        return false;
+      }
+    },
   },
   mutations: {
     SET_LOADING(state, isLoading) {
@@ -119,4 +156,4 @@ const eventMain = {
     },
   },
 };
-export default eventMain;
+export default eventMain; 
