@@ -115,7 +115,7 @@ breadcrumbs() {
   methods: {
     ...mapActions('auth', ['fetchMe', 'logout']),
 	toSettings(){
-		this.$router.push('/admin/settings')
+		this.$router.push({name: "SettingsLayout"})
 	},
     async confirmLogout() {
       try {

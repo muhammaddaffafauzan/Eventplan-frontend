@@ -8,8 +8,8 @@ import AdminLayouts from "../layouts/AdminLayouts.vue";
 import DashboardAdmin from "../views/admin/DashboardAdmin.vue";
 import EventAdmin from "../views/admin/EventAdmin.vue";
 import AddEventAdmin from "../views/admin/AddEventAdmin.vue";
-import SettingsMain from "../views/settings/SettingsMain.vue";
-import Account from "../views/settings/layer/Account.vue";
+import SettingsLayout from "../layouts/SettingsLayout.vue";
+import PersonalInfo from "../views/settings/layer/PersonalInfo.vue";
 import MainLayout from "../layouts/MainLayout.vue";
 import HomeMain from "../views/main/HomeMain.vue";
 import UserLayouts from "../layouts/UserLayouts.vue";
@@ -223,22 +223,22 @@ const router = createRouter({
         },
       ],
     },
-    // settings
+
     {
-      path: "/settings",
-      component: SettingsMain,
-      name: "SettingsMain",
+      path: "/settings/personal",
+      component: SettingsLayout,
+      name: "SettingsLayout",
       meta: {
         title: "settings",
         requiresLogin: true,
       },
       children: [
         {
-          path: "/settings",
-          component: Account,
-          name: "Account",
+          path: "/settings/personal",
+          component: PersonalInfo,
+          name: "PersonalInfo",
           meta: {
-            title: "settings-account",
+            title: "Personal Information",
           },
         },
       ],

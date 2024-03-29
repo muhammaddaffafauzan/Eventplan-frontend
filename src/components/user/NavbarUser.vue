@@ -197,7 +197,7 @@ export default {
   methods: {
     ...mapActions("auth", ["fetchMe", "logout"]),
     toSettings() {
-      this.$router.push("/admin/settings");
+      this.$router.push("/settings/personal");
     },
     async confirmLogout() {
       try {
@@ -237,9 +237,6 @@ export default {
         console.error(error.message);
         throw error;
       }
-    },
-    toSettings() {
-      this.$router.push({ name: "SettingsMain" });
     },
   },
   mounted() {
