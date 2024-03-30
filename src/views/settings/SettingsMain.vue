@@ -4,11 +4,12 @@
   >
     <div class="p-4 col-span-6 md:col-span-2 border-r border-gray-200">
       <div class="grid grid-cols-5">
-        <div
-          class="md:col-span-5 group relative flex items-left gap-x-6 rounded-lg p-3 text-sm leading-6 hover:bg-indigo-50"
+        <button
+          @click="goToPersonal"
+          :class="{ active: $route.path === '/settings/personal' }"
+          class="md:col-span-5 group relative flex items-left gap-x-6 rounded-lg p-3 text-sm leading-6 hover:bg-indigo-50 text-left"
         >
           <div
-            style="text-align: center"
             class="flex h-11 w-11 flex-none items-center justify-center rounded-lg bg-gray-50 group-hover:bg-white mx-auto md:mx-0"
           >
             <svg
@@ -32,46 +33,18 @@
             </svg>
           </div>
           <div class="flex-auto hidden md:block">
-            <a href="#" class="block font-semibold text-gray-900">
-              Personal Information
-              <span class="absolute inset-0"></span>
-            </a>
+            <span class="block font-semibold text-gray-900"
+              >Personal Information</span
+            >
             <p class="mt-1 text-gray-600">
               Get a better understanding of your traffic
             </p>
           </div>
-        </div>
-        <div
-          class="md:col-span-5 group relative flex items-left justify-left gap-x-6 rounded-lg p-3 text-sm leading-6 hover:bg-gray-50"
-        >
-          <div
-            class="flex h-11 w-11 flex-none items-center justify-center rounded-lg bg-gray-50 group-hover:bg-white mx-auto md:mx-0"
-          >
-            <svg
-              class="h-6 w-6 text-gray-600 group-hover:text-indigo-600"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke-width="1.5"
-              stroke="currentColor"
-              aria-hidden="true"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M15.042 21.672L13.684 16.6m0 0l-2.51 2.225.569-9.47 5.227 7.917-3.286-.672zM12 2.25V4.5m5.834.166l-1.591 1.591M20.25 10.5H18M7.757 14.743l-1.59 1.59M6 10.5H3.75m4.007-4.243l-1.59-1.59"
-              />
-            </svg>
-          </div>
-          <div class="flex-auto hidden md:block">
-            <a href="#" class="block font-semibold text-gray-900">
-              Engagement
-              <span class="absolute inset-0"></span>
-            </a>
-            <p class="mt-1 text-gray-600">Speak directly to your customers</p>
-          </div>
-        </div>
-        <div
-          class="md:col-span-5 group relative flex items-center gap-x-6 rounded-lg p-3 text-sm leading-6 hover:bg-gray-50"
+        </button>
+        <button
+          @click="goToSecurity"
+          :class="{ active: $route.path === '/settings/security' }"
+          class="md:col-span-5 group relative flex items-left justify-left gap-x-6 rounded-lg p-3 text-sm leading-6 hover:bg-gray-50 text-left"
         >
           <div
             class="flex h-11 w-11 flex-none items-center justify-center rounded-lg bg-gray-50 group-hover:bg-white mx-auto md:mx-0"
@@ -92,17 +65,16 @@
             </svg>
           </div>
           <div class="flex-auto hidden md:block">
-            <a href="#" class="block font-semibold text-gray-900">
-              Security
-              <span class="absolute inset-0"></span>
-            </a>
+            <span class="block font-semibold text-gray-900">Security</span>
             <p class="mt-1 text-gray-600">
               Your customers’ data will be safe and secure
             </p>
           </div>
-        </div>
-        <div
-          class="md:col-span-5 group relative flex items-center gap-x-6 rounded-lg p-3 text-sm leading-6 hover:bg-gray-50"
+        </button>
+        <button
+          @click="goToNotifications"
+          :class="{ active: $route.path === '/settings/notifications' }"
+          class="md:col-span-5 group relative flex items-left justify-left gap-x-6 rounded-lg p-3 text-sm leading-6 hover:bg-gray-50 text-left"
         >
           <div
             class="flex h-11 w-11 flex-none items-center justify-center rounded-lg bg-gray-50 group-hover:bg-white mx-auto md:mx-0"
@@ -118,81 +90,154 @@
               <path
                 stroke-linecap="round"
                 stroke-linejoin="round"
-                d="M13.5 16.875h3.375m0 0h3.375m-3.375 0V13.5m0 3.375v3.375M6 10.5h2.25a2.25 2.25 0 002.25-2.25V6a2.25 2.25 0 00-2.25-2.25H6A2.25 2.25 0 003.75 6v2.25A2.25 2.25 0 006 10.5zm0 9.75h2.25A2.25 2.25 0 0010.5 18v-2.25a2.25 2.25 0 00-2.25-2.25H6a2.25 2.25 0 00-2.25 2.25V18A2.25 2.25 0 006 20.25zm9.75-9.75H18a2.25 2.25 0 002.25-2.25V6A2.25 2.25 0 0018 3.75h-2.25A2.25 2.25 0 0013.5 6v2.25a2.25 2.25 0 002.25 2.25z"
+                d="M15.042 21.672L13.684 16.6m0 0l-2.51 2.225.569-9.47 5.227 7.917-3.286-.672zM12 2.25V4.5m5.834.166l-1.591 1.591M20.25 10.5H18M7.757 14.743l-1.59 1.59M6 10.5H3.75m4.007-4.243l-1.59-1.59"
               />
             </svg>
           </div>
           <div class="flex-auto hidden md:block">
-            <a href="#" class="block font-semibold text-gray-900">
-              Integrations
-              <span class="absolute inset-0"></span>
-            </a>
-            <p class="mt-1 text-gray-600">Connect with third-party tools</p>
-          </div>
-        </div>
-        <div
-          class="md:col-span-5 group relative flex items-center gap-x-6 rounded-lg p-3 text-sm leading-6 hover:bg-gray-50"
-        >
-          <div
-            class="flex h-11 w-11 flex-none items-center justify-center rounded-lg bg-gray-50 group-hover:bg-white mx-auto md:mx-0"
-          >
-            <svg
-              class="h-6 w-6 text-gray-600 group-hover:text-indigo-600"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke-width="1.5"
-              stroke="currentColor"
-              aria-hidden="true"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"
-              />
-            </svg>
-          </div>
-          <div class="flex-auto hidden md:block">
-            <a href="#" class="block font-semibold text-gray-900">
-              Automations
-              <span class="absolute inset-0"></span>
-            </a>
+            <span class="block font-semibold text-gray-900">Notifications</span>
             <p class="mt-1 text-gray-600">
-              Build strategic funnels that will convert
+              Manage your notification preferences
             </p>
           </div>
-        </div>
+        </button>
+        <button
+          @click="goToLanguage"
+          :class="{ active: $route.path === '/settings/language' }"
+          class="md:col-span-5 group relative flex items-left justify-left gap-x-6 rounded-lg p-3 text-sm leading-6 hover:bg-gray-50 text-left"
+        >
+          <div
+            class="flex h-11 w-11 flex-none items-center justify-center rounded-lg bg-gray-50 group-hover:bg-white mx-auto md:mx-0"
+          >
+            <svg
+              class="h-6 w-6 text-gray-600 group-hover:text-indigo-600"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+              aria-hidden="true"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M9.64 4.14c1.464-1.44 3.384-2.4 5.496-2.82a9.061 9.061 0 014.494.198c1.092.33 2.13.84 3.06 1.53 1.566 1.38 2.58 3.528 2.58 5.91 0 1.992-.66 3.768-1.848 5.13-.54.6-1.17 1.14-1.86 1.62-1.02.75-2.19 1.32-3.45 1.68-1.29.36-2.67.54-4.05.54-1.38 0-2.76-.18-4.05-.54-1.26-.36-2.43-.93-3.45-1.68-.69-.48-1.32-1.02-1.86-1.62-1.188-1.362-1.848-3.138-1.848-5.13 0-2.382 1.014-4.53 2.58-5.91.93-.69 1.968-1.2 3.06-1.53a9.061 9.061 0 014.494-.198c2.112.42 4.032 1.38 5.496 2.82 1.566 1.38 2.58 3.528 2.58 5.91 0 1.992-.66 3.768-1.848 5.13a7.307 7.307 0 01-1.86 1.62c-1.02.75-2.19 1.32-3.45 1.68-1.29.36-2.67.54-4.05.54-1.38 0-2.76-.18-4.05-.54-1.26-.36-2.43-.93-3.45-1.68-.69-.48-1.32-1.02-1.86-1.62-1.188-1.362-1.848-3.138-1.848-5.13 0-2.382 1.014-4.53 2.58-5.91zm5.85 9.36l.132.09 1.875 1.251c.792.54 1.65.9 2.568 1.071.288.042.576.042.852.042.564 0 1.128-.09 1.692-.252 1.176-.33 2.352-.9 3.348-1.68.54-.48 1.02-.99 1.47-1.56l1.851-1.74c.252-.24.252-.66 0-.9l-1.824-1.71c-.42-.42-.93-.78-1.47-1.08-.672-.33-1.41-.54-2.148-.66-.732-.12-1.482-.12-2.214 0-.732.12-1.44.33-2.118.66-.732.3-1.41.66-2.034 1.14-.72.57-1.35 1.23-1.86 1.95l-.198.27c-.252.3-.252.78 0 1.08z"
+              />
+            </svg>
+          </div>
+          <div class="flex-auto hidden md:block">
+            <span class="block font-semibold text-gray-900">Language</span>
+            <p class="mt-1 text-gray-600">Choose your preferred language</p>
+          </div>
+        </button>
+        <button
+          @click="goToPrivacy"
+          :class="{ active: $route.path === '/settings/privacy' }"
+          class="md:col-span-5 group relative flex items-left justify-left gap-x-6 rounded-lg p-3 text-sm leading-6 hover:bg-gray-50 text-left"
+        >
+          <div
+            class="flex h-11 w-11 flex-none items-center justify-center rounded-lg bg-gray-50 group-hover:bg-white mx-auto md:mx-0"
+          >
+            <svg
+              class="h-6 w-6 text-gray-600 group-hover:text-indigo-600"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+              aria-hidden="true"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M12 14l9-5-9-5-9 5 9 5z"
+              />
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M5 12l7-4m2 0l7 4m-7-4v6"
+              />
+            </svg>
+          </div>
+          <div class="flex-auto hidden md:block">
+            <span class="block font-semibold text-gray-900">Privacy</span>
+            <p class="mt-1 text-gray-600">Manage your privacy settings</p>
+          </div>
+        </button>
       </div>
     </div>
     <div class="p-4 col-span-6 md:col-span-4">
-      <router-view></router-view>
+      <LoadingPage v-if="loading" />
+      <router-view v-else></router-view>
     </div>
   </div>
 </template>
+
 <script>
+import LoadingPage from "../../components/LoadingPage.vue";
+
 export default {
   data() {
-    return {};
+    return {
+      loading: true,
+    };
   },
-  methods: {},
-  mounted() {},
+  components: {
+    LoadingPage,
+  },
+  methods: {
+    goToPersonal() {
+      this.$router.push("/settings/personal");
+    },
+    goToSecurity() {
+      this.$router.push("/settings/security");
+    },
+    goToNotifications() {
+      this.$router.push("/settings/notifications");
+    },
+    goToLanguage() {
+      this.$router.push("/settings/language");
+    },
+    goToPrivacy() {
+      this.$router.push("/settings/privacy");
+    },
+    showLoading() {
+      this.loading = true;
+    },
+    hideLoading() {
+      this.loading = false;
+    },
+    handleRouteLoaded() {``
+      console.log("Route loaded");
+    },
+  },
+  mounted() {
+    this.handleRouteLoaded();
+    this.hideLoading();
+  },
+  beforeRouteEnter(to, from, next) {
+    document.title = "EventPlan - " + (to.meta.title || "Default Title");
+    next((vm) => {
+      vm.showLoading();
+      setTimeout(() => {
+        vm.hideLoading();
+      }, 2000);
+    });
+  },
+  beforeRouteUpdate(to, from, next) {
+    document.title = "EventPlan - " + (to.meta.title || "Default Title");
+    this.showLoading();
+    next(() => {
+      this.hideLoading();
+    });
+  },
 };
 </script>
 
-<style>
-/* Add this style block to your component's style block */
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.5s ease-out; /* Adjust the transition duration and easing function as needed */
-}
-.fade-enter,
-.fade-leave-to {
-  opacity: 0;
-  transition-delay: 0.3s; /* Adjust the delay duration as needed */
+<style scoped>
+.active {
+  background-color: #edf2f7;
 }
 
-/* Additional styling for smoother transition */
-.router-view-container {
-  position: relative;
-  overflow: hidden;
+.active svg {
+  color: #4f46e5;
 }
 </style>

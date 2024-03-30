@@ -10,6 +10,10 @@ import EventAdmin from "../views/admin/EventAdmin.vue";
 import AddEventAdmin from "../views/admin/AddEventAdmin.vue";
 import SettingsLayout from "../layouts/SettingsLayout.vue";
 import PersonalInfo from "../views/settings/layer/PersonalInfo.vue";
+import Security from "../views/settings/layer/Security.vue";
+import NotificationSetting from "../views/settings/layer/NotificationSetting.vue";
+import LanguageSetting from "../views/settings/layer/LanguageSetting.vue";
+import PrivacySetting from "../views/settings/layer/PrivacySetting.vue";
 import MainLayout from "../layouts/MainLayout.vue";
 import HomeMain from "../views/main/HomeMain.vue";
 import UserLayouts from "../layouts/UserLayouts.vue";
@@ -134,6 +138,7 @@ const router = createRouter({
       name: "UserLayouts",
       meta: {
         title: "Dashboard",
+        requiresLogin: true,
       },
       children: [
         {
@@ -241,6 +246,38 @@ const router = createRouter({
             title: "Personal Information",
           },
         },
+        {
+          path: "/settings/security",
+          component: Security,
+          name: "Security",
+          meta: {
+            title: "Security",
+          },
+        },
+        {
+          path: "/settings/notifications",
+          component: NotificationSetting,
+          name: "NotificationSetting",
+          meta: {
+            title: "Notification",
+          },
+        },
+        {
+          path: "/settings/language",
+          component: LanguageSetting,
+          name: "LanguageSetting",
+          meta: {
+            title: "Notification",
+          },
+        },
+        {
+          path: "/settings/privacy",
+          component: PrivacySetting,
+          name: "PrivacySetting",
+          meta: {
+            title: "Privacy",
+          },
+        },
       ],
     },
   ],
@@ -252,7 +289,7 @@ router.beforeEach(async (to, from, next) => {
 
   if (to.meta.requiresLogin && !isAuthenticated) {
     // Redirect ke halaman login jika diperlukan login dan pengguna tidak terautentikasi
-    next("/admin/login");
+    next("/auth/login");
   } else if (to.meta.requiresAdmin && role !== "admin") {
     // Redirect ke halaman dashboard admin jika diperlukan admin dan pengguna bukan admin
     next("/admin/dashboard");

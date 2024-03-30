@@ -1,6 +1,9 @@
 <template>
   <!-- Informasi Personal -->
   <div class="mx-auto grid grid-cols-2 gap-x-8 gap-y-10">
+    <p class="absolute right-5 mt-1 text-right text-sm text-gray-500">
+      Account Eventplan since {{ formattedCreatedAt }}
+    </p>
     <div class="col-span-2">
       <h2 class="text-xl font-semibold text-gray-900 mb-4">
         Personal Information
@@ -15,12 +18,22 @@
           class="h-52 w-52 rounded-full border-4 border-gray-400"
           :src="profileImage"
           alt="User's avatar"
-          @click="openFileManager"
         />
-        <span
-          class="bottom-1.5 left-40 absolute w-7 h-7 bg-gray-200 dark:border-gray-800 rounded-full"
+        <input
+          type="file"
+          name="avatar"
+          id="avatar"
+          accept="image/*"
+          @change="handleAvatarChange"
+          class="hidden"
+          ref="avatarInput"
+        />
+        <!-- Icon Edit di Dalam Border Avatar -->
+        <div
+          class="absolute z-15 bottom-1.5 left-40 w-7 h-7 bg-gray-200 dark:border-gray-800 rounded-full flex items-center justify-center cursor-pointer"
         >
           <svg
+            @click="openModal"
             class="w-6 h-6 ml-0.5 mt-0.5 text-gray-600 dark:text-white"
             aria-hidden="true"
             xmlns="http://www.w3.org/2000/svg"
@@ -37,47 +50,8 @@
               d="M10.779 17.779 4.36 19.918 6.5 13.5m4.279 4.279 8.364-8.643a3.027 3.027 0 0 0-2.14-5.165 3.03 3.03 0 0 0-2.14.886L6.5 13.5m4.279 4.279L6.499 13.5m2.14 2.14 6.213-6.504M12.75 7.04 17 11.28"
             />
           </svg>
-        </span>
-        <!-- Icon Edit di Dalam Border Avatar -->
-        <div
-          class="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity"
-        >
-          <svg
-            class="w-12 h-12 text-gray-600 hover:text-gray-700 cursor-pointer"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-            ></path>
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M15 9a6 6 0 00-6 6m12 0a6 6 0 01-6-6m6 0a9 9 0 00-9 9m9 0a9 9 0 01-9-9m9 0a12 12 0 00-12 12m12 0a12 12 0 01-12-12m12 0a15 15 0 00-15 15m15 0a15 15 0 01-15-15"
-            ></path>
-          </svg>
-          <input
-            type="file"
-            accept="image/png,image/jpeg"
-            style="display: none"
-            ref="avatarInput"
-            @change="handleAvatarChange"
-            class="hover:bg-gray-800"
-          />
         </div>
       </div>
-      <!-- Input File untuk Unggah Avatar -->
-
-      <button
-        class="absolute inset-0 w-full h-full bg-transparent cursor-pointer"
-        @click="openFileManager"
-      ></button>
     </div>
     <!-- Form Informasi Personal -->
     <div class="col-span-2 sm:col-span-1">
@@ -159,13 +133,14 @@
         class="block text-sm font-medium leading-6 text-gray-900"
         >Phone</label
       >
-      <div class="mt-2">
+      <div class="mt-2 flex">
+        <!-- Dropdown untuk Memilih Format Nomor Telepon -->
         <input
           type="text"
           name="phone"
           id="phone"
           autocomplete="tel"
-          :value="formattedPhone"
+          v-model="formData.phone"
           @input="updatePhone($event.target.value)"
           class="flex-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-600 focus:ring focus:ring-indigo-600 focus:ring-opacity-50 sm:text-sm sm:leading-5"
         />
@@ -245,86 +220,97 @@
     </div>
   </div>
   <!-- Tombol Batal dan Simpan -->
-  <div class="col-span-2 sm:col-span-1">
-    <label for="phone" class="block text-sm font-medium leading-6 text-gray-900"
-      >Phone</label
+  <div class="mt-6 flex items-center justify-end gap-x-6">
+    <button
+      type="button"
+      class="text-sm font-semibold leading-6 text-gray-900"
+      @click="cancel"
     >
-    <div class="mt-2 flex">
-      <select
-        v-model="selectedPhoneFormat"
-        class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-600 focus:ring focus:ring-indigo-600 focus:ring-opacity-50 sm:text-sm sm:leading-5"
-      >
-        <option value="national">National</option>
-        <option value="international">International</option>
-        <!-- Tambahkan opsi lainnya sesuai kebutuhan -->
-      </select>
-      <input
-        v-if="selectedPhoneFormat === 'international'"
-        type="text"
-        name="phone"
-        id="phone"
-        autocomplete="tel"
-        :value="formattedInternationalPhone"
-        @input="updatePhone($event.target.value)"
-        class="flex-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-600 focus:ring focus:ring-indigo-600 focus:ring-opacity-50 sm:text-sm sm:leading-5"
-      />
-      <input
-        v-else
-        type="text"
-        name="phone"
-        id="phone"
-        autocomplete="tel"
-        :value="formattedNationalPhone"
-        @input="updatePhone($event.target.value)"
-        class="flex-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-600 focus:ring focus:ring-indigo-600 focus:ring-opacity-50 sm:text-sm sm:leading-5"
-      />
+      Cancel
+    </button>
+    <button
+      type="button"
+      class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus:outline-none focus:ring focus:ring-indigo-600 focus:ring-opacity-50"
+      @click="saveProfile"
+    >
+      Save
+    </button>
+  </div>
+  <div
+    v-if="showCropModal"
+    class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 modal-show"
+    :class="{ 'fade-out': !showCropModal }"
+  >
+    <div class="bg-white p-4 rounded-lg">
+      <!-- Tampilan Crop Foto di sini -->
+      <vue-cropper
+        v-model="cropImage"
+        :guides="false"
+        :aspect-ratio="1"
+        :auto-crop-area="1"
+        :view-mode="1"
+        :movable="false"
+        :zoomable="false"
+        :rotatable="false"
+        :responsive="true"
+        v-if="showCropModal"
+        @ready="onCropperReady"
+        :src="cropImage"
+        ref="cropper"
+        class="w-96 h-96"
+      ></vue-cropper>
+
+      <div class="flex justify-center gap-4 mt-5">
+        <button
+          @click="cancelCrop"
+          class="px-4 py-2 bg-gray-500 text-white rounded-md"
+        >
+          Cancel
+        </button>
+        <button
+          @click="saveCroppedImage"
+          class="px-4 py-2 bg-indigo-600 text-white rounded-md"
+        >
+          Crop & Upload
+        </button>
+      </div>
     </div>
   </div>
-  <!-- Modal Crop -->
-<div
-  v-if="showCropModal"
-  class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50"
->
-  <div class="bg-white p-4 rounded-lg">
-    <!-- Tampilan Crop Foto di sini -->
-    <vue-cropper
-      v-model="cropImage"
-      :guides="false"
-      :aspect-ratio="1"
-      :auto-crop-area="1"
-      :movable="false"
-      :zoomable="false"
-      :rotatable="false"
-      :responsive="true"
-      v-if="showCropModal"
-      @ready="onCropperReady"
-      :src="cropImage"
-      ref="cropper"
-    ></vue-cropper>
-
-    <div class="flex justify-center gap-4 mt-5">
-      <button
-        @click="cancelCrop"
-        class="px-4 py-2 bg-gray-500 text-white rounded-md"
-      >
-        Cancel
-      </button>
-      <button
-        @click="saveCroppedImage"
-        class="px-4 py-2 bg-indigo-600 text-white rounded-md"
-      >
-        Crop & Upload
-      </button>
+  <div
+    v-if="showModal"
+    class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 modal-show"
+    :class="{ 'fade-out': !showModal }"
+  >
+    <div class="bg-white p-4 rounded-lg">
+      <h2 class="text-xl font-semibold text-gray-900 mb-4">Choose an action</h2>
+      <div class="flex justify-center gap-4 mt-5">
+        <button
+          @click="deletePhoto"
+          class="px-4 py-2 bg-red-600 text-white rounded-md"
+        >
+          Delete Photo
+        </button>
+        <button
+          @click="openFileManager"
+          class="px-4 py-2 bg-blue-600 text-white rounded-md"
+        >
+          Upload Photo
+        </button>
+        <button
+          @click="closeModal"
+          class="px-4 py-2 bg-gray-500 text-white rounded-md"
+        >
+          Cancel
+        </button>
+      </div>
     </div>
   </div>
-</div>
-
 </template>
 <script>
 import { mapActions, mapGetters } from "vuex";
 import VueCropper from "vue-cropperjs";
 import "cropperjs/dist/cropper.css";
-import { parsePhoneNumberFromString } from "libphonenumber-js";
+import { ElDialog } from "element-plus";
 
 export default {
   data() {
@@ -344,6 +330,7 @@ export default {
       previewFile: null,
       cropImage: null,
       showCropModal: false,
+      showModal: false,
       cropOptions: {
         // Konfigurasi options untuk cropper
         viewMode: 1,
@@ -356,9 +343,10 @@ export default {
   },
   components: {
     VueCropper,
+    ElDialog,
   },
   methods: {
-    ...mapActions("settings", ["createOrUpdateProfile"]),
+    ...mapActions("settings", ["createOrUpdateProfile", "deleteImageProfile"]),
     async loadDataProfile() {
       await this.$store.dispatch("auth/fetchMe"); // Memastikan data profil sudah dimuat
       const profileData = this.profile;
@@ -392,6 +380,7 @@ export default {
     // Membuka file manager untuk memilih avatar
     openFileManager() {
       this.$refs.avatarInput.click();
+      this.showModal = false;
     },
 
     cancelCrop() {
@@ -399,17 +388,6 @@ export default {
       this.cropImage = null;
       this.showCropModal = false;
       this.formData.inputFile = null;
-    },
-    async uploadCroppedImage() {
-      // Lakukan upload foto yang telah di-crop
-      try {
-        // Lakukan upload dengan formData atau metode yang sesuai dengan kebutuhan Anda
-        // Setelah berhasil, sembunyikan modal crop
-        this.showCropModal = false;
-      } catch (error) {
-        console.error("Error uploading cropped image:", error);
-        // Tangani kesalahan jika terjadi saat upload
-      }
     },
     async saveProfile() {
       try {
@@ -459,58 +437,31 @@ export default {
       // Perbarui nilai formData.phone berdasarkan nilai yang dimasukkan pengguna
       this.formData.phone = value;
     },
+    openModal() {
+      this.showModal = true;
+    },
+    closeModal() {
+      this.showModal = false;
+    },
+    async deletePhoto() {
+    try {
+      // Panggil action untuk menghapus foto profil
+      await this.deleteImageProfile(this.profile.id); // Sesuaikan dengan ID foto profil yang akan dihapus
+
+      // Perbarui preview foto profil
+      this.previewFile = null;
+
+      // Tutup modal setelah berhasil menghapus foto
+      this.closeModal();
+    } catch (error) {
+      console.error("Error deleting photo:", error);
+      // Tangani kesalahan jika terjadi saat menghapus foto
+    }
+  },
   },
   computed: {
     // Mendapatkan URL gambar profil
     ...mapGetters("settings", ["getProfile"]),
-    formattedPhone() {
-      if (this.formData.phone) {
-        const phoneNumber = parsePhoneNumberFromString(
-          this.formData.phone,
-          "ID"
-        );
-        if (phoneNumber) {
-          // Format nomor telepon sesuai dengan format internasional
-          return phoneNumber.formatInternational();
-        } else {
-          return this.formData.phone; // Kembalikan nilai asli properti phone jika nomor telepon tidak valid
-        }
-      } else {
-        return this.formData.phone; // Kembalikan nilai asli properti phone jika phone kosong
-      }
-    },
-    formattedNationalPhone() {
-      if (this.formData.phone) {
-        const phoneNumber = parsePhoneNumberFromString(
-          this.formData.phone,
-          "ID"
-        );
-        if (phoneNumber) {
-          // Format nomor telepon sesuai dengan format nasional
-          return phoneNumber.formatNational();
-        } else {
-          return this.formData.phone; // Kembalikan nilai asli properti phone jika nomor telepon tidak valid
-        }
-      } else {
-        return this.formData.phone; // Kembalikan nilai asli properti phone jika phone kosong
-      }
-    },
-    formattedInternationalPhone() {
-      if (this.formData.phone) {
-        const phoneNumber = parsePhoneNumberFromString(
-          this.formData.phone,
-          "ID"
-        );
-        if (phoneNumber) {
-          // Format nomor telepon sesuai dengan format internasional
-          return phoneNumber.formatInternational();
-        } else {
-          return this.formData.phone; // Kembalikan nilai asli properti phone jika nomor telepon tidak valid
-        }
-      } else {
-        return this.formData.phone; // Kembalikan nilai asli properti phone jika phone kosong
-      }
-    },
     profileImage() {
       if (!this.previewFile && (!this.getProfile || !this.getProfile.url)) {
         const initials = `${this.formData.firstName.charAt(
@@ -530,6 +481,35 @@ export default {
     profile() {
       return this.getMe;
     },
+    formattedCreatedAt() {
+      if (this.getMe && this.getMe.user && this.getMe.user.createdAt) {
+        // Parse tanggal createdAt menjadi objek Date
+        const createdAt = new Date(this.getMe.user.createdAt);
+        // Buat daftar nama bulan untuk konversi
+        const monthNames = [
+          "January",
+          "February",
+          "March",
+          "April",
+          "May",
+          "June",
+          "July",
+          "August",
+          "September",
+          "October",
+          "November",
+          "December",
+        ];
+        // Ambil tanggal, nama bulan, dan tahun dari createdAt
+        const day = createdAt.getDate();
+        const monthIndex = createdAt.getMonth();
+        const year = createdAt.getFullYear();
+        // Format tanggal sesuai dengan "DD MMMM YYYY" (misal: 01 January 2024)
+        return `${day} ${monthNames[monthIndex]} ${year}`;
+      } else {
+        return "N/A"; // Tampilkan "N/A" jika data createdAt tidak tersedia
+      }
+    },
   },
   // Mengambil dan menyimpan profil pengguna sebelum dan setelah rute diperbarui
   beforeRouteEnter(to, from, next) {
@@ -546,3 +526,26 @@ export default {
   },
 };
 </script>
+<style scoped>
+/* Animasi untuk fade-out */
+.fade-out {
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+}
+/* Animasi untuk tampilan modal */
+.modal-show {
+  display: flex;
+  animation: modal-show-animation 0.3s ease-in-out;
+}
+
+@keyframes modal-show-animation {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+</style>

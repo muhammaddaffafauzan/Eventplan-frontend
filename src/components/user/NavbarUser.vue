@@ -136,48 +136,64 @@
         </el-dropdown>
         <!-- End Dropdown Settings -->
         <!-- button notification -->
-        <button
-          aria-expanded="false"
-          aria-haspopup="menu"
-          id=":r2:"
-          class="relative middle none font-sans font-medium text-center uppercase transition-all disabled:opacity-50 disabled:shadow-none disabled:pointer-events-none w-10 max-w-[40px] h-10 max-h-[40px] rounded-lg text-xs text-gray-500 hover:bg-blue-gray-500/10 active:bg-blue-gray-500/30"
-          type="button"
+        <el-dropdown
+          @mouseenter="showNotifications"
+          @mouseleave="hideNotifications"
         >
-          <span
-            class="absolute top-1/2 left-1/2 transform -translate-y-1/2 -translate-x-1/2"
+          <el-button
+            aria-expanded="false"
+            aria-haspopup="menu"
+            id="notifications-button"
+            type="button"
+            icon="el-icon-bell"
+            class="relative middle none font-sans font-medium text-center uppercase transition-all disabled:opacity-50 disabled:shadow-none disabled:pointer-events-none w-10 max-w-[40px] h-10 max-h-[40px] rounded-lg text-xs text-gray-500 hover:bg-blue-gray-500/10 active:bg-blue-gray-500/30"
+          />
+          <el-dropdown-menu
+            v-show="isNotificationsVisible"
+            class="absolute right-0 mt-2 w-48 bg-white border border-gray-200 shadow-lg rounded-lg z-10"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              aria-hidden="true"
-              class="h-5 w-5 text-blue-gray-500"
+            <!-- List of notifications -->
+            <el-dropdown-item
+              v-for="(notification, index) in notifications"
+              :key="index"
+              :command="index"
+              class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
             >
-              <path
-                fill-rule="evenodd"
-                d="M5.25 9a6.75 6.75 0 0113.5 0v.75c0 2.123.8 4.057 2.118 5.52a.75.75 0 01-.297 1.206c-1.544.57-3.16.99-4.831 1.243a3.75 3.75 0 11-7.48 0 24.585 24.585 0 01-4.831-1.244.75.75 0 01-.298-1.205A8.217 8.217 0 005.25 9.75V9zm4.502 8.9a2.25 2.25 0 104.496 0 25.057 25.057 0 01-4.496 0z"
-                clip-rule="evenodd"
-              ></path>
-            </svg>
-          </span>
-        </button>
+              {{ notification.message }}
+            </el-dropdown-item>
+          </el-dropdown-menu>
+        </el-dropdown>
         <!-- end button notification -->
       </div>
     </div>
   </nav>
 </template>
 <script>
-import { ElLoading } from "element-plus";
+import {
+  ElLoading,
+  ElDropdown,
+  ElDropdownMenu,
+  ElDropdownItem,
+} from "element-plus";
 import { ArrowDown } from "@element-plus/icons-vue";
 import { mapActions, mapGetters } from "vuex";
 
 export default {
   components: {
     ArrowDown,
+    ElDropdown,
+    ElDropdownMenu,
+    ElDropdownItem,
   },
   data() {
     return {
       isLoading: false,
+      isNotificationsVisible: false,
+      notifications: [
+        { message: "Notification 1: Event starting on 2024-04-01" },
+        { message: "Notification 2: Event starting on 2024-04-02" },
+        // Add more notifications here
+      ],
     };
   },
   computed: {
@@ -237,6 +253,12 @@ export default {
         console.error(error.message);
         throw error;
       }
+    },
+    showNotifications() {
+      this.isNotificationsVisible = true;
+    },
+    hideNotifications() {
+      this.isNotificationsVisible = false;
     },
   },
   mounted() {

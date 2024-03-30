@@ -15,10 +15,10 @@
               class="focus-within:border-b-gray-500 relative flex overflow-hidden border-b-2 transition"
             >
               <input
-                type="email"
-                id="login-email"
+                type="text"
+                id="login-email-or-username"
                 class="w-full flex-1 appearance-none border-gray-300 bg-white px-4 py-2 text-base text-gray-700 placeholder-gray-400 focus:outline-none"
-                placeholder="Email"
+                placeholder="Email or Username"
                 v-model="formKey.identifier"
               />
             </div>
