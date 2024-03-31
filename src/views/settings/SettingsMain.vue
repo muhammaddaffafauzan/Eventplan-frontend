@@ -165,8 +165,8 @@
       </div>
     </div>
     <div class="p-4 col-span-6 md:col-span-4">
-      <LoadingPage v-if="loading" />
-      <router-view v-else></router-view>
+      <LoadingPage v-if="loading"></LoadingPage>
+      <router-view></router-view>
     </div>
   </div>
 </template>
@@ -177,7 +177,7 @@ import LoadingPage from "../../components/LoadingPage.vue";
 export default {
   data() {
     return {
-      loading: true,
+      loading: false,
     };
   },
   components: {
@@ -205,7 +205,8 @@ export default {
     hideLoading() {
       this.loading = false;
     },
-    handleRouteLoaded() {``
+    handleRouteLoaded() {
+      ``;
       console.log("Route loaded");
     },
   },

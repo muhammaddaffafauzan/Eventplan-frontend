@@ -135,35 +135,70 @@
           </template>
         </el-dropdown>
         <!-- End Dropdown Settings -->
-        <!-- button notification -->
-        <el-dropdown
-          @mouseenter="showNotifications"
-          @mouseleave="hideNotifications"
-        >
-          <el-button
-            aria-expanded="false"
-            aria-haspopup="menu"
-            id="notifications-button"
-            type="button"
-            icon="el-icon-bell"
+        <!-- Tombol notifikasi -->
+        <div class="relative" @click="showNotificationsForMobile">
+          <button
             class="relative middle none font-sans font-medium text-center uppercase transition-all disabled:opacity-50 disabled:shadow-none disabled:pointer-events-none w-10 max-w-[40px] h-10 max-h-[40px] rounded-lg text-xs text-gray-500 hover:bg-blue-gray-500/10 active:bg-blue-gray-500/30"
-          />
-          <el-dropdown-menu
-            v-show="isNotificationsVisible"
-            class="absolute right-0 mt-2 w-48 bg-white border border-gray-200 shadow-lg rounded-lg z-10"
+            type="button"
           >
-            <!-- List of notifications -->
-            <el-dropdown-item
-              v-for="(notification, index) in notifications"
-              :key="index"
-              :command="index"
-              class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+            <span
+              class="absolute top-1/2 left-1/2 transform -translate-y-1/2 -translate-x-1/2"
             >
-              {{ notification.message }}
-            </el-dropdown-item>
-          </el-dropdown-menu>
-        </el-dropdown>
-        <!-- end button notification -->
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                aria-hidden="true"
+                class="h-5 w-5 text-blue-gray-500"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M5.25 9a6.75 6.75 0 0113.5 0v.75c0 2.123.8 4.057 2.118 5.52a.75.75 0 01-.297 1.206c-1.544.57-3.16.99-4.831 1.243a3.75 3.75 0 11-7.48 0 24.585 24.585 0 01-4.831-1.244.75.75 0 01-.298-1.205A8.217 8.217 0 005.25 9.75V9zm4.502 8.9a2.25 2.25 0 104.496 0 25.057 25.057 0 01-4.496 0z"
+                  clip-rule="evenodd"
+                ></path>
+              </svg>
+            </span>
+            <div
+              v-if="upcomingEvents.length > 0"
+              class="absolute inline-flex items-center justify-center w-5 h-5 text-xs font-semibold text-white bg-red-500 border-2 border-white rounded-full top-0.5 -end-0.5 dark:border-gray-900"
+            >
+              {{ upcomingEvents.length }}
+            </div>
+          </button>
+          <!-- Menu dropdown untuk notifikasi -->
+          <div
+            v-if="isNotificationsVisible && upcomingEvents.length"
+            class="absolute top-full left-0 md:left-auto md:right-0 md:mt-2 bg-white border border-gray-200 shadow-lg rounded-lg z-10 w-auto"
+            :class="{ 'md:left-0': isNotificationsVisible }"
+            style="min-width: 300px; max-width: 400px"
+          >
+            <div>
+              <el-empty
+                v-if="upcomingEvents.length === 0"
+                description="No upcoming events"
+              ></el-empty>
+              <div
+                v-else
+                v-for="(event, index) in upcomingEvents"
+                :key="index"
+                class="px-4 py-2 hover:bg-gray-100 cursor-pointer text-gray-500"
+                style="white-space: normal"
+                @click="goToEvent(event)"
+              >
+                <!-- Gunakan judul acara sebagai header notifikasi -->
+                <span class="font-semibold">{{ event.title }}</span>
+                <br />
+                <!-- Tambahkan baris ini untuk membuat baris baru -->
+                <span class="text-sm">{{
+                  generateNotificationMessage(event)
+                }}</span>
+                <hr class="separator" />
+                <!-- Tambahkan baris ini untuk menampilkan pesan notifikasi -->
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- End Tombol notifikasi -->
       </div>
     </div>
   </nav>
@@ -176,6 +211,7 @@ import {
   ElDropdownItem,
 } from "element-plus";
 import { ArrowDown } from "@element-plus/icons-vue";
+import { ElNotification } from "element-plus";
 import { mapActions, mapGetters } from "vuex";
 
 export default {
@@ -189,15 +225,11 @@ export default {
     return {
       isLoading: false,
       isNotificationsVisible: false,
-      notifications: [
-        { message: "Notification 1: Event starting on 2024-04-01" },
-        { message: "Notification 2: Event starting on 2024-04-02" },
-        // Add more notifications here
-      ],
     };
   },
   computed: {
     ...mapGetters("auth", ["isAuthenticated", "getMe"]),
+    ...mapGetters("eventMain", ["getMyEvent"]),
     me() {
       return this.getMe || {};
     },
@@ -209,9 +241,76 @@ export default {
         };
       });
     },
+    upcomingEvents() {
+      // Pastikan getMyEvent ada dan memiliki data
+      if (!this.getMyEvent || !Array.isArray(this.getMyEvent)) {
+        return [];
+      }
+
+      // Ambil pengaturan notifikasi dari local storage
+      const notificationSettings = JSON.parse(
+        localStorage.getItem("notificationSettings")
+      );
+
+      // Pastikan pengaturan notifikasi ada dan diaktifkan
+      if (notificationSettings && notificationSettings.enableNotifications) {
+        // Dapatkan pengaturan yang diperlukan
+        const { reminderDays } = notificationSettings;
+
+        // Dapatkan tanggal hari ini dan tambahkan reminderDays
+        const today = new Date();
+        const futureDate = new Date();
+        futureDate.setDate(today.getDate() + parseInt(reminderDays));
+
+        // Filter event berdasarkan start_date yang akan dimulai dalam reminderDays hari
+        return this.getMyEvent.filter((event) => {
+          if (event.start_date) {
+            const eventStartDate = new Date(event.start_date);
+
+            // Filter hanya acara yang dimulai sebelum atau pada tanggal hari ini
+            return eventStartDate <= today && eventStartDate <= futureDate;
+          }
+          return false;
+        });
+      }
+
+      return [];
+    },
   },
   methods: {
     ...mapActions("auth", ["fetchMe", "logout"]),
+    ...mapActions("eventMain", ["fetchMyEvents"]),
+    generateNotificationMessage(event) {
+      // Pastikan event dan properti start_date tersedia sebelum mengaksesnya
+      if (event && event.start_date) {
+        const eventStartDate = new Date(event.start_date);
+        const formattedDate = eventStartDate.toLocaleDateString("en-US", {
+          weekday: "long",
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        });
+        return `Event starting on ${formattedDate}`;
+      } else {
+        return "Event starting soon";
+      }
+    },
+    showNotification() {
+      ElNotification({
+        title: this.upcomingEvents[0].title,
+        message: `check notification`,
+        type: "info",
+        duration: 5000, // Durasi notifikasi (dalam milidetik), 0 untuk tetap terbuka
+        position: "bottom-right", // Posisi notifikasi
+      });
+    },
+    goToEvent(event) {
+      const { uuid, title } = event; // Ambil UUID dan judul dari event
+      const eventName = title.replace(/\s+/g, "-").toLowerCase(); // Buat nama acara dan konversikan ke format slug
+      this.$router.push({
+        path: `/organizer/event/${eventName}/${uuid}`, // Pindah halaman dengan path yang sesuai
+      });
+    },
     toSettings() {
       this.$router.push("/settings/personal");
     },
@@ -260,9 +359,63 @@ export default {
     hideNotifications() {
       this.isNotificationsVisible = false;
     },
+    showNotificationsForMobile() {
+      this.isNotificationsVisible = !this.isNotificationsVisible;
+    },
+    showBrowserNotification() {
+      if ("Notification" in window) {
+        // Memeriksa apakah notifikasi browser didukung oleh browser saat ini
+        if (Notification.permission === "granted") {
+          // Jika izin telah diberikan, kita bisa langsung menampilkan notifikasi
+          new Notification("Event Notification", {
+            body: `${this.upcomingEvents[0].title} You have an upcoming event!`,
+            icon: "https://i.postimg.cc/zVskvwHM/eventplan-logo.png", // Ganti dengan URL icon notifikasi Anda
+          });
+        } else if (Notification.permission !== "denied") {
+          // Jika izin belum diberikan, kita perlu meminta izin kepada pengguna
+          Notification.requestPermission().then((permission) => {
+            if (permission === "granted") {
+              // Jika izin diberikan, kita bisa langsung menampilkan notifikasi
+              new Notification("Event Notification", {
+                body: `${this.upcomingEvents[0].title} You have an upcoming event!`,
+                icon: "https://i.postimg.cc/zVskvwHM/eventplan-logo.png", // Ganti dengan URL icon notifikasi Anda
+              });
+            }
+          });
+        }
+      }
+    },
   },
   mounted() {
     this.fetchMe();
+    const notificationSettings = JSON.parse(
+      localStorage.getItem("notificationSettings")
+    );
+
+    // Pastikan pengaturan notifikasi ada dan diaktifkan
+    if (notificationSettings && notificationSettings.enableNotifications) {
+      // Dapatkan pengaturan yang diperlukan
+      const { reminderDays } = notificationSettings;
+
+      // Lakukan logika untuk menentukan kapan notifikasi harus ditampilkan
+      const today = new Date();
+      const futureDate = new Date();
+      futureDate.setDate(today.getDate() + parseInt(reminderDays));
+
+      // Filter event berdasarkan start_date yang akan dimulai dalam reminderDays hari
+      const isEventNear = this.upcomingEvents.some((event) => {
+        const eventStartDate = new Date(event.start_date);
+        return eventStartDate <= futureDate;
+      });
+
+      // Jika event dekat, tampilkan notifikasi
+      if (isEventNear) {
+        this.showNotification();
+        if (notificationSettings.allowBrowserNotifications) {
+          this.showBrowserNotification();
+        }
+      }
+    }
   },
 };
 </script>

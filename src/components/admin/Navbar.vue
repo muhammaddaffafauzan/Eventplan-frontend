@@ -63,8 +63,6 @@
 						<template #dropdown>
 						  <el-dropdown-menu>
 							<el-dropdown-item command="settings" @click="toSettings">Settings</el-dropdown-item>
-							<!-- <el-dropdown-item command="change-password">Change Password</el-dropdown-item>
-							<el-dropdown-item command="security">Security</el-dropdown-item> -->
 							<hr>
 							<el-dropdown-item command="logout" @click="confirmLogout">log out</el-dropdown-item>
 						  </el-dropdown-menu>
