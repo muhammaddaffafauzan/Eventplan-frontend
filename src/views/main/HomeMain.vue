@@ -17,12 +17,12 @@ export default {
     FooterMain,
   },
   beforeRouteEnter(to, from, next) {
-    document.title = 'EventPlan - ' + (to.meta.title || 'Teks Default');
+    document.title = "Eventplan - " + (to.meta.title || "Teks Default");
     next();
   },
 
   beforeRouteUpdate(to, from, next) {
-    document.title = 'EventPlan - ' + (to.meta.title || 'Teks Default');
+    document.title = "Eventplan - " + (to.meta.title || "Teks Default");
     next();
   },
 };

@@ -16,11 +16,11 @@
               <h2
                 class="mb-12 text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold leading-tight tracking-tight"
               >
-                Are you ready <br /><span>for an adventure</span>
+                Discover Unforgettable <br /><span>Event Experiences</span>
               </h2>
               <p class="text-base md:text-lg lg:text-xl">
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Minima
-                officia consequatur adipisci tenetur repudiandae rerum quos.
+                Dive into the world of event planning with us and discover
+                unforgettable experiences tailored to your dreams.
               </p>
 
               <button
@@ -31,7 +31,7 @@
                 ></span>
                 <span
                   class="absolute bottom-0 left-0 right-0 top-0 z-10 flex h-full w-full items-center justify-center text-sm md:text-base lg:text-lg xl:text-sm group-hover:text-gray-700 hover:font-semibold"
-                  >Find an event now</span
+                  >Find Next</span
                 >
               </button>
             </div>

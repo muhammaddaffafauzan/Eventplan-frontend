@@ -118,7 +118,7 @@ const router = createRouter({
       component: MainLayout,
       name: "MainLayout",
       meta: {
-        title: "home",
+        title: "Home",
       },
       children: [
         {
@@ -126,7 +126,7 @@ const router = createRouter({
           component: HomeMain,
           name: "HomeMain",
           meta: {
-            title: "home",
+            title: "Home",
           },
         },
       ],

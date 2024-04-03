@@ -345,6 +345,58 @@ export default {
     VueCropper,
     ElDialog,
   },
+  computed: {
+    // Mendapatkan URL gambar profil
+    ...mapGetters("settings", ["getProfile"]),
+    profileImage() {
+      if (!this.previewFile && (!this.getProfile || !this.getProfile.url)) {
+        const initials = `${this.formData.firstName.charAt(
+          0
+        )}${this.formData.lastName.charAt(0)}`;
+        return `https://ui-avatars.com/api/?name=${initials}&background=random&size=150`;
+      } else {
+        return this.previewFile
+          ? this.previewFile
+          : this.getProfile
+          ? this.getProfile.url
+          : "https://via.placeholder.com/150";
+      }
+    },
+    // Mendapatkan data pengguna saat ini
+    ...mapGetters("auth", ["getMe"]),
+    profile() {
+      return this.getMe;
+    },
+    formattedCreatedAt() {
+      if (this.getMe && this.getMe.user && this.getMe.user.createdAt) {
+        // Parse tanggal createdAt menjadi objek Date
+        const createdAt = new Date(this.getMe.user.createdAt);
+        // Buat daftar nama bulan untuk konversi
+        const monthNames = [
+          "January",
+          "February",
+          "March",
+          "April",
+          "May",
+          "June",
+          "July",
+          "August",
+          "September",
+          "October",
+          "November",
+          "December",
+        ];
+        // Ambil tanggal, nama bulan, dan tahun dari createdAt
+        const day = createdAt.getDate();
+        const monthIndex = createdAt.getMonth();
+        const year = createdAt.getFullYear();
+        // Format tanggal sesuai dengan "DD MMMM YYYY" (misal: 01 January 2024)
+        return `${day} ${monthNames[monthIndex]} ${year}`;
+      } else {
+        return "N/A"; // Tampilkan "N/A" jika data createdAt tidak tersedia
+      }
+    },
+  },
   methods: {
     ...mapActions("settings", ["createOrUpdateProfile", "deleteImageProfile"]),
     async loadDataProfile() {
@@ -444,73 +496,22 @@ export default {
       this.showModal = false;
     },
     async deletePhoto() {
-    try {
-      // Panggil action untuk menghapus foto profil
-      await this.deleteImageProfile(this.profile.id); // Sesuaikan dengan ID foto profil yang akan dihapus
+      try {
+        // Panggil action untuk menghapus foto profil
+        await this.deleteImageProfile(this.profile.id); // Sesuaikan dengan ID foto profil yang akan dihapus
 
-      // Perbarui preview foto profil
-      this.previewFile = null;
+        // Perbarui preview foto profil
+        this.previewFile = null;
 
-      // Tutup modal setelah berhasil menghapus foto
-      this.closeModal();
-    } catch (error) {
-      console.error("Error deleting photo:", error);
-      // Tangani kesalahan jika terjadi saat menghapus foto
-    }
-  },
-  },
-  computed: {
-    // Mendapatkan URL gambar profil
-    ...mapGetters("settings", ["getProfile"]),
-    profileImage() {
-      if (!this.previewFile && (!this.getProfile || !this.getProfile.url)) {
-        const initials = `${this.formData.firstName.charAt(
-          0
-        )}${this.formData.lastName.charAt(0)}`;
-        return `https://ui-avatars.com/api/?name=${initials}&background=random&size=150`;
-      } else {
-        return this.previewFile
-          ? this.previewFile
-          : this.getProfile
-          ? this.getProfile.url
-          : "https://via.placeholder.com/150";
-      }
-    },
-    // Mendapatkan data pengguna saat ini
-    ...mapGetters("auth", ["getMe"]),
-    profile() {
-      return this.getMe;
-    },
-    formattedCreatedAt() {
-      if (this.getMe && this.getMe.user && this.getMe.user.createdAt) {
-        // Parse tanggal createdAt menjadi objek Date
-        const createdAt = new Date(this.getMe.user.createdAt);
-        // Buat daftar nama bulan untuk konversi
-        const monthNames = [
-          "January",
-          "February",
-          "March",
-          "April",
-          "May",
-          "June",
-          "July",
-          "August",
-          "September",
-          "October",
-          "November",
-          "December",
-        ];
-        // Ambil tanggal, nama bulan, dan tahun dari createdAt
-        const day = createdAt.getDate();
-        const monthIndex = createdAt.getMonth();
-        const year = createdAt.getFullYear();
-        // Format tanggal sesuai dengan "DD MMMM YYYY" (misal: 01 January 2024)
-        return `${day} ${monthNames[monthIndex]} ${year}`;
-      } else {
-        return "N/A"; // Tampilkan "N/A" jika data createdAt tidak tersedia
+        // Tutup modal setelah berhasil menghapus foto
+        this.closeModal();
+      } catch (error) {
+        console.error("Error deleting photo:", error);
+        // Tangani kesalahan jika terjadi saat menghapus foto
       }
     },
   },
+
   // Mengambil dan menyimpan profil pengguna sebelum dan setelah rute diperbarui
   beforeRouteEnter(to, from, next) {
     document.title = "EventPlan - " + (to.meta.title || "Default Title");

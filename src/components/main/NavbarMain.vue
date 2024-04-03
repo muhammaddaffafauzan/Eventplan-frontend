@@ -1,3 +1,4 @@
+<!-- NavbarMain.vue -->
 <template>
   <nav
     class="bg-white dark:bg-gray-900 fixed w-full z-20 top-0 start-0 border-b border-gray-200 dark:border-gray-600"
@@ -12,7 +13,6 @@
       >
         <span class="self-center">Eventplan</span>
       </a>
-      <!-- Input search -->
       <!-- Search Input (Desktop) -->
       <div class="hidden md:flex md:relative md:flex-shrink-0">
         <div
@@ -37,65 +37,45 @@
         </div>
         <button
           type="button"
-          @click="toggleModal"
+          @click="openSearch"
           id="search-navbar"
-          class="flex items-center w-full md:w-96 h-10 p-2 pl-10 text-sm text-gray-900 border border-gray-300 rounded-full bg-gray-50 focus:ring-blue-500 focus:border-blue-500"
+          class="flex items-center justify-between w-full md:w-96 h-10 p-2 pl-10 text-sm text-gray-900 border border-gray-300 rounded-full bg-gray-50 focus:ring-blue-500 focus:border-blue-500"
         >
-          <span class="text-left flex-grow text-gray-500">search event...</span>
-        </button>
-        <!-- Modal -->
-        <div
-          v-if="isModalOpen"
-          class="main-modal fixed w-full h-full inset-0 z-50 overflow-hidden flex justify-center items-center animated fadeIn faster"
-        >
-          <div
-            class="modal-container bg-white w-full h-full mx-4 md:mx-auto rounded shadow-lg overflow-y-auto"
-          >
-            <div class="modal-content py-4 text-left px-6 h-full flex flex-col">
-              <!-- Title and Close button -->
-              <div class="flex justify-between items-center pb-3">
-                <p class="text-2xl font-bold">Search Event</p>
-                <div
-                  class="modal-close cursor-pointer z-50"
-                  @click="toggleModal"
-                >
-                  <svg
-                    class="fill-current text-black"
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="18"
-                    height="18"
-                    viewBox="0 0 18 18"
-                  >
-                    <path
-                      d="M14.53 4.53l-1.06-1.06L9 7.94 4.53 3.47 3.47 4.53 7.94 9l-4.47 4.47 1.06 1.06L9 10.06l4.47 4.47 1.06-1.06L10.06 9z"
-                    ></path>
-                  </svg>
-                </div>
-              </div>
-              <!-- Body with search form -->
-              <form>
-                <div class="my-5 flex-grow">
-                  <label for="searchInput" class="sr-only">Search Event</label>
-                  <input
-                    type="text"
-                    id="searchInput"
-                    placeholder="Search event..."
-                    class="w-full h-10 p-2 text-sm text-gray-900 border border-gray-300 rounded-full focus:ring-blue-500 focus:border-blue-500"
-                  />
-                </div>
-              </form>
+          <span class="text-left flex-grow text-gray-500">Search event...</span>
+
+          <div v-if="currentLocation" class="mr-12 flex items-center">
+            <span class="mr-1 text-xl text-gray-400">|</span>
+            <span class="mr-1">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                fill="currentColor"
+                class="bi bi-geo-alt-fill text-gray-400"
+                viewBox="0 0 16 16"
+              >
+                <path
+                  d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10m0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6"
+                />
+              </svg>
+            </span>
+            <div
+              class="text-gray-500 text-sm md:text-base font-semibold my-auto overflow-hidden whitespace-nowrap"
+              style="text-overflow: ellipsis"
+            >
+              {{ currentLocation }}
             </div>
           </div>
-        </div>
-        <!-- End Modal -->
+        </button>
       </div>
       <!-- Input search -->
       <div class="flex items-center space-x-2 md:order-2 rtl:space-x-reverse">
         <div class="flex items-center space-x-2 md:order-2 rtl:space-x-reverse">
           <div class="md:hidden block right-0">
+            <!-- button open search (mobile) -->
             <button
-              @click="toggleModal"
-              class="inline-flex items-center p-2 text-gray-500 rounded-lg hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600"
+              @click="openSearch"
+              class="inline-flex items-center p-2 text-gray-500 rounded-lg"
             >
               <svg
                 class="w-5 h-5"
@@ -113,59 +93,9 @@
                 />
               </svg>
             </button>
-            <!-- Mobile Search Modal -->
-            <transition name="fade">
-              <div
-                v-if="isModalOpen"
-                class="main-modal fixed w-full h-full inset-0 z-50 overflow-hidden flex justify-center items-center animated fadeIn faster"
-              >
-                <div
-                  class="modal-container bg-white w-full h-full mx-4 md:mx-auto rounded shadow-lg overflow-y-auto"
-                >
-                  <div
-                    class="modal-content py-4 text-left px-6 h-full flex flex-col"
-                  >
-                    <!-- Title and Close button -->
-                    <div class="flex justify-between items-center pb-3">
-                      <p class="text-2xl font-bold">Search Event</p>
-                      <div
-                        class="modal-close cursor-pointer z-50"
-                        @click="toggleModal"
-                      >
-                        <svg
-                          class="fill-current text-black"
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="18"
-                          height="18"
-                          viewBox="0 0 18 18"
-                        >
-                          <path
-                            d="M14.53 4.53l-1.06-1.06L9 7.94 4.53 3.47 3.47 4.53 7.94 9l-4.47 4.47 1.06 1.06L9 10.06l4.47 4.47 1.06-1.06L10.06 9z"
-                          ></path>
-                        </svg>
-                      </div>
-                    </div>
-                    <!-- Body with search form -->
-                    <form>
-                      <div class="my-5 flex-grow">
-                        <label for="searchInput" class="sr-only"
-                          >Search Event</label
-                        >
-                        <input
-                          type="text"
-                          id="searchInput"
-                          placeholder="Search event..."
-                          class="w-full h-10 p-2 text-sm text-gray-900 border border-gray-300 rounded-full focus:ring-blue-500 focus:border-blue-500"
-                        />
-                      </div>
-                    </form>
-                  </div>
-                </div>
-              </div>
-            </transition>
           </div>
           <!-- Component 2 -->
-          <div v-if="isAuthenticated" class="block">
+          <div v-if="isAuthenticated && userMe" class="block">
             <div class="inline relative">
               <button
                 type="button"
@@ -177,28 +107,16 @@
                 <div class="pl-1">
                   <span
                     class="text-sm text-gray-800 truncate dark:text-gray-400 hidden w-full md:flex md:w-auto md:order-1"
-                    >{{ userMe?.email }}</span
+                    >{{ userMe?.user?.email }}</span
                   >
                 </div>
                 <span class="sr-only">Open user menu</span>
                 <div class="block flex-grow-0 flex-shrink-0 h-10 w-12 pl-3">
-                  <svg
-                    viewBox="0 0 32 32"
-                    xmlns="http://www.w3.org/2000/svg"
-                    aria-hidden="true"
-                    role="presentation"
-                    focusable="false"
-                    style="
-                      display: block;
-                      height: 100%;
-                      width: 100%;
-                      fill: rgb(97, 97, 97);
-                    "
-                  >
-                    <path
-                      d="m16 .7c-8.437 0-15.3 6.863-15.3 15.3s6.863 15.3 15.3 15.3 15.3-6.863 15.3-15.3-6.863-15.3-15.3-15.3zm0 28c-4.021 0-7.605-1.884-9.933-4.81a12.425 12.425 0 0 1 6.451-4.4 6.507 6.507 0 0 1 -3.018-5.49c0-3.584 2.916-6.5 6.5-6.5s6.5 2.916 6.5 6.5a6.513 6.513 0 0 1 -3.019 5.491 12.42 12.42 0 0 1 6.452 4.4c-2.328 2.925-5.912 4.809-9.933 4.809z"
-                    ></path>
-                  </svg>
+                  <el-avatar
+                    class="mr-2 sm:mr-3 md:mr-4 w-10 h-10"
+                    :src="profileImage"
+                    :round="true"
+                  ></el-avatar>
                 </div>
               </button>
             </div>
@@ -227,10 +145,10 @@
           <div class="px-4 py-3">
             <span
               class="text-sm text-gray-800 truncate dark:text-gray-400 md:hidden md:w-auto md:order-1"
-              >{{ userMe?.email }}</span
+              >{{ userMe?.user?.email }}</span
             >
             <span class="block text-sm text-gray-900 dark:text-white">{{
-              userMe?.username
+              userMe?.user?.username
             }}</span>
           </div>
           <ul class="py-2" aria-labelledby="dropdownHoverButton">
@@ -264,6 +182,7 @@
           </div>
         </div>
       </div>
+      <!-- end input search -->
       <div
         class="items-center justify-between w-full md:flex md:w-auto md:order-1"
       >
@@ -326,16 +245,130 @@
       </div>
     </div>
   </nav>
+  <!-- search component -->
+  <transition
+    enter-active-class="animate-slideInDown"
+    leave-active-class="animate-slideOutUp"
+  >
+    <div
+      v-show="isSearchOpen"
+      class="search-modal fixed inset-0 z-50 flex items-start justify-start bg-gray-100 p-4"
+    >
+      <!-- Kolom Pencarian -->
+      <div class="flex-1 mr-4 flex flex-col items-center">
+        <!-- Search Input -->
+        <div class="relative w-full mb-4">
+          <input
+            type="text"
+            placeholder="Search event..."
+            class="w-full border-b border-gray-300 focus:outline-none focus:border-blue-500"
+          />
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-6 w-6 absolute right-3 bottom-0 text-gray-400"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M21 21l-6-6m-2-3a7 7 0 1 1 0-14 7 7 0 0 1 0 14z"
+            />
+          </svg>
+        </div>
+        <!-- Location Icon -->
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          fill="currentColor"
+          class="bi bi-geo-alt-fill text-gray-400 h-12 w-12 ml-4"
+          viewBox="0 0 16 16"
+        >
+          <path
+            d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10m0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6"
+          />
+        </svg>
+        <!-- Current Location -->
+        <div
+          class="text-gray-500 text-sm md:text-base font-semibold ml-2 overflow-hidden whitespace-nowrap"
+        >
+          {{ currentLocation }}
+        </div>
+
+        <!-- Recent Searches -->
+        <h2 class="text-xl font-semibold mt-4 mb-2">Recent Searches</h2>
+        <div class="overflow-y-auto">
+          <!-- Tampilkan riwayat pencarian -->
+          <div v-for="(search, index) in recentSearches" :key="index">
+            {{ search }}
+          </div>
+        </div>
+      </div>
+      <!-- Kolom Kartu Kosong -->
+      <div class="flex-1">kosong</div>
+
+      <!-- Close Button -->
+      <button
+        @click="closeSearch"
+        class="text-gray-800 hover:text-gray-600 focus:outline-none mt-4"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-6 w-6"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M6 18L18 6M6 6l12 12"
+          />
+        </svg>
+      </button>
+    </div>
+  </transition>
+  <!-- end search component -->
 </template>
 <script>
 import { ElMessage, ElMessageBox } from "element-plus";
 import { mapActions, mapGetters } from "vuex";
 
 export default {
+  data() {
+    return {
+      photoProfile: null,
+      currentLocation: "",
+      isSearchOpen: false,
+      maxRecentSearches: 5,
+    };
+  },
   computed: {
     ...mapGetters("auth", ["isAuthenticated", "getMe"]),
+    profileImage() {
+      const user = this.getMe;
+      const profileUrl = this.getMe?.profile?.url;
+
+      // Check if profile picture is available
+      if (!profileUrl) {
+        if (user && user?.profile?.firstName && user?.profile?.lastName) {
+          // Construct URL using full name
+          return `https://ui-avatars.com/api/?name=${user?.profile?.firstName}+${user?.profile?.lastName}&background=random&size=150`;
+        } else {
+          // If no full name, return placeholder image URL
+          return "https://via.placeholder.com/150";
+        }
+      } else {
+        // If profile picture available, use profile picture URL
+        return profileUrl;
+      }
+    },
     userMe() {
-      return this.getMe?.user;
+      return this.getMe;
     },
   },
   methods: {
@@ -370,55 +403,85 @@ export default {
         }
       });
     },
-    toggleModal() {
-      this.isModalOpen = !this.isModalOpen;
+    openSearch() {
+      this.isSearchOpen = true;
     },
-    performSearch() {
-      // Handle search logic here
-      console.log("Performing search:", this.searchQuery);
+    // Method to close search
+    closeSearch() {
+      this.isSearchOpen = false;
+    },
+    handleClickOutside(event) {
+      const dropdown = document.getElementById("dropdownHover");
+      const button = document.getElementById("dropdownHoverButton");
+      if (!dropdown.contains(event.target) && !button.contains(event.target)) {
+        this.isModalOpen = false;
+      }
+    },
+    async fetchCurrentLocation() {
+      try {
+        // Lakukan permintaan ke API Nominatim untuk mendapatkan informasi lokasi berdasarkan koordinat GPS
+        const position = await new Promise((resolve, reject) => {
+          navigator.geolocation.getCurrentPosition(resolve, reject);
+        });
 
-      // Close modal after search
-      this.isModalOpen = false;
+        // Dapatkan informasi lokasi menggunakan Nominatim API
+        const { latitude, longitude } = position.coords;
+        const response = await fetch(
+          `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json&addressdetails=1`
+        );
+        const data = await response.json();
+
+        // Ambil nama kota atau kabupaten dari respons API
+        const city =
+          data.address.city ||
+          data.address.county || // Perubahan disini, menggunakan data kabupaten sebagai alternatif jika nama kota tidak tersedia
+          data.address.town ||
+          data.address.village ||
+          data.address.hamlet;
+
+        // Simpan nama kota atau kabupaten dalam variabel currentLocation
+        this.currentLocation = city || "Unknown"; // Jika nama kota tidak tersedia, gunakan "Unknown"
+      } catch (error) {
+        console.error("Gagal mendapatkan lokasi:", error);
+        // Tangani kesalahan jika gagal mendapatkan lokasi
+      }
+    },
+    saveSearch(searchTerm) {
+      // Cek apakah localStorage sudah terisi dengan riwayat pencarian sebelumnya
+      let searches = localStorage.getItem("recentSearches");
+      if (!searches) {
+        searches = [];
+      } else {
+        searches = JSON.parse(searches);
+      }
+
+      // Tambahkan pencarian baru ke dalam array riwayat pencarian
+      searches.unshift(searchTerm);
+
+      // Batasi jumlah riwayat pencarian yang disimpan
+      if (searches.length > this.maxRecentSearches) {
+        searches = searches.slice(0, this.maxRecentSearches);
+      }
+
+      // Simpan array riwayat pencarian kembali ke dalam localStorage
+      localStorage.setItem("recentSearches", JSON.stringify(searches));
+
+      // Perbarui data riwayat pencarian yang ditampilkan di komponen
+      this.recentSearches = searches;
     },
   },
   mounted() {
     this.fetchMe();
+    const profileData = this.getMe;
+    this.photoProfile = profileData?.profile?.url;
+    document.addEventListener("click", this.handleClickOutside);
+    this.fetchCurrentLocation();
+  },
+  beforeUnmount() {
+    // Clean up event listener when component is unmounted
+    document.removeEventListener("click", this.handleClickOutside);
   },
 };
-</script>
-<script setup>
-document.addEventListener("DOMContentLoaded", function () {
-  var dropdownHover = document.getElementById("dropdownHover");
-  var dropdownHoverButton = document.getElementById("dropdownHoverButton");
-
-  function toggleDropdown() {
-    dropdownHover.classList.toggle("hidden");
-  }
-
-  // Toggle dropdown on button click
-  dropdownHoverButton.addEventListener("click", toggleDropdown);
-
-  // Close dropdown when clicking outside
-  document.addEventListener("click", function (event) {
-    if (
-      !dropdownHover.contains(event.target) &&
-      !dropdownHoverButton.contains(event.target)
-    ) {
-      dropdownHover.classList.add("hidden");
-    }
-  });
-
-  // Toggle dropdown on window resize
-  window.addEventListener("resize", function () {
-    // Check if the window width is greater than or equal to 768px and not a touch device
-    if (
-      window.innerWidth >= 768 &&
-      !("ontouchstart" in window || navigator.maxTouchPoints)
-    ) {
-      dropdownHover.classList.add("hidden");
-    }
-  });
-});
 </script>
 <style scoped>
 @media (max-width: 800px) {
@@ -427,45 +490,29 @@ document.addEventListener("DOMContentLoaded", function () {
     display: none;
   }
 }
-.animated {
-  -webkit-animation-duration: 1s;
-  animation-duration: 1s;
-  -webkit-animation-fill-mode: both;
-  animation-fill-mode: both;
-}
-
-.animated.faster {
-  -webkit-animation-duration: 500ms;
-  animation-duration: 500ms;
-}
-
-.fadeIn {
-  -webkit-animation-name: fadeIn;
-  animation-name: fadeIn;
-}
-
-.fadeOut {
-  -webkit-animation-name: fadeOut;
-  animation-name: fadeOut;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
+@keyframes slideInDown {
+  0% {
+    transform: translateY(-100%);
   }
-
-  to {
-    opacity: 2;
+  100% {
+    transform: translateY(0);
   }
 }
 
-@keyframes fadeOut {
-  from {
-    opacity: 3;
+@keyframes slideOutUp {
+  0% {
+    transform: translateY(0);
   }
+  100% {
+    transform: translateY(-100%);
+  }
+}
 
-  to {
-    opacity: 0;
-  }
+.animate-slideInDown {
+  animation: slideInDown 1s;
+}
+
+.animate-slideOutUp {
+  animation: slideOutUp 1s;
 }
 </style>
