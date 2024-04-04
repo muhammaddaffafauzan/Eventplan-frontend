@@ -4,7 +4,7 @@
     <!-- Section: Design Block -->
     <section class="background-radial-gradient mb-8 text-center lg:text-left">
       <div
-        class="relative overflow-hidden bg-cover bg-no-repeat bg-[50%] bg-[url('https://mdbcdn.b-cdn.net/img/new/standard/nature/071.jpg')] h-[400px]"
+        class="relative overflow-hidden bg-cover bg-no-repeat bg-[50%] bg-[url('https://i.postimg.cc/76FfWS7n/banner-eventplan.jpg')] h-[400px]"
       >
         <div
           class="absolute top-0 right-0 bottom-0 left-0 h-full w-full overflow-hidden bg-[hsla(0,0%,0%,0.75)] bg-fixed"

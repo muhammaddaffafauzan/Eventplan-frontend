@@ -22,6 +22,8 @@ import MyEvent from "../views/user/MyEvent.vue";
 import CreateEvent from "../views/user/CreateEvent.vue";
 import EventDetailUser from "../views/user/EventDetailUser.vue";
 import EditEventUser from "../views/user/EditEventUser.vue";
+import EventMoreMain from "../views/main/EventMoreMain.vue";
+import EventDetailMain from "../views/main/EventDetailMain.vue";
 import store from "../store";
 
 const router = createRouter({
@@ -127,6 +129,14 @@ const router = createRouter({
           name: "HomeMain",
           meta: {
             title: "Home",
+          },
+        },
+        {
+          path: "/event/:eventName/:uuid",
+          component: EventDetailMain,
+          name: "EventDetailMain",
+          meta: {
+            title: "Event",
           },
         },
       ],

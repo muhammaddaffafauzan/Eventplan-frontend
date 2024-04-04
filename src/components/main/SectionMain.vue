@@ -29,7 +29,7 @@
       <input
         v-model="searchQuery"
         @input="searchLocations"
-        class="mt-2 px-4 py-2 focus:outline-none focus:ring focus:border-blue-300 ml-2 rounded-full placeholder:text-xs border-none border-b-2 border-blue-500"
+        class="mt-2 px-4 py-2 placeholder:text-xs border-none focus:border-none focus:ring-0 border-b border-blue-500"
         type="text"
         :placeholder="
           currentLocation
@@ -37,6 +37,7 @@
             : 'Search locations...'
         "
       />
+
       <!-- dropdown results -->
       <div
         id="dropdown"
@@ -82,7 +83,7 @@
             <span>Use Location</span>
           </li>
           <li
-            @click="filterByTypeLocation('Online')"
+            @click="filterByTypeLocation('online')"
             class="py-2 px-4 cursor-pointer hover:bg-gray-100"
           >
             Online
@@ -113,11 +114,32 @@
       class="cards-event min-h-full overflow-x-hidden mt-8 container mx-auto pb-10"
     >
       <div class="text-left mb-8 mx-7">
-        <h2 class="text-2xl font-bold text-gray-800 dark:text-white">
+        <h2
+          v-if="searchQuery === 'online' || selectedCategory === 3"
+          class="text-2xl font-bold text-gray-800 dark:text-white"
+        >
+          Events Online
+        </h2>
+        <h2
+          v-else-if="currentLocation.length === 0"
+          class="text-2xl font-bold text-gray-800 dark:text-white"
+        >
           Events in {{ currentLocation }}
         </h2>
+        <h2
+          v-else-if="selectedCategory === 2"
+          class="text-2xl font-bold text-gray-800 dark:text-white"
+        >
+          Events Popular
+        </h2>
+        <h2 v-else class="text-2xl font-bold text-gray-800 dark:text-white">
+          Events in {{ searchQuery }}
+        </h2>
       </div>
-      <div v-if="isLoading" class="text-center">
+      <div
+        v-if="this.$store.getters['eventMain/isLoading']"
+        class="text-center"
+      >
         <!-- Skeleton loading -->
         <div
           class="md:px-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 space-y-4 md:space-y-0"
@@ -148,144 +170,119 @@
         class="md:px-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 space-y-4 md:space-y-0"
       >
         <!-- card event 1 -->
-<div
-  v-for="(event, index) in displayedEvents"
-  :key="event.uuid"
-  class="w-full bg-white px-6 pt-6 pb-2 rounded-xl shadow-lg"
->
-          <div class="relative">
+        <div
+          v-for="(event, index) in displayedEvents"
+          :key="event.uuid"
+          class="w-full bg-white px-6 pt-6 pb-2 rounded-xl shadow-lg"
+        >
+          <div class="relative group">
             <img
-              class="w-full h-48 object-cover rounded-xl"
+              class="w-full h-40 object-cover rounded-lg cursor-pointer"
               :src="event.url"
               alt="Event Image"
+              @click="toDetailEvent(event)"
             />
             <p
-              class="absolute top-0 bg-blue-300 text-gray-800 font-semibold py-1 px-3 rounded-br-lg rounded-tl-lg"
+              class="absolute top-0 bg-blue-300 group-hover:text-gray-800 text-gray-800 font-semibold py-1 px-3 rounded-br-lg rounded-tl-lg"
             >
               {{ event.price === 0 ? "Free" : "Paid" }}
             </p>
-          </div>
-          <p
-            class="text-left mt-4 text-gray-800 text-2xl font-bold cursor-pointer"
-          >
-            {{
-              event.title.length > 25
-                ? event.title.substring(0, 25) + "..."
-                : event.title
-            }}
-          </p>
-          <div class="my-4">
-            <div class="flex space-x-1 items-center">
-              <span>
-                <svg
-                  class="w-6 h-6 text-blue-700 dark:text-white"
-                  aria-hidden="true"
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke="currentColor"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M4 10h16m-8-3V4M7 7V4m10 3V4M5 20h14a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1Zm3-7h.01v.01H8V13Zm4 0h.01v.01H12V13Zm4 0h.01v.01H16V13Zm-8 4h.01v.01H8V17Zm4 0h.01v.01H12V17Zm4 0h.01v.01H16V17Z"
-                  />
-                </svg>
-              </span>
-              <!-- Format tanggal dan waktu -->
-              <p>
-                {{
-                  new Date(event.start_date).toLocaleDateString("en-US", {
-                    month: "long",
-                    day: "numeric",
-                    year: "numeric",
-                  })
-                }}
-                •
-                <!-- Gunakan modulus untuk mendapatkan format waktu AM/PM -->
-                {{
-                  " " +
-                  (event.start_time
-                    ? new Date("1970-01-01T" + event.start_time)
-                        .toLocaleTimeString("en-US", {
-                          hour: "numeric",
-                          minute: "numeric",
-                        })
-                        .replace(/^(\d{1}):/, "0$1:") +
-                      (parseInt(event.start_time.split(":")[0]) >= 12
-                        ? " PM"
-                        : " AM")
-                    : "Invalid Time")
-                }}
-              </p>
-            </div>
-            <div
-              v-if="event.type_location === 'location'"
-              class="flex space-x-1 items-center"
-            >
-              <span>
+            <div class="hidden group-hover:block">
+              <span
+                class="flex absolute z-20 hover:border hover:transition-all hover:scale-125 hover:border-gray-400 bottom-0 right-0 mb-2 mr-2 bg-gray-100 rounded-full w-8 h-8 font-semibold text-gray-700 items-center justify-center"
+              >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  width="20"
-                  height="20"
+                  width="16"
+                  height="16"
                   fill="currentColor"
-                  class="bi bi-geo-alt text-blue-700"
+                  class="bi bi-heart text-gray-800 font-bold"
                   viewBox="0 0 16 16"
                 >
                   <path
-                    d="M12.166 8.94c-.524 1.062-1.234 2.12-1.96 3.07A32 32 0 0 1 8 14.58a32 32 0 0 1-2.206-2.57c-.726-.95-1.436-2.008-1.96-3.07C3.304 7.867 3 6.862 3 6a5 5 0 0 1 10 0c0 .862-.305 1.867-.834 2.94M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10"
-                  />
-                  <path
-                    d="M8 8a2 2 0 1 1 0-4 2 2 0 0 1 0 4m0 1a3 3 0 1 0 0-6 3 3 0 0 0 0 6m-5.784 6A2.24 2.24 0 0 1 5 13c0-1.355.68-2.75 1.936-3.72A6.3 6.3 0 0 0 5 9c-4 0-5 3-5 4s1 1 1 1zM4.5 8a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5"
+                    d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"
                   />
                 </svg>
               </span>
-              <p>
+            </div>
+          </div>
+          <p class="text-left mt-4 text-gray-800 text-lg font-semibold">
+            {{
+              event?.title?.length > 25
+                ? event?.title.substring(0, 25) + "..."
+                : event?.title
+            }}
+          </p>
+          <div class="flex space-x-1 items-center pb-1">
+            <!-- Format tanggal dan waktu -->
+            <p class="text-sm sm:text-xs font-semibold text-gray-800">
+              {{
+                new Date(event.start_date).toLocaleDateString("en-US", {
+                  month: "long",
+                  day: "numeric",
+                  year: "numeric",
+                })
+              }}
+              •
+              <!-- Gunakan modulus untuk mendapatkan format waktu AM/PM -->
+              {{
+                " " +
+                (event.start_time
+                  ? new Date("1970-01-01T" + event.start_time)
+                      .toLocaleTimeString("en-US", {
+                        hour: "numeric",
+                        minute: "numeric",
+                      })
+                      .replace(/^(\d{1}):/, "0$1:") +
+                    (parseInt(event.start_time.split(":")[0]) >= 12 ? "" : "")
+                  : "Invalid Time")
+              }}
+            </p>
+          </div>
+          <div class="my-1">
+            <div
+              v-if="event.type_location === 'location'"
+              class="flex space-x-1 items-center text-sm text-gray-700"
+            >
+              <p class="font-semibold">
                 {{
-                  event.event_locations[0]?.city.length > 15
-                    ? event.event_locations[0]?.city.substring(0, 15) + "..."
-                    : event.event_locations[0]?.city
-                }},
-                {{ event.event_locations[0]?.state }}
+                  event.event_locations[0]?.address.length > 15
+                    ? event.event_locations[0]?.address.substring(0, 15) + "..."
+                    : event.event_locations[0]?.address
+                }}
               </p>
             </div>
             <div
               v-else-if="event.type_location === 'Online'"
-              class="flex space-x-1 items-center"
+              class="flex space-x-1 items-center pb-1 text-gray-700"
             >
-              <span>
-                <svg
-                  class="w-6 h-6 text-green-600 dark:text-white"
-                  aria-hidden="true"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-                  />
-                </svg>
-              </span>
-              <p>{{ event.type_location }}</p>
+              <p class="font-semibold">{{ event.type_location }}</p>
             </div>
-            <div v-else class="flex space-x-1 items-center">
-              <p>{{ event.type_location }}</p>
+            <div v-else class="flex space-x-1 items-center text-gray-700">
+              <p class="font-semibold">{{ event.type_location }}</p>
             </div>
-            <div class="flex space-x-1 items-center">
-              <img
-                class="w-8 h-8 rounded-full"
-                :src="event.user?.Profiles.url"
-                alt="Profile Avatar"
-              />
-              <p>{{ event.organizer }}</p>
+            <div class="flex items-center text-gray-700 text-sm">
+              <p class="font-semibold flex items-center">
+                {{ event.organizer }}
+              </p>
             </div>
+            <span
+              class="ml-auto text-xs font-semibold text-gray-700 flex items-center"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                fill="currentColor"
+                class="bi bi-person"
+                viewBox="0 0 16 16"
+              >
+                <path
+                  d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6m2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0m4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4m-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10s-3.516.68-4.168 1.332c-.678.678-.83 1.418-.832 1.664z"
+                />
+              </svg>
+              <span class="ml-1">1.1k Followers</span>
+            </span>
           </div>
         </div>
       </div>
@@ -378,9 +375,11 @@ export default {
       showFilterOptions: false,
       displayedEvents: [],
       selectedCategory: 1,
+      recentSearches: [],
       categories: [
         { id: 1, name: "All" },
         { id: 2, name: "Popular" },
+        { id: 3, name: "Online" },
       ],
       organizers: [
         {
@@ -418,7 +417,7 @@ export default {
     };
   },
   computed: {
-    ...mapGetters("eventMain", ["getEventMain", "isLoading"]),
+    ...mapGetters("eventMain", ["getEventMain"]),
     ...mapGetters("auth", ["isAuthenticated"]),
     events() {
       return this.getEventMain;
@@ -431,18 +430,19 @@ export default {
   },
   methods: {
     ...mapActions("eventMain", ["fetchEventMain"]),
+    toDetailEvent(event) {
+      const uuid = event.uuid;
+      const eventName = event.title.replace(/\s+/g, "-").toLowerCase();
+      this.$router.push({
+        path: `/event/${eventName}/${uuid}`,
+      });
+    },
     searchEvents() {
       this.showResults = this.searchQuery.length > 0;
       if (this.searchQuery.trim() !== "") {
-        if (this.useDefaultLocation) {
-          this.searchResults = [{ id: 1, name: this.defaultLocation }];
-        } else {
-          const filteredResults = this.searchResults.filter((result) =>
-            result.name.toLowerCase().includes(this.searchQuery.toLowerCase())
-          );
-          this.searchResults = filteredResults;
-        }
+        this.searchLocations(); // Panggil metode searchLocations untuk mendapatkan hasil pencarian lokasi
       } else {
+        this.searchResults = []; // Kosongkan hasil pencarian jika input pengguna kosong
       }
     },
     searchLocations() {
@@ -545,66 +545,75 @@ export default {
       }
     },
     async updateDisplayedEvents() {
-      this.isLoading = true; // Set isLoading to true when preparing events
+      this.$store.getters["eventMain/isLoading"];
 
-      let filteredEvents = this.events; // Gunakan data event dari Vuex state
+      let filteredEvents = this.events;
 
-      // Filter events based on search query
-      filteredEvents = filteredEvents.filter((event) => {
-        // Pengecekan apakah event.event_locations[0] dan propertinya ada sebelum mengakses city
-        return event.event_locations[0]?.city
-          .toLowerCase()
-          .includes(this.searchQuery.toLowerCase());
-      });
-
-      // Jika tidak ada event di lokasi tersebut, tampilkan semua event
-      if (filteredEvents.length === 0) {
-        filteredEvents = this.events;
+      // Filter berdasarkan kota (lokasi)
+      if (
+        this.selectedCategory === 1 &&
+        this.searchQuery &&
+        this.searchQuery.toLowerCase() !== "online"
+      ) {
+        filteredEvents = filteredEvents.filter((event) => {
+          return event.event_locations[0]?.city
+            .toLowerCase()
+            .includes(this.searchQuery.toLowerCase());
+        });
       }
 
-      // Filter events based on type_location if filter is applied
-      if (this.searchQuery && this.searchQuery.toLowerCase() === "online") {
-        filteredEvents = this.events.filter(
+      // Sortir berdasarkan jumlah tampilan untuk kategori "For you" (id: 2)
+      if (this.selectedCategory === 2) {
+        filteredEvents.sort((a, b) => b.views - a.views);
+      }
+
+      // Filter events berdasarkan type_location: "online" untuk kategori "Online" (id: 3)
+      if (this.selectedCategory === 3) {
+        filteredEvents = filteredEvents.filter(
           (event) => event.type_location.toLowerCase() === "online"
         );
       }
 
-      if (this.selectedCategory === 2) {
-        // Sort events based on views in descending order
-        filteredEvents.sort((a, b) => {
-          return b.views - a.views;
-        });
+      // Jika tidak ada hasil setelah filter, tampilkan "No events found"
+      if (filteredEvents.length === 0) {
+        this.displayedEvents = [];
+        return;
       }
 
-      // Update displayed events with the filtered results
-      this.displayedEvents = filteredEvents.slice(0, 6); // Limit to 2 rows and 3 columns
+      let allEvents = filteredEvents.slice(); // Salin semua event yang sudah difilter
 
-      this.isLoading = false; // Set isLoading to false after preparing events
+      // Tampilkan enam event pertama
+      this.displayedEvents = allEvents.slice(0, 6);
+
+      this.$store.getters["eventMain/isLoading"];
     },
+
     filterByLocation() {
       // Filter berdasarkan lokasi
       this.searchQuery = this.currentLocation;
-      this.showFilterOptions = false; // Sembunyikan dropdown hasil pencarian
-      // Anda juga dapat menambahkan logika lain yang diperlukan setelah melakukan filter berdasarkan lokasi
+      this.showFilterOptions = false;
+      this.selectedCategory = 1;
+      this.updateDisplayedEvents();
     },
     filterByTypeLocation(typeLocation) {
       // Lakukan filter berdasarkan type_location
       this.searchQuery = typeLocation;
+      this.selectedCategory = 3;
       this.showFilterOptions = false;
     },
   },
   watch: {
-    searchQuery() {
-      this.updateDisplayedEvents(); // Update displayed events when search query changes
+    searchQuery(newValue, oldValue) {
+      this.updateDisplayedEvents();
     },
   },
   mounted() {
     this.searchQuery = this.currentLocation;
     this.menuCategory();
 
-    this.isLoading = true;
+    this.$store.getters["eventMain/isLoading"];
     this.fetchEventMain().then(() => {
-      this.isLoading = false;
+      this.$store.getters["eventMain/isLoading"];
     });
 
     this.fetchCurrentLocation();

@@ -36,6 +36,28 @@ const eventMain = {
         return false;
       }
     },
+    async fetchEventMainByUuid({ commit }, uuid) {
+      try {
+        commit("SET_LOADING", true);
+
+        const response = await axios.get(`/event/${uuid}`);
+
+        commit("SET_EVENT_MAIN", [response.data]); // Simpan detail acara ke dalam state eventMain
+        commit("SET_LOADING", false);
+
+        return response.data;
+      } catch (error) {
+        ElMessage({
+          type: "error",
+          message:
+            "Failed to load event details: " +
+            (error.response.data.msg ||
+              "An error occurred while loading the event details. Please try again."),
+        });
+        commit("SET_LOADING", false);
+        return false;
+      }
+    },
     async fetchMyEvents({ commit, state }) {
       try {
         commit("SET_LOADING", true);
@@ -71,7 +93,7 @@ const eventMain = {
           },
         });
 
-        commit("SET_EVENT_MAIN", [response.data]); // Simpan detail acara ke dalam state eventMain
+        commit("SET_MY_EVENT", [response.data]); // Simpan detail acara ke dalam state eventMain
         commit("SET_LOADING", false);
 
         return response.data;
@@ -156,4 +178,4 @@ const eventMain = {
     },
   },
 };
-export default eventMain; 
+export default eventMain;

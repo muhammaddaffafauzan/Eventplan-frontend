@@ -437,82 +437,98 @@ export default {
   methods: {
     ...mapActions("categories", ["fetchCategories"]),
     ...mapActions("eventMain", ["updateEvent"]),
-    async loadEventData(uuid) {
-      try {
-        // Panggil API untuk mendapatkan detail event berdasarkan UUID
-        const token = localStorage.getItem("token");
-        const response = await axios.get(`/event/user/${uuid}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        const eventData = response.data;
+async loadEventData(uuid) {
+  try {
+    // Panggil API untuk mendapatkan detail event berdasarkan UUID
+    const token = localStorage.getItem("token");
+    const response = await axios.get(`/event/user/${uuid}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    const eventData = response.data;
 
-        const categories = this.getCategories;
+    const categories = this.getCategories;
 
-        // Temukan ID kategori yang sesuai dengan nama kategori dari data event
-        let categoryId = null;
-        if (categories && categories.length > 0) {
-          const category = categories.find(
-            (category) => category.category === eventData.category
-          );
-          if (category) {
-            categoryId = category.id;
-          } else {
-            console.error("Category not found for event:", eventData.title);
-          }
-        } else {
-          console.error("No categories available.");
-        }
-        // Isi formulir dengan data event yang dimuat
-        this.eventForm = {
-          title: eventData.title,
-          categoryId: categoryId,
-          price: eventData.price.toString(),
-          start_date: eventData.start_date,
-          end_date: eventData.end_date,
-          start_time: eventData.start_time,
-          end_time: eventData.end_time,
-          type_location: eventData.type_location,
-          technical: eventData.technical,
-          description: eventData.description,
-          language: eventData.language,
-          tags: JSON.parse(eventData.tags),
-        };
-
-        this.filePreview = eventData.url;
-
-        this.originalFilePreview = eventData.url;
-
-        this.location = {
-          city: eventData.event_locations[0].city,
-          state: eventData.event_locations[0].state,
-          country: eventData.event_locations[0].country,
-          address: eventData.event_locations[0].address,
-          lat: eventData.event_locations[0].lat,
-          long: eventData.event_locations[0].long,
-        };
-
-        // Set marker position based on event location
-        this.setLocationMarker(
-          eventData.event_locations[0].lat,
-          eventData.event_locations[0].long
-        );
-
-        // Atur konten Quill Editor
-        this.quillContent = eventData.description;
-
-        this.eventId = uuid;
-      } catch (error) {
-        ElMessage({
-          type: "error",
-          message:
-            "Failed to load event details: " +
-            (error.response.data.msg ||
-              "An error occurred while loading the event details. Please try again."),
-        });
+    // Temukan ID kategori yang sesuai dengan nama kategori dari data event
+    let categoryId = null;
+    if (categories && categories.length > 0) {
+      const category = categories.find(
+        (category) => category.category === eventData.category
+      );
+      if (category) {
+        categoryId = category.id;
+      } else {
+        console.error("Category not found for event:", eventData.title);
       }
-    },
+    } else {
+      console.error("No categories available.");
+    }
+
+    // Isi formulir dengan data event yang dimuat
+    this.eventForm = {
+      title: eventData.title,
+      categoryId: categoryId,
+      price: eventData.price.toString(),
+      customPrice: eventData.price !== null ? eventData.price : null,
+      start_date: eventData.start_date,
+      end_date: eventData.end_date,
+      start_time: eventData.start_time,
+      end_time: eventData.end_time,
+      type_location: eventData.type_location,
+      technical: eventData.technical,
+      description: eventData.description,
+      language: eventData.language,
+      tags: JSON.parse(eventData.tags),
+    };
+
+    this.filePreview = eventData.url;
+    this.originalFilePreview = eventData.url;
+
+    this.location = {
+      city: eventData.event_locations[0].city,
+      state: eventData.event_locations[0].state,
+      country: eventData.event_locations[0].country,
+      address: eventData.event_locations[0].address,
+      lat: eventData.event_locations[0].lat,
+      long: eventData.event_locations[0].long,
+    };
+
+    // Set marker position based on event location
+    this.setLocationMarker(
+      eventData.event_locations[0].lat,
+      eventData.event_locations[0].long
+    );
+
+    // Menyesuaikan nilai radio group berdasarkan harga event
+if (eventData.price !== null && parseFloat(eventData.price) > 0) {
+  this.eventForm.price = "1"; // Set radio group ke "Paid"
+} else {
+  this.eventForm.price = "0"; // Set radio group ke "Free"
+}
+
+// Jika event memiliki harga lebih dari 0, atur customPrice
+if (parseFloat(eventData.price) > 0) {
+  this.eventForm.customPrice = parseFloat(eventData.price);
+} else {
+  this.eventForm.customPrice = null;
+}
+
+    // Atur konten Quill Editor
+    this.quillContent = eventData.description;
+
+    this.eventId = uuid;
+  } catch (error) {
+    ElMessage({
+      type: "error",
+      message:
+        "Failed to load event details: " +
+        (error.response.data.msg ||
+          "An error occurred while loading the event details. Please try again."),
+    });
+  }
+},
+
     async fetchLanguages() {
       try {
         this.isLanguagesLoading = true;

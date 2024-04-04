@@ -1,7 +1,19 @@
 <!-- NavbarMain.vue -->
 <template>
   <nav
-    class="bg-white dark:bg-gray-900 fixed w-full z-20 top-0 start-0 border-b border-gray-200 dark:border-gray-600"
+    :class="{
+      absolute: isEventRoute,
+      fixed: !isEventRoute,
+      'bg-white': !isEventRoute,
+      'dark:bg-gray-900': !isEventRoute,
+      'w-full': true,
+      'z-20': true,
+      'top-0': true,
+      'start-0': true,
+      'border-b': false,
+      'border-gray-100': !isEventRoute,
+      'dark:border-gray-600': !isEventRoute,
+    }"
   >
     <div
       class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-2"
@@ -349,6 +361,10 @@ export default {
   },
   computed: {
     ...mapGetters("auth", ["isAuthenticated", "getMe"]),
+    isEventRoute() {
+      // Periksa apakah rutenya adalah /event/:eventName/:uuid
+      return this.$route.path.startsWith("/event/");
+    },
     profileImage() {
       const user = this.getMe;
       const profileUrl = this.getMe?.profile?.url;
