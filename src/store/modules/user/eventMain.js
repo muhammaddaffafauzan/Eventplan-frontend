@@ -6,11 +6,13 @@ const eventMain = {
   state: {
     event: [],
     myEvent: [],
+    randomEvent: [],
     isLoading: false,
   },
   getters: {
     getEventMain: (state) => state.event,
     getMyEvent: (state) => state.myEvent,
+    getRandomEvent: (state) => state.randomEvent,
     isLoading: (state) => state.isLoading,
   },
   actions: {
@@ -21,6 +23,7 @@ const eventMain = {
         const response = await axios.get("/events");
 
         commit("SET_EVENT_MAIN", response.data);
+        commit("SHUFFLE_EVENT");
         commit("SET_LOADING", false);
 
         return response.data;
@@ -28,9 +31,9 @@ const eventMain = {
         ElMessage({
           type: "error",
           message:
-            "Failed to load event: " +
+            "Gagal memuat acara: " +
             (error.response.data.msg ||
-              "An error occurred while loading the event. Please try again."),
+              "Terjadi kesalahan saat memuat acara. Silakan coba lagi."),
         });
         commit("SET_LOADING", false);
         return false;
@@ -50,15 +53,15 @@ const eventMain = {
         ElMessage({
           type: "error",
           message:
-            "Failed to load event details: " +
+            "Gagal memuat detail acara: " +
             (error.response.data.msg ||
-              "An error occurred while loading the event details. Please try again."),
+              "Terjadi kesalahan saat memuat detail acara. Silakan coba lagi."),
         });
         commit("SET_LOADING", false);
         return false;
       }
     },
-    async fetchMyEvents({ commit, state }) {
+    async fetchMyEvents({ commit }) {
       try {
         commit("SET_LOADING", true);
 
@@ -101,9 +104,9 @@ const eventMain = {
         ElMessage({
           type: "error",
           message:
-            "Failed to load event details: " +
+            "Gagal memuat detail acara: " +
             (error.response.data.msg ||
-              "An error occurred while loading the event details. Please try again."),
+              "Terjadi kesalahan saat memuat detail acara. Silakan coba lagi."),
         });
         commit("SET_LOADING", false);
         return false;
@@ -122,9 +125,9 @@ const eventMain = {
       } catch (error) {
         console.error("Error deleting event:", error.response.data.msg);
         ElMessage.error(
-          "Failed to delete event: " +
+          "Gagal menghapus acara: " +
             (error.response.data.msg ||
-              "An error occurred while deleting the event. Please try again.")
+              "Terjadi kesalahan saat menghapus acara. Silakan coba lagi.")
         );
       }
     },
@@ -144,7 +147,7 @@ const eventMain = {
 
         ElMessage({
           type: "success",
-          message: "Event Update successfully!",
+          message: "Acara berhasil diperbarui!",
         });
 
         return response.data;
@@ -154,11 +157,11 @@ const eventMain = {
         // Periksa apakah error.response terdefinisi sebelum mencoba mengakses properti 'data'
         const errorMessage = error.response
           ? error.response.data.msg
-          : "An error occurred while Update the event. Please try again.";
+          : "Terjadi kesalahan saat memperbarui acara. Silakan coba lagi.";
 
         ElMessage({
           type: "error",
-          message: "Failed to Update event: " + errorMessage,
+          message: "Gagal memperbarui acara: " + errorMessage,
         });
 
         commit("SET_LOADING", false);
@@ -172,6 +175,12 @@ const eventMain = {
     },
     SET_EVENT_MAIN(state, eventMain) {
       state.event = eventMain;
+    },
+    SET_RANDOM_EVENT(state, randomEvent) {
+      state.randomEvent = randomEvent;
+    },
+    SHUFFLE_EVENT(state) {
+      state.randomEvent = state.event.slice().sort(() => Math.random() - 0.5);
     },
     SET_MY_EVENT(state, eventMain) {
       state.myEvent = eventMain;

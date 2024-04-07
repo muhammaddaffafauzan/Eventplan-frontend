@@ -139,6 +139,14 @@ const router = createRouter({
             title: "Event",
           },
         },
+        // {
+        //   path: "/event/favorite",
+        //   component: HomeMain,
+        //   name: "HomeMain",
+        //   meta: {
+        //     title: "Home",
+        //   },
+        // },
       ],
     },
 

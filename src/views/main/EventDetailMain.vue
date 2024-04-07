@@ -1,6 +1,6 @@
 <template>
   <!-- Skeleton -->
-  <div v-if="$store.getters['eventMain/isLoading']" class="skeleton relative">
+  <div v-if="$store.getters['eventMain/isLoading']" class="skeleton relative mt-16">
     <!-- Skeleton untuk bagian gambar -->
     <div
       class="flex items-center justify-center h-56 mb-4 bg-gray-300 rounded dark:bg-gray-700"
@@ -91,37 +91,10 @@
           <span class="text-lg text-gray-800">
             {{ formatDate(event?.start_date) }}
           </span>
-          <h1 class="text-5xl font-bold text-gray-900">
+          <h1 class="text-5xl font-bold text-gray-900 pb-4">
             {{ event?.title }}
           </h1>
           <!-- Card organizer/profiles -->
-          <div
-            class="flex items-center mt-4 bg-gray-100 w-[600px] h-20 px-4 rounded-md"
-          >
-            <!-- Avatar organizer -->
-            <img
-              class="w-12 h-12 rounded-full mr-4"
-              :src="event?.user?.Profiles?.url"
-              alt="Organizer Avatar"
-            />
-            <!-- Nama organizer dan info follower serta jumlah event -->
-            <div>
-              <h2 class="text-lg font-semibold">
-                {{ event?.user?.Profiles?.organize }}
-              </h2>
-              <div class="text-sm text-gray-600">
-                <span>1.2k followers</span>
-                <span class="mx-2">•</span>
-                <span>45 events hosted</span>
-              </div>
-            </div>
-            <!-- Button follow -->
-            <button
-              class="ml-auto px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-            >
-              Follow
-            </button>
-          </div>
           <!-- Info tambahan -->
           <div class="mt-4">
             <span class="text-2xl font-bold flex items-center">
@@ -349,7 +322,7 @@
               <span
                 v-for="(tag, index) in eventTags"
                 :key="index"
-                class="text-sm font-normal text-gray-900 bg-gray-200 px-3 py-2 mr-2 rounded-full"
+                class="text-sm font-normal text-gray-900 bg-gray-100 px-3 py-2 mr-2 rounded-full"
               >
                 {{ tag }}
               </span>
@@ -401,65 +374,6 @@
             </div>
           </div>
           <!-- Card event yang baru ditambahkan -->
-          <div class="mt-8">
-            <span class="text-2xl font-bold flex items-center"
-              >Related Events</span
-            >
-            <div
-              class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4"
-            >
-              <!-- Iterasi untuk setiap event -->
-              <div
-                v-for="(relatedEvent, index) in relatedEvents"
-                :key="index"
-                class="bg-white rounded-lg shadow-lg overflow-hidden"
-              >
-                <!-- Gambar event -->
-                <img
-                  :src="relatedEvent.imageUrl"
-                  alt="Event Image"
-                  class="w-full h-48 object-cover object-center"
-                />
-                <!-- Detail event -->
-                <div class="p-4">
-                  <h2 class="text-xl font-semibold text-gray-800">
-                    {{ relatedEvent.title }}
-                  </h2>
-                  <p class="text-sm text-gray-600 mt-2">
-                    {{ relatedEvent.description }}
-                  </p>
-                  <div class="mt-4 flex items-center">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="20"
-                      height="20"
-                      fill="currentColor"
-                      class="bi bi-calendar-event text-gray-600 mr-2"
-                      viewBox="0 0 16 16"
-                    >
-                      <path
-                        d="M.5 1.5a.5.5 0 0 1 .5-.5h14a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.5.5H1a.5.5 0 0 1-.5-.5v-2zM1 5.5A1.5 1.5 0 0 1 2.5 4h11A1.5 1.5 0 0 1 15 5.5v2a1.5 1.5 0 0 1-1.5 1.5h-11A1.5 1.5 0 0 1 1 7.5v-2zm0 5A1.5 1.5 0 0 1 2.5 9h11a1.5 1.5 0 0 1 1.5 1.5v2a1.5 1.5 0 0 1-1.5 1.5h-11A1.5 1.5 0 0 1 1 14.5v-2z"
-                      />
-                      <path d="M6 1h1v4H6V1zm3 0h1v4H9V1zM3 1h1v4H3V1z" />
-                    </svg>
-                    <span class="text-sm text-gray-600">{{
-                      formatDate(relatedEvent.date)
-                    }}</span>
-                  </div>
-                  <div class="mt-4 flex justify-between">
-                    <span class="text-sm text-gray-600"
-                      >Location: {{ relatedEvent.location }}</span
-                    >
-                    <button
-                      class="px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600"
-                    >
-                      Register
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
 
@@ -516,6 +430,124 @@
         </div>
       </div>
     </div>
+          <div class="container mx-auto mt-8 mb-8">
+        <span class="text-2xl font-bold flex items-center">Related Events</span>
+        <div class="overflow-x-auto mt-4 flex">
+            <!-- Card Event -->
+            <div
+              v-for="(item, index) in relatedEvents.slice(0, 4)"
+              :key="index"
+              class="w-72 px-6 pt-6 pb-2 rounded-xl shadow-lg hover:shadow-xl 0"
+            >
+              <div class="relative group">
+                <img
+                  class="w-full h-40 object-cover rounded-lg cursor-pointer"
+                  :src="item.url"
+                  alt="Event Image"
+                  @click="toDetailEvent(item)"
+                />
+                <p
+                  class="absolute top-0 bg-blue-300 group-hover:text-gray-800 text-gray-800 font-semibold py-1 px-2 text-xs rounded-br-lg rounded-tl-lg"
+                >
+                  {{ item?.price === 0 ? "Free" : "Paid" }}
+                </p>
+                <div class="hidden group-hover:block">
+                  <span
+                    class="flex absolute z-20 hover:border hover:transition-all hover:scale-125 hover:border-gray-400 bottom-0 right-0 mb-2 mr-2 bg-gray-100 rounded-full w-8 h-8 font-semibold text-gray-700 items-center justify-center"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="16"
+                      height="16"
+                      fill="currentColor"
+                      class="bi bi-heart text-gray-800 font-bold"
+                      viewBox="0 0 16 16"
+                    >
+                      <path
+                        d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"
+                      />
+                    </svg>
+                  </span>
+                </div>
+              </div>
+              <p class="text-left mt-4 text-gray-800 text-lg font-semibold">
+                {{
+                  item?.title?.length > 25
+                    ? item?.title.substring(0, 25) + "..."
+                    : item?.title
+                }}
+              </p>
+              <div class="flex space-x-1 items-center pb-1">
+                <p class="text-sm sm:text-xs font-semibold text-gray-800">
+                  {{
+                    new Date(item.start_date).toLocaleDateString("en-US", {
+                      month: "long",
+                      day: "numeric",
+                      year: "numeric",
+                    })
+                  }}
+                  •
+                  {{
+                    " " +
+                    (item.start_time
+                      ? new Date("1970-01-01T" + item.start_time)
+                          .toLocaleTimeString("en-US", {
+                            hour: "numeric",
+                            minute: "numeric",
+                          })
+                          .replace(/^(\d{1}):/, "0$1:") +
+                        (parseInt(item.start_time.split(":")[0]) >= 12 ? "" : "")
+                      : "Invalid Time")
+                  }}
+                </p>
+              </div>
+              <div class="my-1">
+                <div
+                  v-if="item.type_location === 'location'"
+                  class="flex space-x-1 items-center text-sm text-gray-700"
+                >
+                  <p class="font-semibold">
+                    {{
+                      item.event_locations[0]?.address.length > 15
+                        ? item.event_locations[0]?.address.substring(0, 15) + "..."
+                        : item.event_locations[0]?.address
+                    }}
+                  </p>
+                </div>
+                <div
+                  v-else-if="item.type_location === 'Online'"
+                  class="flex space-x-1 items-center pb-1 text-gray-700"
+                >
+                  <p class="font-semibold">{{ item.type_location }}</p>
+                </div>
+                <div v-else class="flex space-x-1 items-center text-gray-700">
+                  <p class="font-semibold">{{ item.type_location }}</p>
+                </div>
+                <div class="flex items-center text-gray-700 text-sm">
+                  <p class="font-semibold flex items-center">{{ item.organizer }}</p>
+                </div>
+                <span
+                  class="ml-auto text-xs font-semibold text-gray-700 flex items-center"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    fill="currentColor"
+                    class="bi bi-person"
+                    viewBox="0 0 16 16"
+                  >
+                    <path
+                      d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6m2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0m4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4m-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10s-3.516.68-4.168 1.332c-.678.678-.83 1.418-.832 1.664z"
+                    />
+                  </svg>
+                  <span class="ml-1">1.1k Followers</span>
+                </span>
+              </div>
+            </div>
+            <!-- End of Card Event -->
+        </div>
+      </div>
   </div>
 </template>
 <script>
@@ -527,10 +559,21 @@ export default {
       event: null,
       showMap: false,
       eventTags: [],
+      relatedEvents: []
     };
   },
-  computed: {},
+  computed: {
+      ...mapGetters("eventMain", ["getEventMain"]),
+    ...mapGetters("auth", ["isAuthenticated"]),
+    relatedEvents() {
+       const allRelatedEvents = this.$store.state.eventMain.randomEvent;
+    
+    // Filter acara terkait untuk menghapus acara yang sama dengan detail acara
+    return allRelatedEvents.filter(event => event.uuid !== this.event?.uuid);
+    }
+  },
   methods: {
+     ...mapActions("eventMain", ["fetchEventMain"]),
     async fetchEventDetails() {
       try {
         const uuid = this.$route.params.uuid;
@@ -582,6 +625,21 @@ export default {
     toggleMap() {
       this.showMap = !this.showMap;
     },
+toDetailEvent(item) {
+  const uuid = item.uuid;
+  const eventName = item.title.replace(/\s+/g, "-").toLowerCase();
+  
+  // Navigasi tanpa menambahkan entri riwayat baru
+  this.$router.replace({
+    path: `/event/${eventName}/${uuid}`,
+  }).then(() => {
+    // Memperbarui path sebelum memanggil fetchEventDetails
+    this.$route.params.uuid = uuid;
+    this.fetchEventDetails();
+    window.location.reload();
+  });
+},
+
   },
   created() {
     this.fetchEventDetails();
@@ -597,6 +655,7 @@ export default {
   },
   mounted() {
     window.addEventListener("scroll", this.handleScroll);
+      this.fetchEventMain();
   },
   beforeDestroy() {
     window.removeEventListener("scroll", this.handleScroll);

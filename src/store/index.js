@@ -4,6 +4,7 @@ import eventAdmin from "./modules/admin/eventAdmin";
 import categories from "./modules/admin/categoryEvent";
 import eventMain from "./modules/user/eventMain";
 import settings from "./modules/auth/settings";
+import profile from "./modules/user/profile";
 
 const store = createStore({
   state: {
@@ -15,6 +16,7 @@ const store = createStore({
     categories,
     eventMain,
     settings,
+    profile
   },
 });
 
