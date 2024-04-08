@@ -7,12 +7,14 @@ const eventMain = {
     event: [],
     myEvent: [],
     randomEvent: [],
+    eventFavorite: [],
     isLoading: false,
   },
   getters: {
     getEventMain: (state) => state.event,
     getMyEvent: (state) => state.myEvent,
     getRandomEvent: (state) => state.randomEvent,
+    getEventFavorite: (state) => state.eventFavorite,
     isLoading: (state) => state.isLoading,
   },
   actions: {
@@ -168,6 +170,30 @@ const eventMain = {
         return false;
       }
     },
+    async fetchEventsFavorite({ commit }) {
+      try {
+        commit("SET_LOADING", true);
+
+        const token = localStorage.getItem("token");
+        const response = await axios.get("/event/favorite/all", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        commit("SET_EVENT_FAVORITE", response.data);
+        commit("SET_LOADING", false);
+
+        return response.data;
+      } catch (error) {
+        console.error(
+          "Error fetching event favorite data:",
+          error.response.data.msg
+        );
+        commit("SET_LOADING", false);
+        return false;
+      }
+    },
   },
   mutations: {
     SET_LOADING(state, isLoading) {
@@ -184,6 +210,9 @@ const eventMain = {
     },
     SET_MY_EVENT(state, eventMain) {
       state.myEvent = eventMain;
+    },
+    SET_EVENT_FAVORITE(state, eventMain) {
+      state.eventFavorite = eventMain;
     },
   },
 };

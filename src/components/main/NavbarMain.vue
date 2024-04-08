@@ -190,7 +190,7 @@
           </ul>
           <div v-if="isAuthenticated" class="mr-4 items-center block xl:hidden">
             <a class="inline-block py-2 px-3" href="#"> Create an Event </a>
-            <p class="py-2 px-3">Favorite</p>
+            <p class="py-2 px-3" @click="toFavoriteEvent">Favorite</p>
           </div>
         </div>
       </div>
@@ -227,6 +227,7 @@
           </a>
           <div class="block relative">
             <button
+              @click="toFavoriteEvent"
               type="button"
               class="inline-block py-3 px-2 ml-5 rounded-full relative group hover:bg-gray-200 transition duration-300"
             >
@@ -390,7 +391,23 @@ export default {
   methods: {
     ...mapActions("auth", ["fetchMe", "logout"]),
     toLogin() {
-      this.$router.push("/auth/login");
+      this.$router
+        .replace({
+          path: "/auth/login",
+        })
+        .then(() => {
+          window.location.reload();
+        });
+    },
+    toFavoriteEvent() {
+      // Navigasi tanpa menambahkan entri riwayat baru
+      this.$router
+        .replace({
+          path: "/event/favorite",
+        })
+        .then(() => {
+          window.location.reload();
+        });
     },
     logoutUser() {
       // Show confirmation using ElMessageBox

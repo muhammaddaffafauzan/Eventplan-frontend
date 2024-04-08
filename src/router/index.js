@@ -24,6 +24,8 @@ import EventDetailUser from "../views/user/EventDetailUser.vue";
 import EditEventUser from "../views/user/EditEventUser.vue";
 import EventMoreMain from "../views/main/EventMoreMain.vue";
 import EventDetailMain from "../views/main/EventDetailMain.vue";
+import EventFavorite from "../views/main/EventFavorite.vue";
+
 import store from "../store";
 
 const router = createRouter({
@@ -139,14 +141,14 @@ const router = createRouter({
             title: "Event",
           },
         },
-        // {
-        //   path: "/event/favorite",
-        //   component: HomeMain,
-        //   name: "HomeMain",
-        //   meta: {
-        //     title: "Home",
-        //   },
-        // },
+        {
+          path: "/event/favorite",
+          component: EventFavorite,
+          name: "EventFavorite",
+          meta: {
+            title: "Favorite",
+          },
+        },
       ],
     },
 
