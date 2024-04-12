@@ -194,6 +194,58 @@ const eventMain = {
         return false;
       }
     },
+    async addEventsFavorite({ commit }, eventId) {
+      try {
+        commit("SET_LOADING", true);
+
+        const token = localStorage.getItem("token");
+        const response = await axios.post(
+          `/event/favorite/add`,
+          { eventId },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        commit("SET_EVENT_FAVORITE", response.data);
+        commit("SET_LOADING", false);
+
+        return response.data;
+      } catch (error) {
+        console.error(
+          "Error add event favorite to server:",
+          error.response.data.msg
+        );
+        commit("SET_LOADING", false);
+        return false;
+      }
+    },
+    async removeEventsFavorite({ commit }, eventId) {
+      try {
+        commit("SET_LOADING", true);
+
+        const token = localStorage.getItem("token");
+        const response = await axios.delete(`/event/favorite/delete`, {
+          data: { eventId }, // Menggunakan "data" untuk mengirim data di body request
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        commit("SET_LOADING", false);
+
+        return response.data;
+      } catch (error) {
+        console.error(
+          "Error removing event favorite to server:",
+          error.response.data.msg
+        );
+        commit("SET_LOADING", false);
+        return false;
+      }
+    },
   },
   mutations: {
     SET_LOADING(state, isLoading) {

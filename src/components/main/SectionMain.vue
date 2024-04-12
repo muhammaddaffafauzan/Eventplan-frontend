@@ -100,25 +100,24 @@
             @click="filterByTypeLocation('online')"
             class="py-2 px-4 cursor-pointer hover:bg-gray-100"
           >
-           <span class="mr-5">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  fill="currentColor"
-                  class="bi bi-collection-play text-blue-600"
-                  viewBox="0 0 16 16"
-                >
-                  <path
-                    d="M2 3a.5.5 0 0 0 .5.5h11a.5.5 0 0 0 0-1h-11A.5.5 0 0 0 2 3m2-2a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 0-1h-7A.5.5 0 0 0 4 1m2.765 5.576A.5.5 0 0 0 6 7v5a.5.5 0 0 0 .765.424l4-2.5a.5.5 0 0 0 0-.848z"
-                  />
-                  <path
-                    d="M1.5 14.5A1.5 1.5 0 0 1 0 13V6a1.5 1.5 0 0 1 1.5-1.5h13A1.5 1.5 0 0 1 16 6v7a1.5 1.5 0 0 1-1.5 1.5zm13-1a.5.5 0 0 0 .5-.5V6a.5.5 0 0 0-.5-.5h-13A.5.5 0 0 0 1 6v7a.5.5 0 0 0 .5.5z"
-                  />
-                </svg>
-                <p>Online</p>
-              </span>
-              
+            <span class="mr-5">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                fill="currentColor"
+                class="bi bi-collection-play text-blue-600"
+                viewBox="0 0 16 16"
+              >
+                <path
+                  d="M2 3a.5.5 0 0 0 .5.5h11a.5.5 0 0 0 0-1h-11A.5.5 0 0 0 2 3m2-2a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 0-1h-7A.5.5 0 0 0 4 1m2.765 5.576A.5.5 0 0 0 6 7v5a.5.5 0 0 0 .765.424l4-2.5a.5.5 0 0 0 0-.848z"
+                />
+                <path
+                  d="M1.5 14.5A1.5 1.5 0 0 1 0 13V6a1.5 1.5 0 0 1 1.5-1.5h13A1.5 1.5 0 0 1 16 6v7a1.5 1.5 0 0 1-1.5 1.5zm13-1a.5.5 0 0 0 .5-.5V6a.5.5 0 0 0-.5-.5h-13A.5.5 0 0 0 1 6v7a.5.5 0 0 0 .5.5z"
+                />
+              </svg>
+              <p>Online</p>
+            </span>
           </li>
         </ul>
       </div>
@@ -201,7 +200,7 @@
         v-else
         class="md:px-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 space-y-4 md:space-y-0"
       >
-        <!-- card event 1 -->
+        <!-- card event -->
         <div
           v-for="(event, index) in displayedEvents"
           :key="event.uuid"
@@ -220,22 +219,40 @@
               {{ event?.price === 0 ? "Free" : "Paid" }}
             </p>
             <div class="hidden group-hover:block">
-              <span
-                class="flex absolute z-15 hover:border hover:transition-all hover:scale-125 hover:border-gray-400 bottom-0 right-0 mb-2 mr-2 bg-gray-100 rounded-full w-8 h-8 font-semibold text-gray-700 items-center justify-center"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  fill="currentColor"
-                  class="bi bi-heart text-gray-800 font-bold"
-                  viewBox="0 0 16 16"
-                >
-                  <path
-                    d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"
-                  />
-                </svg>
-              </span>
+          <span
+            @click="event.isFavorite ? removeEventFav(event) : addEventFav(event)"
+            class="flex absolute cursor-pointer z-15 hover:border hover:transition-all hover:scale-125 hover:border-gray-400 bottom-0 right-0 mb-2 mr-2 bg-gray-100 rounded-full w-8 h-8 font-semibold text-gray-700 items-center justify-center"
+          >
+            <!-- icon fill -->
+            <svg
+              v-if="event.isFavorite"
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              fill="red"
+              class="bi bi-heart"
+              viewBox="0 0 16 16"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314"
+              />
+            </svg>
+            <!-- icon no fill -->
+            <svg
+              v-else
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              fill="currentColor"
+              class="bi bi-heart"
+              viewBox="0 0 16 16"
+            >
+              <path
+                d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"
+              />
+            </svg>
+          </span>
             </div>
           </div>
           <p class="text-left mt-4 text-gray-800 text-lg font-semibold">
@@ -321,90 +338,102 @@
     </div>
     <!-- end event cards -->
     <div v-if="isAuthenticated">
-   <div v-if="$store.getters['profile/isLoading']">
-      <div class="container mx-auto mt-4">
-        <hr class="border-t border-gray-100" />
-      </div>
-      <div class="container mx-auto mt-10 overflow-x-auto whitespace-nowrap">
-        <div class="flex justify-center items-center mb-8">
-          <div class="bg-gray-300 h-8 w-40 rounded animate-pulse"></div>
+      <div v-if="$store.getters['profile/isLoading']">
+        <div class="container mx-auto mt-4">
+          <hr class="border-t border-gray-100" />
         </div>
-        <div class="flex overflow-x-auto overflow-y-hidden whitespace-nowrap gap-5 px-10 p-10">
-          <!-- Organizer Card Skeleton -->
-          <div v-for="index in 8" :key="index" class="w-56 h-60 px-5 py-4 border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 hover:shadow-2xl transition-shadow">
-            <div class="flex flex-col items-center pb-6">
-              <div class="bg-gray-300 h-24 w-24 rounded-full mb-3 animate-pulse"></div>
-              <div class="bg-gray-300 h-6 w-36 rounded mb-1 animate-pulse"></div>
-              <div class="bg-gray-300 h-4 w-24 rounded animate-pulse"></div>
-            </div>
+        <div class="container mx-auto mt-10 overflow-x-auto whitespace-nowrap">
+          <div class="flex justify-center items-center mb-8">
+            <div class="bg-gray-300 h-8 w-40 rounded animate-pulse"></div>
           </div>
-        </div>
-      </div>
-      <div class="container mx-auto mt-4">
-        <hr class="border-t border-gray-100" />
-      </div>
-    </div>
-
-    <!-- Organizer Section Data -->
-    <div v-else>
-      <div class="container mx-auto mt-4">
-        <hr class="border-t border-gray-100" />
-      </div>
-      <div class="container mx-auto mt-10 overflow-x-auto whitespace-nowrap">
-        <div class="flex justify-center items-center mb-8">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="28"
-            height="28"
-            fill="currentColor"
-            class="bi bi-people-fill text-gray-800"
-            viewBox="0 0 16 16"
-          >
-            <path
-              d="M7 14s-1 0-1-1 1-4 5-4 5 3 5 4-1 1-1 1zm4-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6m-5.784 6A2.24 2.24 0 0 1 5 13c0-1.355.68-2.75 1.936-3.72A6.3 6.3 0 0 0 5 9c-4 0-5 3-5 4s1 1 1 1zM4.5 8a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5"
-            />
-          </svg>
-          <h2 class="text-2xl font-bold ml-2 text-gray-800 dark:text-white">
-            Organizers to Follow
-          </h2>
-        </div>
-        <div
-          class="flex overflow-x-auto overflow-y-hidden whitespace-nowrap gap-5 px-10 p-10"
-        >
-          <!-- Organizer Cards -->
           <div
-            v-for="organizer in organizers"
-            :key="organizer.id"
-            class="w-56 h-60 px-5 py-4 border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 hover:shadow-2xl transition-shadow"
+            class="flex overflow-x-auto overflow-y-hidden whitespace-nowrap gap-5 px-10 p-10"
           >
-            <div class="flex flex-col items-center pb-6">
-              <!-- Replace this with your image tag using organizer.image property -->
-              <img
-                :src="organizer?.profile?.url"
-                alt="Organizer image"
-                class="w-24 h-24 mb-3 rounded-full shadow-lg"
-              />
-              <h5 class="mb-1 text-xl font-medium text-gray-900 dark:text-white">
-                {{ organizer?.profile?.organize }}
-              </h5>
-              <span class="text-sm text-gray-500 dark:text-gray-400">
-                {{ formatNumber(organizer?.followersCount) }} followers
-              </span>
-              <div class="flex mt-4 md:mt-6">
-                <a
-                  href="/"
-                  class="inline-flex items-center px-4 py-2 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-                  >Follow</a
-                >
+            <!-- Organizer Card Skeleton -->
+            <div
+              v-for="index in 8"
+              :key="index"
+              class="w-56 h-60 px-5 py-4 border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 hover:shadow-2xl transition-shadow"
+            >
+              <div class="flex flex-col items-center pb-6">
+                <div
+                  class="bg-gray-300 h-24 w-24 rounded-full mb-3 animate-pulse"
+                ></div>
+                <div
+                  class="bg-gray-300 h-6 w-36 rounded mb-1 animate-pulse"
+                ></div>
+                <div class="bg-gray-300 h-4 w-24 rounded animate-pulse"></div>
               </div>
             </div>
           </div>
         </div>
+        <div class="container mx-auto mt-4">
+          <hr class="border-t border-gray-100" />
+        </div>
       </div>
-      <div class="container mx-auto mt-4">
-        <hr class="border-t border-gray-100" />
+
+      <!-- Organizer Section Data -->
+      <div v-else>
+        <div class="container mx-auto mt-4">
+          <hr class="border-t border-gray-100" />
+        </div>
+        <div class="container mx-auto mt-10 overflow-x-auto whitespace-nowrap">
+          <div class="flex justify-center items-center mb-8">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="28"
+              height="28"
+              fill="currentColor"
+              class="bi bi-people-fill text-gray-800"
+              viewBox="0 0 16 16"
+            >
+              <path
+                d="M7 14s-1 0-1-1 1-4 5-4 5 3 5 4-1 1-1 1zm4-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6m-5.784 6A2.24 2.24 0 0 1 5 13c0-1.355.68-2.75 1.936-3.72A6.3 6.3 0 0 0 5 9c-4 0-5 3-5 4s1 1 1 1zM4.5 8a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5"
+              />
+            </svg>
+            <h2 class="text-2xl font-bold ml-2 text-gray-800 dark:text-white">
+              Organizers to Follow
+            </h2>
+          </div>
+          <div
+            class="flex overflow-x-auto overflow-y-hidden whitespace-nowrap gap-5 px-10 p-10"
+          >
+            <!-- Organizer Cards -->
+            <div
+              v-for="organizer in organizers"
+              :key="organizer.id"
+              class="w-56 h-60 px-5 py-4 border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 hover:shadow-2xl transition-shadow"
+            >
+              <div class="flex flex-col items-center pb-6">
+                <!-- Replace this with your image tag using organizer.image property -->
+                <img
+                  :src="organizer?.profile?.url"
+                  alt="Organizer image"
+                  class="w-24 h-24 mb-3 rounded-full shadow-lg"
+                />
+                <h5
+                  class="mb-1 text-xl font-medium text-gray-900 dark:text-white"
+                >
+                  {{ organizer?.profile?.organize }}
+                </h5>
+                <span class="text-sm text-gray-500 dark:text-gray-400">
+                  {{ formatNumber(organizer?.followersCount) }} followers
+                </span>
+                <div class="flex mt-4 md:mt-6">
+                  <a
+                    href="/"
+                    class="inline-flex items-center px-4 py-2 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                    >Follow</a
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="container mx-auto mt-4">
+          <hr class="border-t border-gray-100" />
+        </div>
       </div>
-    </div>
     </div>
     <div v-else class="container mx-auto mt-4">
       <hr class="border-t border-gray-100" />
@@ -421,13 +450,11 @@
       >
         <!-- card event untuk acara tambahan -->
         <div
-          v-for="(event, index) in moreEvents.slice(0, 10)"
-          :key="'moreEvent-' + index"
+          v-for="(event, index) in moreEvents"
+          :key="event.uuid"
           class="w-full bg-white px-6 pt-6 pb-2 rounded-xl shadow-lg hover:shadow-2xl"
         >
-          <!-- Konten acara -->
-          <!-- Image -->
-          <div class="relative group group">
+          <div class="relative group">
             <img
               class="w-full h-40 object-cover rounded-lg cursor-pointer"
               :src="event.url"
@@ -441,14 +468,16 @@
             </p>
             <div class="hidden group-hover:block">
               <span
-                class="flex absolute z-15 hover:border hover:transition-all hover:scale-125 hover:border-gray-400 bottom-0 right-0 mb-2 mr-2 bg-gray-100 rounded-full w-8 h-8 font-semibold text-gray-700 items-center justify-center"
+                @click="addEventFav(event)"
+                class="flex absolute cursor-pointer z-15 hover:border hover:transition-all hover:scale-125 hover:border-gray-400 bottom-0 right-0 mb-2 mr-2 bg-gray-100 rounded-full w-8 h-8 font-semibold text-gray-700 items-center justify-center"
               >
+                <!-- Icon hati (heart) -->
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   width="16"
                   height="16"
                   fill="currentColor"
-                  class="bi bi-heart text-gray-800 font-bold"
+                  class="bi bi-heart"
                   viewBox="0 0 16 16"
                 >
                   <path
@@ -458,7 +487,6 @@
               </span>
             </div>
           </div>
-          <!-- Title -->
           <p class="text-left mt-4 text-gray-800 text-lg font-semibold">
             {{
               event?.title?.length > 25
@@ -466,8 +494,8 @@
                 : event?.title
             }}
           </p>
-          <!-- Date and Time -->
           <div class="flex space-x-1 items-center pb-1">
+            <!-- Format tanggal dan waktu -->
             <p class="text-sm sm:text-xs font-semibold text-gray-800">
               {{
                 new Date(event.start_date).toLocaleDateString("en-US", {
@@ -491,7 +519,6 @@
               }}
             </p>
           </div>
-          <!-- Location -->
           <div class="my-1">
             <div
               v-if="event.type_location === 'location'"
@@ -514,7 +541,6 @@
             <div v-else class="flex space-x-1 items-center text-gray-700">
               <p class="font-semibold">{{ event.type_location }}</p>
             </div>
-            <!-- Organizer -->
             <div class="flex items-center text-gray-700 text-sm">
               <p class="font-semibold flex items-center">
                 {{ event.organizer }}
@@ -544,6 +570,7 @@
   </div>
 </template>
 <script>
+import { ElMessage } from "element-plus";
 import { mapActions, mapGetters } from "vuex";
 
 export default {
@@ -563,6 +590,7 @@ export default {
       recentSearches: [],
       moreEvents: [],
       organizers: [],
+      isFavorite: false,
       categories: [
         { id: 1, name: "All" },
         { id: 2, name: "Popular" },
@@ -571,12 +599,15 @@ export default {
     };
   },
   computed: {
-    ...mapGetters("eventMain", ["getEventMain"]),
+    ...mapGetters("eventMain", ["getEventMain", "getEventFavorite"]),
     ...mapGetters("auth", ["isAuthenticated", "getMe"]),
     events() {
       return this.getEventMain;
     },
-     me(){
+    eventFav() {
+      return this.getEventFavorite;
+    },
+    me() {
       return this.getMe;
     },
     filteredResults() {
@@ -586,7 +617,7 @@ export default {
     },
   },
   methods: {
-    ...mapActions("eventMain", ["fetchEventMain"]),
+    ...mapActions("eventMain", ["fetchEventMain", "fetchEventsFavorite"]),
     ...mapActions("auth", ["fetchMe"]),
     toDetailEvent(event) {
       const uuid = event.uuid;
@@ -596,18 +627,20 @@ export default {
       });
       window.scrollTo(0, 0);
     },
-async fetchOrganizers() {
-    try {
-      await this.$store.dispatch("profile/fetchAllProfileUsers");
-      this.organizers = this.$store.getters["profile/profileData"];
-      // Filter out organizers where userId is the same as the currently logged-in user's ID
-      const meId = this.me?.profile?.userId; // Assuming you have a userId property in the `me` object
-      this.organizers = this.organizers.filter(organizer => organizer?.profile?.userId !== meId);
-      this.fetchMe();
-    } catch (error) {
-      console.error("Failed to fetch organizers:", error);
-    }
-  },
+    async fetchOrganizers() {
+      try {
+        await this.$store.dispatch("profile/fetchAllProfileUsers");
+        this.organizers = this.$store.getters["profile/profileData"];
+        // Filter out organizers where userId is the same as the currently logged-in user's ID
+        const meId = this.me?.profile?.userId; // Assuming you have a userId property in the `me` object
+        this.organizers = this.organizers.filter(
+          (organizer) => organizer?.profile?.userId !== meId
+        );
+        this.fetchMe();
+      } catch (error) {
+        console.error("Failed to fetch organizers:", error);
+      }
+    },
     searchEvents() {
       this.showResults = this.searchQuery.length > 0;
       if (this.searchQuery.trim() !== "") {
@@ -757,6 +790,13 @@ async fetchOrganizers() {
         );
       }
 
+      // Perbarui properti isFavorite untuk setiap acara
+      filteredEvents.forEach((event) => {
+        if (this.isEventFavorite(event)) {
+          event.isFavorite = true; // Jika event ada di dalam daftar favorit, atur isFavorite menjadi true
+        }
+      });
+
       // Jika tidak ada hasil setelah filter, tampilkan "No events found"
       if (filteredEvents.length === 0) {
         this.displayedEvents = [];
@@ -771,7 +811,6 @@ async fetchOrganizers() {
       this.$store.getters["eventMain/isLoading"];
       this.loadMoreEvents();
     },
-
     filterByLocation() {
       // Filter berdasarkan lokasi
       this.searchQuery = this.currentLocation;
@@ -786,23 +825,59 @@ async fetchOrganizers() {
       this.showFilterOptions = false;
     },
 
-    async loadMoreEvents() {
-      // Anda dapat mengganti 6 dengan jumlah acara tambahan yang ingin Anda tampilkan
-      const additionalEvents = await this.$store.dispatch(
-        "eventMain/fetchEventMain"
-      );
-      const uniqueEvents = this.filterUniqueMoreEvents(additionalEvents);
-      this.moreEvents = uniqueEvents;
-    },
 
-    filterUniqueMoreEvents(events) {
-      const uniqueEvents = events.filter((event) => {
-        return !this.displayedEvents.some(
-          (displayedEvent) => displayedEvent.uuid === event.uuid
-        );
-      });
-      return uniqueEvents;
-    },
+async loadMoreEvents() {
+  try {
+    const additionalEvents = await this.$store.dispatch("eventMain/fetchEventMain", {
+      offset: this.displayedEvents.length, // Menggunakan offset untuk memuat event tambahan setelah event yang sudah ditampilkan
+      limit: 6, // Anda dapat mengganti 6 dengan jumlah acara tambahan yang ingin Anda tampilkan
+    });
+
+    // Filter hanya event yang belum ditampilkan di displayedEvents
+    const uniqueEvents = this.filterUniqueMoreEvents(additionalEvents);
+
+    this.moreEvents = uniqueEvents;
+  } catch (error) {
+    console.error("Failed to load more events:", error);
+  }
+},
+
+filterUniqueMoreEvents(events) {
+  // Filter events yang belum ditampilkan di displayedEvents
+  const uniqueEvents = events.filter((event) => {
+    return !this.displayedEvents.some(
+      (displayedEvent) => displayedEvent.uuid === event.uuid
+    );
+  });
+  return uniqueEvents;
+},
+
+async addEventFav(event) {
+  try {
+    await this.$store.dispatch("eventMain/addEventsFavorite", event.id);
+    // Set isFavorite menjadi true pada objek event yang sesuai
+    event.isFavorite = true;
+    this.$message.success("Event successfully added to favorites");
+  } catch (error) {
+    console.log(error.message);
+  }
+},
+
+async removeEventFav(event) {
+  try {
+    await this.$store.dispatch("eventMain/removeEventsFavorite", event.id);
+    // Set isFavorite menjadi false pada objek event yang sesuai
+    event.isFavorite = false;
+    this.$message.success("Event successfully removed from favorites");
+  } catch (error) {
+    console.log(error.message);
+  }
+},
+
+isEventFavorite(event) {
+  // Periksa apakah event ada di dalam eventFav
+  return this.eventFav.some((favEvent) => favEvent.eventId === event.id);
+},
   },
   watch: {
     searchQuery(newValue, oldValue) {
@@ -822,6 +897,7 @@ async fetchOrganizers() {
     this.updateDisplayedEvents();
     this.loadMoreEvents();
     this.fetchOrganizers();
+    this.fetchEventsFavorite();
   },
 };
 </script>

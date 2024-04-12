@@ -397,6 +397,7 @@ export default {
         })
         .then(() => {
           window.location.reload();
+          window.scrollTo(0, 0)
         });
     },
     toFavoriteEvent() {
