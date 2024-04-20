@@ -123,33 +123,27 @@ export default {
   }).then(success => {
     if (success) {
       // Redirect to another page if verification is successful
-      this.$router.push({ name: "HomeMain" });
-    } else {
+      window.location.href = '/'
+    } else {  
       // Display error message if verification failed
       ElMessage.error("Verification failed. Please try again.");
     }
   });
 },
-    resendCode() {
-      // Close the resend confirmation dialog
-      this.showResendConfirmation = false;
+ async resendCode() {
+      try {
+        // Dispatch the resend action
+        const success = await this.$store.dispatch("auth/resendVerificationCode", this.manualEmail);
 
-      // Your resend code logic here
-      // Check if a resend is already in progress
-      if (this.resendTimeout) {
-        ElMessage.warning("Resend already in progress. Please wait.");
-        return;
+        if (success) {
+          ElMessage.success("Verification code resent successfully");
+        } else {
+          ElMessage.error("Failed to resend verification code. Please try again.");
+        }
+      } catch (error) {
+        ElMessage.error("An error occurred while resending verification code. Please try again.");
+        console.error(error);
       }
-
-      // Dispatch the resend action
-      this.$store.dispatch("auth/resendVerificationCode", {
-        email: this.userEmail,
-      });
-
-      // Set a timeout for 1 minute before allowing another resend
-      this.resendTimeout = setTimeout(() => {
-        this.resendTimeout = null; // Reset the resend timeout
-      }, 60000); // 60000 milliseconds = 1 minute
     },
     handleInput(index) {
       if (this.verificationCode[index].length > 1) {

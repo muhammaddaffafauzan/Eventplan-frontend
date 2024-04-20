@@ -144,29 +144,30 @@
     <div
       class="cards-event min-h-full overflow-x-hidden mt-8 container mx-auto pb-10"
     >
-      <div class="text-left mb-8 mx-7">
-        <h2
-          v-if="searchQuery === 'online' || selectedCategory === 3"
-          class="text-2xl font-bold text-gray-800 dark:text-white"
-        >
-          Events Online
-        </h2>
-        <h2
-          v-else-if="currentLocation.length === 0"
-          class="text-2xl font-bold text-gray-800 dark:text-white"
-        >
-          Events in {{ currentLocation }}
-        </h2>
-        <h2
-          v-else-if="selectedCategory === 2"
-          class="text-2xl font-bold text-gray-800 dark:text-white"
-        >
-          Events Popular
-        </h2>
-        <h2 v-else class="text-2xl font-bold text-gray-800 dark:text-white">
-          Events in {{ searchQuery }}
-        </h2>
-      </div>
+<div class="text-left mb-8 mx-7">
+  <h2
+    v-if="searchQuery === 'online' || selectedCategory === 3"
+    class="text-2xl font-bold text-gray-800 dark:text-white"
+  >
+    Events Online
+  </h2>
+  <h2
+    v-else-if="currentLocation.length === 0"
+    class="text-2xl font-bold text-gray-800 dark:text-white"
+  >
+    Events in {{ currentLocation }}
+  </h2>
+  <h2
+    v-else-if="selectedCategory === 2"
+    class="text-2xl font-bold text-gray-800 dark:text-white"
+  >
+    Events Popular
+  </h2>
+  <h2 v-else class="text-2xl font-bold text-gray-800 dark:text-white">
+    <!-- Tambahkan penanganan untuk menampilkan judul "Related" -->
+    <span v-if="displayedEvents.length === 0">Related:</span> Events in {{ searchQuery }}
+  </h2>
+</div>
       <div
         v-if="this.$store.getters['eventMain/isLoading']"
         class="text-center"
@@ -218,11 +219,12 @@
             >
               {{ event?.price === 0 ? "Free" : "Paid" }}
             </p>
-            <div class="hidden group-hover:block">
-          <span
-            @click="event.isFavorite ? removeEventFav(event) : addEventFav(event)"
-            class="flex absolute cursor-pointer z-15 hover:border hover:transition-all hover:scale-125 hover:border-gray-400 bottom-0 right-0 mb-2 mr-2 bg-gray-100 rounded-full w-8 h-8 font-semibold text-gray-700 items-center justify-center"
-          >
+           <div class="block md:block sm:block lg:block xl:hidden group-hover:block">
+              <span
+                v-if="isAuthenticated"
+                @click="event.isFavorite ? removeEventFav(event) : addEventToFavorites(event)"
+                class="flex absolute cursor-pointer z-15 hover:border hover:transition-all hover:scale-125 hover:border-gray-400 bottom-0 right-0 mb-2 mr-2 bg-gray-100 rounded-full w-8 h-8 font-semibold text-gray-700 items-center justify-center"
+              >
             <!-- icon fill -->
             <svg
               v-if="event.isFavorite"
@@ -330,7 +332,7 @@
                   d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6m2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0m4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4m-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10s-3.516.68-4.168 1.332c-.678.678-.83 1.418-.832 1.664z"
                 />
               </svg>
-              <span class="ml-1">1.1k Followers</span>
+              <span class="ml-1">{{ event?.followersCount }} Followers</span>
             </span>
           </div>
         </div>
@@ -466,25 +468,42 @@
             >
               {{ event?.price === 0 ? "Free" : "Paid" }}
             </p>
-            <div class="hidden group-hover:block">
+           <div class="block md:block sm:block lg:block xl:hidden group-hover:block">
               <span
-                @click="addEventFav(event)"
+                v-if="isAuthenticated"
+                @click="event.isFavorite ? removeEventFav(event) : addEventToFavorites(event)"
                 class="flex absolute cursor-pointer z-15 hover:border hover:transition-all hover:scale-125 hover:border-gray-400 bottom-0 right-0 mb-2 mr-2 bg-gray-100 rounded-full w-8 h-8 font-semibold text-gray-700 items-center justify-center"
               >
-                <!-- Icon hati (heart) -->
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  fill="currentColor"
-                  class="bi bi-heart"
-                  viewBox="0 0 16 16"
-                >
-                  <path
-                    d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"
-                  />
-                </svg>
-              </span>
+            <!-- icon fill -->
+            <svg
+              v-if="event.isFavorite"
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              fill="red"
+              class="bi bi-heart"
+              viewBox="0 0 16 16"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314"
+              />
+            </svg>
+            <!-- icon no fill -->
+            <svg
+              v-else
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              fill="currentColor"
+              class="bi bi-heart"
+              viewBox="0 0 16 16"
+            >
+              <path
+                d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"
+              />
+            </svg>
+          </span>
             </div>
           </div>
           <p class="text-left mt-4 text-gray-800 text-lg font-semibold">
@@ -561,7 +580,7 @@
                   d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6m2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0m4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4m-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10s-3.516.68-4.168 1.332c-.678.678-.83 1.418-.832 1.664z"
                 />
               </svg>
-              <span class="ml-1">1.1k Followers</span>
+              <span class="ml-1">{{ event?.followersCount }} Followers</span>
             </span>
           </div>
         </div>
@@ -605,11 +624,25 @@ export default {
       return this.getEventMain;
     },
     eventFav() {
-      return this.getEventFavorite;
+       // Periksa apakah pengguna terautentikasi
+      if (!this.isAuthenticated) {
+        // Jika tidak terautentikasi, kembalikan array kosong
+        return [];
+      }
+
+      // Jika terautentikasi, kembalikan daftar event favorit
+      return this.$store.getters["eventMain/getEventFavorite"];
     },
     me() {
-      return this.getMe;
-    },
+    // Periksa apakah pengguna terautentikasi
+    if (!this.isAuthenticated) {
+      // Jika tidak terautentikasi, kembalikan null
+      return null;
+    }
+
+    // Jika terautentikasi, kembalikan data pengguna
+    return this.$store.getters["auth/getMe"];
+  },
     filteredResults() {
       return this.searchResults.filter((result) => {
         return result.type === "city" || result.type === "administrative";
@@ -617,7 +650,7 @@ export default {
     },
   },
   methods: {
-    ...mapActions("eventMain", ["fetchEventMain", "fetchEventsFavorite"]),
+    ...mapActions("eventMain", ["fetchEventMain", "fetchEventsFavorite", "addEventsFavorite", "removeEventsFavorite"]),
     ...mapActions("auth", ["fetchMe"]),
     toDetailEvent(event) {
       const uuid = event.uuid;
@@ -760,57 +793,60 @@ export default {
         console.error("Failed to get location:", error);
       }
     },
-    async updateDisplayedEvents() {
-      this.$store.getters["eventMain/isLoading"];
+async updateDisplayedEvents() {
 
-      let filteredEvents = this.events;
+  let filteredEvents = this.events;
 
-      // Filter berdasarkan kota (lokasi)
-      if (
-        this.selectedCategory === 1 &&
-        this.searchQuery &&
-        this.searchQuery.toLowerCase() !== "online"
-      ) {
-        filteredEvents = filteredEvents.filter((event) => {
-          return event.event_locations[0]?.city
-            .toLowerCase()
-            .includes(this.searchQuery.toLowerCase());
-        });
-      }
+  // Filter berdasarkan kota (lokasi)
+  if (
+    this.selectedCategory === 1 &&
+    this.searchQuery &&
+    this.searchQuery.toLowerCase() !== "online"
+  ) {
+    filteredEvents = filteredEvents.filter((event) => {
+      return event.event_locations[0]?.city
+        .toLowerCase()
+        .includes(this.searchQuery.toLowerCase());
+    });
+  }
 
-      // Sortir berdasarkan jumlah tampilan untuk kategori "For you" (id: 2)
-      if (this.selectedCategory === 2) {
-        filteredEvents.sort((a, b) => b.views - a.views);
-      }
+  // Sortir berdasarkan jumlah tampilan untuk kategori "For you" (id: 2)
+  if (this.selectedCategory === 2) {
+    filteredEvents.sort((a, b) => b.views - a.views);
+  }
 
-      // Filter events berdasarkan type_location: "online" untuk kategori "Online" (id: 3)
-      if (this.selectedCategory === 3) {
-        filteredEvents = filteredEvents.filter(
-          (event) => event.type_location.toLowerCase() === "online"
-        );
-      }
+  // Filter events berdasarkan type_location: "online" untuk kategori "Online" (id: 3)
+  if (this.selectedCategory === 3) {
+    filteredEvents = filteredEvents.filter(
+      (event) => event.type_location.toLowerCase() === "online"
+    );
+  }
 
-      // Perbarui properti isFavorite untuk setiap acara
-      filteredEvents.forEach((event) => {
-        if (this.isEventFavorite(event)) {
-          event.isFavorite = true; // Jika event ada di dalam daftar favorit, atur isFavorite menjadi true
-        }
-      });
+  // Ambil ID dari semua event favorit yang dimiliki pengguna
+  const favoriteEventIds = this.eventFav.map((favEvent) => favEvent.eventId);
 
-      // Jika tidak ada hasil setelah filter, tampilkan "No events found"
-      if (filteredEvents.length === 0) {
-        this.displayedEvents = [];
-        return;
-      }
+  // Perbarui properti isFavorite untuk setiap acara berdasarkan apakah ID event ada di dalam daftar favorit
+  filteredEvents.forEach((event) => {
+    event.isFavorite = favoriteEventIds.includes(event.id);
+  });
 
-      let allEvents = filteredEvents.slice(); // Salin semua event yang sudah difilter
+  // Jika tidak ada hasil setelah filter, tampilkan acara acak
+  if (filteredEvents.length === 0) {
+    // Ambil acara acak dari semua acara yang tersedia
+    const randomEvents = this.events.slice().sort(() => Math.random() - 0.5);
+    // Tampilkan enam acara pertama yang diacak
+    this.displayedEvents = randomEvents.slice(0, 6);
+    return;
+  }
 
-      // Tampilkan enam event pertama
-      this.displayedEvents = allEvents.slice(0, 6);
+  let allEvents = filteredEvents.slice(); // Salin semua event yang sudah difilter
 
-      this.$store.getters["eventMain/isLoading"];
-      this.loadMoreEvents();
-    },
+  // Tampilkan enam event pertama
+  this.displayedEvents = allEvents.slice(0, 6);
+
+  this.loadMoreEvents();
+},
+
     filterByLocation() {
       // Filter berdasarkan lokasi
       this.searchQuery = this.currentLocation;
@@ -836,6 +872,14 @@ async loadMoreEvents() {
     // Filter hanya event yang belum ditampilkan di displayedEvents
     const uniqueEvents = this.filterUniqueMoreEvents(additionalEvents);
 
+    // Ambil ID dari semua event favorit yang dimiliki pengguna
+    const favoriteEventIds = this.eventFav.map((favEvent) => favEvent.eventId);
+
+    // Perbarui properti isFavorite untuk setiap acara berdasarkan apakah ID event ada di dalam daftar favorit
+    uniqueEvents.forEach((event) => {
+      event.isFavorite = favoriteEventIds.includes(event.id);
+    });
+
     this.moreEvents = uniqueEvents;
   } catch (error) {
     console.error("Failed to load more events:", error);
@@ -852,23 +896,39 @@ filterUniqueMoreEvents(events) {
   return uniqueEvents;
 },
 
-async addEventFav(event) {
-  try {
-    await this.$store.dispatch("eventMain/addEventsFavorite", event.id);
-    // Set isFavorite menjadi true pada objek event yang sesuai
-    event.isFavorite = true;
-    this.$message.success("Event successfully added to favorites");
-  } catch (error) {
-    console.log(error.message);
-  }
-},
+ async addEventToFavorites(event) {
+    // Periksa apakah pengguna terautentikasi
+    if (!this.isAuthenticated) {
+      // Jika tidak terautentikasi, arahkan pengguna ke halaman login
+      this.$router.push("/auth/login");
+      // Tampilkan pesan untuk memberi tahu pengguna bahwa mereka harus login terlebih dahulu
+      ElMessage({
+        type: "warning",
+        message: "You need to log in to add events to favorites.",
+      });
+      return;
+    }
+
+    try {
+      // Panggil aksi untuk menambahkan event ke daftar favorit
+      await this.addEventsFavorite(event.id);
+      event.isFavorite = true;
+      // Panggil fungsi addEventFav dengan menggunakan this.addEventFav
+    } catch (error) {
+      console.error("Failed to add event to favorites:", error);
+      // Tampilkan pesan kesalahan jika terjadi kesalahan saat menambahkan event ke daftar favorit
+      ElMessage({
+        type: "error",
+        message: "Failed to add event to favorites. Please try again later.",
+      });
+    }
+  },
 
 async removeEventFav(event) {
   try {
     await this.$store.dispatch("eventMain/removeEventsFavorite", event.id);
     // Set isFavorite menjadi false pada objek event yang sesuai
     event.isFavorite = false;
-    this.$message.success("Event successfully removed from favorites");
   } catch (error) {
     console.log(error.message);
   }
@@ -884,21 +944,54 @@ isEventFavorite(event) {
       this.updateDisplayedEvents();
     },
   },
-  mounted() {
-    this.searchQuery = this.currentLocation;
-    this.menuCategory();
+mounted() {
+  this.searchQuery = this.currentLocation;
+  this.menuCategory();
 
-    this.$store.getters["eventMain/isLoading"];
-    this.fetchEventMain().then(() => {
+  // Fetch event data
+  this.fetchEventMain()
+    .then(() => {
       this.$store.getters["eventMain/isLoading"];
+    })
+    .catch((error) => {
+      console.error("Failed to fetch event data:", error);
+      // Tampilkan pesan kesalahan kepada pengguna
+      ElMessage.error("Failed to fetch event data. Please try again later.");
     });
 
-    this.fetchCurrentLocation();
-    this.updateDisplayedEvents();
-    this.loadMoreEvents();
-    this.fetchOrganizers();
-    this.fetchEventsFavorite();
-  },
+  // Fetch current location
+  this.fetchCurrentLocation()
+    .then(() => {
+      // Update displayed events after fetching current location
+      this.updateDisplayedEvents();
+    })
+    .catch((error) => {
+      console.error("Failed to fetch current location:", error);
+      // Tampilkan pesan kesalahan kepada pengguna
+      ElMessage.error("Failed to fetch current location. Please try again later.");
+    });
+
+  // Fetch organizers
+  this.fetchOrganizers()
+    .catch((error) => {
+      console.error("Failed to fetch organizers:", error);
+      // Tampilkan pesan kesalahan kepada pengguna
+      ElMessage.error("Failed to fetch organizers. Please try again later.");
+    });
+
+  // Fetch favorite events
+  this.fetchEventsFavorite()
+    .catch((error) => {
+      console.error("Failed to fetch favorite events:", error);
+      // Tampilkan pesan kesalahan kepada pengguna
+      ElMessage.error("Failed to fetch favorite events. Please try again later.");
+    });
+
+  // Load more events
+  this.loadMoreEvents();
+   this.updateDisplayedEvents();
+},
+
 };
 </script>
 <style scoped>

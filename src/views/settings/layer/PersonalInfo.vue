@@ -350,9 +350,9 @@ export default {
     ...mapGetters("settings", ["getProfile"]),
     profileImage() {
       if (!this.previewFile && (!this.getProfile || !this.getProfile.url)) {
-        const initials = `${this.formData.firstName.charAt(
+        const initials = `${this.formData?.firstName?.charAt(
           0
-        )}${this.formData.lastName.charAt(0)}`;
+        )}${this.formData?.lastName?.charAt(0)}`;
         return `https://ui-avatars.com/api/?name=${initials}&background=random&size=150`;
       } else {
         return this.previewFile

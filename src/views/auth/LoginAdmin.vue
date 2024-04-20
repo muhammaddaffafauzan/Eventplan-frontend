@@ -130,8 +130,7 @@ export default {
         const success = await this.$store.dispatch('auth/login', credentials);
 
         if (success) {
-          // Redirect ke halaman setelah login sukses
-          this.$router.push({ path: '/admin/dashboard' });
+          window.location.href = '/admin/dashboard'
         }
       } catch (error) {
         console.error('An error occurred during login', error);

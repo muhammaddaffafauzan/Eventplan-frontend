@@ -87,6 +87,7 @@
           <!-- Konten Detail acara -->
           <div class="basis-1/2 my-5">
             <span
+            @click="viewItem(card.event)"
               class="hover:underline hover:cursor-pointer text-gray-800 font-semibold"
               >{{ card?.event?.title }}</span
             >
@@ -164,6 +165,13 @@ export default {
       return price.toLocaleString("id-ID", {
         style: "currency",
         currency: "IDR",
+      });
+    },
+        viewItem(item) {
+      const uuid = item.uuid; // Ambil UUID dari item
+      const eventName = item.title.replace(/\s+/g, "-").toLowerCase(); // Buat nama acara dan konversikan ke format slug
+      this.$router.push({
+        path: `/event/${eventName}/${uuid}`, // Pindah halaman dengan path yang sesuai
       });
     },
     async removeEventFav(event) {

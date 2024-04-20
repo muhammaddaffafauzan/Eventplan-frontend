@@ -11,6 +11,7 @@
       'top-0': true,
       'start-0': true,
       'border-b': false,
+      'p-1': true,
       'border-gray-100': !isEventRoute,
       'dark:border-gray-600': !isEventRoute,
     }"
@@ -168,7 +169,7 @@
               <a
                 href="/organizer/dashboard"
                 class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white"
-                >Dashboard</a
+                >Manage my event ({{ userMe?.eventCount }})</a
               >
             </li>
             <li>
@@ -189,7 +190,7 @@
             </li>
           </ul>
           <div v-if="isAuthenticated" class="mr-4 items-center block xl:hidden">
-            <a class="inline-block py-2 px-3" href="#"> Create an Event </a>
+            <span @click="toCreateEvent" class="inline-block py-2 px-3"> Create an Event </span>
             <p class="py-2 px-3" @click="toFavoriteEvent">Favorite</p>
           </div>
         </div>
@@ -202,9 +203,9 @@
           v-if="isAuthenticated"
           class="flex mr-4 items-center max-lg:hidden"
         >
-          <a
+          <button
             class="inline-block py-2 px-2 my-auto rounded-full group hover:bg-gray-200 transition duration-300"
-            href="#"
+             @click="toCreateEvent"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -220,11 +221,12 @@
               />
             </svg>
             <div
+             
               class="flex items-center relative cursor-pointer whitespace-nowrap text-sm text-gray-600 group-hover:text-gray-800 font-medium"
             >
               Create an event
             </div>
-          </a>
+          </button>
           <div class="block relative">
             <button
               @click="toFavoriteEvent"
@@ -391,51 +393,20 @@ export default {
   methods: {
     ...mapActions("auth", ["fetchMe", "logout"]),
     toLogin() {
-      this.$router
-        .replace({
-          path: "/auth/login",
-        })
-        .then(() => {
-          window.location.reload();
-          window.scrollTo(0, 0)
-        });
+         window.scrollTo(0, 0)
+      window.location.href = '/auth/login';
+    },
+    toCreateEvent() {
+      window.scrollTo(0, 0)
+       window.location.href = '/organizer/create-event'
     },
     toFavoriteEvent() {
-      // Navigasi tanpa menambahkan entri riwayat baru
-      this.$router
-        .replace({
-          path: "/event/favorite",
-        })
-        .then(() => {
-          window.location.reload();
-        });
+      window.location.href = '/event/favorite';
+         window.scrollTo(0, 0)
     },
     logoutUser() {
-      // Show confirmation using ElMessageBox
-      ElMessageBox.confirm(
-        "Are you sure you want to log out?",
-        "Confirmation",
-        {
-          confirmButtonText: "Yes",
-          cancelButtonText: "Cancel",
-          type: "warning",
-        }
-      ).then((action) => {
-        if (action === "confirm") {
-          // Perform logout if the user confirms
-          this.logout().then((success) => {
-            if (success) {
-              // Show success message using ElMessage
-              ElMessage.success("Logout successful");
-              // Redirect to login page after successful logout
-              this.$router.push("/auth/login");
-            } else {
-              // Show error message if logout fails
-              ElMessage.error("Logout failed");
-            }
-          });
-        }
-      });
+      this.logout();
+      window.location.href = '/auth/login'
     },
     openSearch() {
       this.isSearchOpen = true;

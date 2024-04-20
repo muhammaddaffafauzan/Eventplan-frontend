@@ -126,7 +126,7 @@ export default {
 
         if (success) {
           // Redirect ke halaman setelah login sukses
-          this.$router.push("/");
+          window.location.href = '/'
         }
       } catch (error) {
         console.error("An error occurred during login", error);

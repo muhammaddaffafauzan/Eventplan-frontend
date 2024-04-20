@@ -1,20 +1,38 @@
 <template>
   <div class="min-h-screen py-8 relative">
     <!-- Container untuk loading -->
-    <el-container v-if="loadingEvent">
-      <!-- Loading Skeleton -->
-      <el-row type="flex" justify="center" align="middle">
-        <el-col :span="24">
-          <el-skeleton :loading="loadingEvent" animation="pulse">
-            <!-- Header -->
-            <el-card class="mb-4">
-              <h2 class="text-3xl font-semibold">Loading...</h2>
-              <p class="text-gray-600">Loading...</p>
-            </el-card>
-          </el-skeleton>
-        </el-col>
-      </el-row>
-    </el-container>
+  <div v-if="$store.getters['eventMain/isLoading']" class="p-4">
+      <!-- Skeleton untuk header -->
+      <div class="mb-4">
+        <h2 class="text-3xl font-semibold bg-gray-300 w-64 h-12 animate-pulse"></h2>
+        <p class="text-gray-600 bg-gray-200 w-48 h-6 animate-pulse"></p>
+      </div>
+      <!-- Skeleton untuk gambar -->
+      <div v-if="event && event.url" class="mb-4">
+        <div class="bg-gray-200 w-full h-64 animate-pulse"></div>
+      </div>
+      <!-- Skeleton untuk detail acara -->
+      <div>
+        <!-- Skeleton untuk setiap detail -->
+        <div class="mb-4">
+          <div class="flex items-center">
+            <div class="bg-gray-200 w-24 h-6 animate-pulse mr-4"></div>
+            <div class="bg-gray-200 w-48 h-6 animate-pulse"></div>
+          </div>
+        </div>
+        <!-- Skeleton untuk lokasi -->
+        <div v-if="event && event.event_locations && event.event_locations.length > 0" class="mb-4">
+          <div class="flex items-center">
+            <div class="bg-gray-200 w-24 h-6 animate-pulse mr-4"></div>
+            <div class="bg-gray-200 w-48 h-6 animate-pulse"></div>
+          </div>
+        </div>
+        <!-- Skeleton untuk deskripsi -->
+        <div class="mb-4">
+          <div class="bg-gray-200 w-full h-48 animate-pulse"></div>
+        </div>
+      </div>
+    </div>
     <!-- Container untuk konten utama -->
     <el-container v-else>
       <!-- Main Content -->
@@ -455,7 +473,7 @@ export default {
     async updateChecklistStatus(checklistItem) {
       try {
         const token = localStorage.getItem("token");
-        const response = await axios.patch(
+        const response = await axios.put(
           `/event/checklist/update/${this.event.uuid}/${checklistItem.id}`,
           {
             status: checklistItem.status,

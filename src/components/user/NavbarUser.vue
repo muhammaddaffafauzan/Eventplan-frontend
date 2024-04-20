@@ -168,7 +168,7 @@
           <!-- Menu dropdown untuk notifikasi -->
           <div
             v-if="isNotificationsVisible && upcomingEvents.length"
-            class="absolute top-full left-0 md:left-auto md:right-0 md:mt-2 bg-white border border-gray-200 shadow-lg rounded-lg z-10 w-auto"
+            class="absolute top-full left-0 md:left-auto md:right-0 md:mt-2 bg-white border border-gray-200 shadow-lg rounded-lg z-10 w-auto overflow-y-auto h-72"
             :class="{ 'md:left-0': isNotificationsVisible }"
             style="min-width: 300px; max-width: 400px"
           >
@@ -312,46 +312,11 @@ export default {
       });
     },
     toSettings() {
-      this.$router.push("/settings/personal");
+      window.location.href = '/settings/personal';
     },
-    async confirmLogout() {
-      try {
-        const confirmation = await this.$confirm(
-          "Apakah Anda yakin ingin keluar?",
-          "Konfirmasi Logout",
-          {
-            confirmButtonText: "Ya",
-            cancelButtonText: "Tidak",
-            type: "warning",
-          }
-        );
-
-        if (confirmation === "confirm") {
-          this.isLoading = true;
-
-          // Display the loading screen using Element Plus ElLoading component
-          const loadingInstance = ElLoading.service({
-            fullscreen: true,
-            text: "Logging out...",
-            background: "rgba(0, 0, 0, 0.7)",
-          });
-
-          // Simulate a delay (replace this with your actual logout logic)
-          await new Promise((resolve) => setTimeout(resolve, 3000));
-
-          // Perform the logout action
-          await this.logout();
-
-          // Close the loading screen
-          loadingInstance.close();
-
-          this.isLoading = false;
-          this.$router.push({ name: "LoginUser" });
-        }
-      } catch (error) {
-        console.error(error.message);
-        throw error;
-      }
+     confirmLogout() {
+     this.logout();
+     window.location.href = '/auth/login'
     },
     showNotifications() {
       this.isNotificationsVisible = true;
@@ -386,36 +351,37 @@ export default {
       }
     },
   },
-  mounted() {
-    this.fetchMe();
-    const notificationSettings = JSON.parse(
-      localStorage.getItem("notificationSettings")
-    );
+mounted() {
+  this.fetchMe();
+  const notificationSettings = JSON.parse(
+    localStorage.getItem("notificationSettings")
+  );
 
-    // Pastikan pengaturan notifikasi ada dan diaktifkan
-    if (notificationSettings && notificationSettings.enableNotifications) {
-      // Dapatkan pengaturan yang diperlukan
-      const { reminderDays } = notificationSettings;
+  // Pastikan pengaturan notifikasi ada dan diaktifkan
+  if (notificationSettings && notificationSettings.enableNotifications) {
+    // Dapatkan pengaturan yang diperlukan
+    const { reminderDays } = notificationSettings;
 
-      // Lakukan logika untuk menentukan kapan notifikasi harus ditampilkan
-      const today = new Date();
-      const futureDate = new Date();
-      futureDate.setDate(today.getDate() + parseInt(reminderDays));
+    // Lakukan logika untuk menentukan kapan notifikasi harus ditampilkan
+    const today = new Date();
+    const futureDate = new Date();
+    futureDate.setDate(today.getDate() + parseInt(reminderDays));
 
-      // Filter event berdasarkan start_date yang akan dimulai dalam reminderDays hari
-      const isEventNear = this.upcomingEvents.some((event) => {
-        const eventStartDate = new Date(event.start_date);
-        return eventStartDate <= futureDate;
-      });
+    // Filter event berdasarkan start_date yang akan dimulai dalam reminderDays hari
+    const isEventNear = this.upcomingEvents.some((event) => {
+      const eventStartDate = new Date(event.start_date);
+      // Memeriksa apakah event dimulai dalam rentang waktu yang ditentukan
+      return eventStartDate >= today && eventStartDate <= futureDate;
+    });
 
-      // Jika event dekat, tampilkan notifikasi
-      if (isEventNear) {
-        this.showNotification();
-        if (notificationSettings.allowBrowserNotifications) {
-          this.showBrowserNotification();
-        }
+    // Jika ada event dekat, tampilkan notifikasi
+    if (isEventNear) {
+      this.showNotification();
+      if (notificationSettings.allowBrowserNotifications) {
+        this.showBrowserNotification();
       }
     }
-  },
+  }
+}
 };
 </script>

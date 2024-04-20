@@ -30,6 +30,28 @@
               />
             </div>
           </div>
+             <div class="flex flex-col pt-2">
+              <div class="focus-within:border-b-gray-500 relative flex overflow-hidden border-b-2 transition">
+              <input
+                type="text"
+                id="register-firstname"
+                class="w-full flex-1 appearance-none border-gray-300 bg-white px-4 py-2 text-base text-gray-700 placeholder-gray-400 focus:outline-none"
+                placeholder="firstname"
+                v-model="registerForm.firstName"
+              />
+            </div>
+          </div>
+          <div class="flex flex-col pt-2">
+              <div class="focus-within:border-b-gray-500 relative flex overflow-hidden border-b-2 transition">
+              <input
+                type="text"
+                id="register-lastname"
+                class="w-full flex-1 appearance-none border-gray-300 bg-white px-4 py-2 text-base text-gray-700 placeholder-gray-400 focus:outline-none"
+                placeholder="lastname"
+                v-model="registerForm.lastName"
+              />
+            </div>
+          </div>
           <div class="flex flex-col pt-2">
             <div class="focus-within:border-b-gray-500 relative flex overflow-hidden border-b-2 transition">
               <input
@@ -106,7 +128,7 @@
         <p class="mb-7 text-sm opacity-70">Web Design Agency</p>
       </div>
       <img
-        class="-z-1 absolute top-0 h-full w-full object-cover opacity-90"
+        class="-z-1 absolute top-0 h-full w-full object-fill opacity-90"
         src="https://images.unsplash.com/photo-1565301660306-29e08751cc53?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=687&q=80"
       />
     </div>
@@ -122,6 +144,8 @@ export default {
       registerForm: {
         username: "",
         email: "",
+        firstName: "",
+        lastName: "",
         password: "",
         confPassword: "",
       },
@@ -148,6 +172,8 @@ export default {
       const formRegist = {
         username: this.registerForm.username,
         email: this.registerForm.email,
+        firstName: this.registerForm.firstName,
+        lastName: this.registerForm.lastName,
         password: this.registerForm.password,
         confPassword: this.registerForm.confPassword,
       };

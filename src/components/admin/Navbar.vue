@@ -113,42 +113,11 @@ breadcrumbs() {
   methods: {
     ...mapActions('auth', ['fetchMe', 'logout']),
 	toSettings(){
-		this.$router.push({name: "SettingsLayout"})
+		window.location.href = '/settings/personal';
 	},
-    async confirmLogout() {
-      try {
-        const confirmation = await this.$confirm('Apakah Anda yakin ingin keluar?', 'Konfirmasi Logout', {
-          confirmButtonText: 'Ya',
-          cancelButtonText: 'Tidak',
-          type: 'warning',
-        });
-
-        if (confirmation === 'confirm') {
-          this.isLoading = true;
-
-          // Display the loading screen using Element Plus ElLoading component
-          const loadingInstance = ElLoading.service({
-            fullscreen: true,
-            text: 'Logging out...',
-            background: 'rgba(0, 0, 0, 0.7)',
-          });
-
-          // Simulate a delay (replace this with your actual logout logic)
-          await new Promise(resolve => setTimeout(resolve, 3000));
-
-          // Perform the logout action
-          await this.logout();
-
-          // Close the loading screen
-          loadingInstance.close();
-
-          this.isLoading = false;
-          this.$router.push({ name: 'LoginAdmin' });
-        }
-      } catch (error) {
-        console.error(error.message);
-        throw error;
-      }
+    confirmLogout() {
+		this.logout();
+		 window.location.href = '/admin/login'
     },
   },
   mounted() {

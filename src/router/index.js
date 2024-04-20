@@ -25,6 +25,8 @@ import EditEventUser from "../views/user/EditEventUser.vue";
 import EventMoreMain from "../views/main/EventMoreMain.vue";
 import EventDetailMain from "../views/main/EventDetailMain.vue";
 import EventFavorite from "../views/main/EventFavorite.vue";
+import UserListAdmin from "../views/admin/UserListAdmin.vue";
+import DetailUserAdmin from "../views/admin/DetailUserAdmin.vue";
 
 import store from "../store";
 
@@ -122,7 +124,7 @@ const router = createRouter({
       component: MainLayout,
       name: "MainLayout",
       meta: {
-        title: "Home",
+        title: "event planning",
       },
       children: [
         {
@@ -130,7 +132,7 @@ const router = createRouter({
           component: HomeMain,
           name: "HomeMain",
           meta: {
-            title: "Home",
+            title: "event planning",
           },
         },
         {
@@ -146,6 +148,7 @@ const router = createRouter({
           component: EventFavorite,
           name: "EventFavorite",
           meta: {
+            requiresLogin: true,
             title: "Favorite",
           },
         },
@@ -219,7 +222,7 @@ const router = createRouter({
           component: DashboardAdmin,
           name: "DashboardAdmin",
           meta: {
-            title: "Admin Dashboard",
+            title: "Dashboard",
           },
         },
         {
@@ -227,7 +230,7 @@ const router = createRouter({
           component: EventAdmin,
           name: "EventAdmin",
           meta: {
-            title: "Admin Event",
+            title: "Event",
           },
         },
         {
@@ -235,7 +238,7 @@ const router = createRouter({
           component: DetailEventAdmin,
           name: "DetailEventAdmin",
           meta: {
-            title: "Admin Event Detail",
+            title: "Event Detail",
           },
         },
         {
@@ -243,7 +246,23 @@ const router = createRouter({
           component: AddEventAdmin,
           name: "AddEventAdmin",
           meta: {
-            title: "Admin Create Event",
+            title: "Create Event",
+          },
+        },
+        {
+          path: "/admin/user",
+          component: UserListAdmin,
+          name: "UserListAdmin",
+          meta: {
+            title: "UserList",
+          },
+        },
+        {
+          path: "/admin/:userName/:uuid",
+          component: DetailUserAdmin,
+          name: "DetailUserAdmin",
+          meta: {
+            title: "UserList",
           },
         },
       ],

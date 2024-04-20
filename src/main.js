@@ -21,6 +21,17 @@ const i18n = createI18n({
   },
 });
 
+function checkTokenAndRole() {
+  const token = localStorage.getItem("token");
+  const role = localStorage.getItem("role");
+
+  if (!token || !role) {
+    store.dispatch("auth/logout");
+  }
+}
+
+checkTokenAndRole();
+
 const app = createApp(App);
 app.use(store);
 app.use(router);

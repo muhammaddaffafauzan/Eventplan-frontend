@@ -90,13 +90,6 @@ const auth = {
           "/auth/verify-email",
           verificationData
         );
-        const message = response.data.msg;
-
-        // Handle success message
-        ElMessage({
-          type: "success",
-          message: message,
-        });
 
         // Jika verifikasi berhasil, simpan access token dan role ke dalam local storage dan state
         const { accessToken, role } = response.data;
@@ -152,6 +145,7 @@ const auth = {
         return false;
       }
     },
+
     async fetchMe({ commit }) {
       try {
         // Set status loading menjadi true sebelum memuat data

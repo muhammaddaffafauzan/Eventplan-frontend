@@ -262,6 +262,7 @@ export default {
                     type: 'success',
                   });
                 }
+                window.location.reload();
               })
               .catch((error) => {
                 console.error('Error validating event:', error);

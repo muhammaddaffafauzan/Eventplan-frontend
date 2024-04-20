@@ -5,17 +5,17 @@
         <div class="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8">
           <!-- Filter Section -->
           <div class="flex items-center gap-x-2 mb-6">
-            <el-select
-              v-model="selectedFilter"
-              placeholder="Select Filter"
-              class="w-56"
-            >
-              <el-option label="All" value="all" />
-              <el-option label="Reviewed" value="Reviewed" />
-              <el-option label="Approved" value="Approved" />
-              <el-option label="Denied" value="Denied" />
-              <!-- Tambahkan opsi filter lainnya sesuai kebutuhan -->
-            </el-select>
+             <el-select
+            v-model="selectedFilter"
+            placeholder="Select Filter"
+            class="w-56"
+          >
+            <el-option label="All" value="all" />
+            <el-option label="Verified" value="verified" />
+            <el-option label="Non-Verified" value="non-verified" />
+            <el-option label="Role admin" value="admin" />
+            <el-option label="Role user" value="user" />
+          </el-select>
 
             <el-input v-model="searchKeyword" placeholder="Search" class="w-56">
               <el-dropdown @command="handleSearchResultClick">
@@ -26,7 +26,7 @@
                     :key="result.id"
                     :command="result"
                   >
-                    {{ result.title }}
+                    {{ result.Profiles[0].firstName }} {{ result.Profiles[0].lastName }}
                   </el-dropdown-item>
                 </el-dropdown-menu>
               </el-dropdown>
@@ -42,7 +42,7 @@
               plain
               class="ml-auto"
             >
-              Add Event
+              Add User
             </el-button>
           </div>
           <div
@@ -51,11 +51,11 @@
             <el-skeleton :loading="isLoading" :rows="5" animated />
             <template v-if="!isLoading && !loadingEvent">
               <el-empty
-                v-if="filteredEvent.length === 0"
-                description="Event Not Found"
+                v-if="filteredUsers.length === 0"
+                description="Users Not Found"
                 class="text-center"
               >
-                <!-- Animasi atau konten tambahan untuk pesan kosong -->
+                <!-- Additional content for empty message -->
                 <div>
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -71,7 +71,7 @@
                     />
                   </svg>
                   <p class="text-gray-500 mt-2">
-                    No events found. Try changing your filters.
+                    No users found. Try changing your filters.
                   </p>
                 </div>
               </el-empty>
@@ -87,34 +87,36 @@
                     >
                       Id
                     </th>
-
                     <th
                       scope="col"
                       class="px-4 py-3.5 text-sm font-normal text-left rtl:text-right text-gray-500 dark:text-gray-400"
                     >
-                      Date
+                      Name
                     </th>
                     <th
                       scope="col"
                       class="px-4 py-3.5 text-sm font-normal text-left rtl:text-right text-gray-500 dark:text-gray-400"
                     >
-                      title
+                      Organization
                     </th>
-
                     <th
                       scope="col"
                       class="px-4 py-3.5 text-sm font-normal text-left rtl:text-right text-gray-500 dark:text-gray-400"
                     >
-                      Organizer
+                      Email
                     </th>
-
+                    <th
+                      scope="col"
+                      class="px-4 py-3.5 text-sm font-normal text-left rtl:text-right text-gray-500 dark:text-gray-400"
+                    >
+                      Role
+                    </th>
                     <th
                       scope="col"
                       class="px-4 py-3.5 text-sm font-normal text-left rtl:text-right text-gray-500 dark:text-gray-400"
                     >
                       Status
                     </th>
-
                     <th scope="col" class="relative py-3.5 px-4">
                       <span class="sr-only">Actions</span>
                     </th>
@@ -123,7 +125,7 @@
                 <tbody
                   class="bg-white divide-y divide-gray-200 dark:divide-gray-700 dark:bg-gray-900"
                 >
-                  <tr v-for="item in paginatedEvent" :key="item.id">
+                  <tr v-for="item in paginatedUsers" :key="item.id">
                     <td
                       class="px-4 py-4 text-sm font-medium text-gray-700 dark:text-gray-200 whitespace-nowrap"
                     >
@@ -132,71 +134,75 @@
                       </div>
                     </td>
                     <td
-                      class="px-4 py-4 text-sm font-medium text-gray-700 dark:text-gray-200 whitespace-nowrap"
+                      class="px-4 py-4 text-sm text-gray-500 dark:text-gray-300 whitespace-nowrap"
                     >
-                      <div class="inline-flex items-center gap-x-3">
-                        <span>{{
-                          new Intl.DateTimeFormat("en-US", {
-                            year: "numeric",
-                            month: "2-digit",
-                            day: "2-digit",
-                          }).format(new Date(item.createdAt))
-                        }}</span>
-                      </div>
+                      {{ item.Profiles[0].firstName }} {{ item.Profiles[0].lastName }}
                     </td>
                     <td
                       class="px-4 py-4 text-sm text-gray-500 dark:text-gray-300 whitespace-nowrap"
                     >
-                                  {{
-              item?.title?.length > 25
-                ? item?.title.substring(0, 25) + "..."
-                : item?.title
-            }}
+                      {{ item.Profiles[0].organize }}
                     </td>
                     <td
                       class="px-4 py-4 text-sm text-gray-500 dark:text-gray-300 whitespace-nowrap"
                     >
-                      <div class="flex items-center gap-x-2">
-                        <el-avatar>
-                          <img :src="item?.user?.Profiles?.url" alt="profile" />
-                        </el-avatar>
-                        <div>
-                          <h2
-                            class="text-sm font-medium text-gray-800 dark:text-white"
-                          >
-                            {{ item?.user?.Profiles?.organize }}
-                          </h2>
-                          <p
-                            class="text-xs font-normal text-gray-600 dark:text-gray-400"
-                          >
-                            {{ item?.user?.email }}
-                          </p>
-                        </div>
-                      </div>
+                      {{ item.email }}
+                    </td>
+                    <td
+                      class="px-4 py-4 text-sm text-gray-500 dark:text-gray-300 whitespace-nowrap"
+                    >
+                      {{ item.role }}
                     </td>
                     <td
                       class="px-4 py-4 text-sm font-medium text-gray-700 whitespace-nowrap"
                     >
                       <div
                         class="inline-flex items-center px-3 py-1 rounded-full gap-x-2"
-                        :class="getStatusClass(item?.admin_validation)"
+                        :class="getStatusClass(item.isVerified)"
                       >
                         <h2 class="text-sm font-normal">
-                          {{ item?.admin_validation }}
+                          {{ item.isVerified ? 'Verified' : 'Non-Verified' }}
                         </h2>
                       </div>
                     </td>
-                    <td class="px-4 py-4 text-sm whitespace-nowrap">
-                      <div class="flex items-center gap-x-6">
-                        <!-- <button @click="handleArchive(item)" class="text-gray-500 transition-colors duration-200 dark:hover:text-indigo-500 dark:text-gray-300 hover:text-indigo-500 focus:outline-none">
-                                    Archive
-                                  </button> -->
-                        <button
-                          @click="handleDetail(item)"
-                          class="text-blue-500 transition-colors duration-200 hover:text-indigo-500 focus:outline-none"
-                        >
-                          Detail
-                        </button>
+                                      <td class="px-4 py-4 text-sm whitespace-nowrap">
+                      <div class="relative inline-block text-left">
+                        <el-dropdown trigger="click">
+                          <span class="cursor-pointer">
+                            <svg
+                              class="w-6 h-6 text-gray-800 dark:text-white"
+                              aria-hidden="true"
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="24"
+                              height="24"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                stroke="currentColor"
+                                stroke-linecap="round"
+                                stroke-width="2"
+                                d="M12 6h.01M12 12h.01M12 18h.01"
+                              />
+                            </svg>
+                          </span>
+                          <template #dropdown>
+                            <el-dropdown-menu class="text-sm">
+                              <el-dropdown-item @click="viewItem(item)"
+                                >View</el-dropdown-item
+                              >
+                              <el-dropdown-item @click="editItem(item)"
+                                >Edit</el-dropdown-item
+                              >
+                              <el-dropdown-item @click="deleteItem(item)"
+                                >Delete</el-dropdown-item
+                              >
+                              <el-dropdown-item @click="copyURL(item)"
+                                >Copy URL</el-dropdown-item
+                              >
+                            </el-dropdown-menu>
+                          </template>
+                        </el-dropdown>
                       </div>
                     </td>
                   </tr>
@@ -269,9 +275,12 @@
     </div>
   </section>
 </template>
+
 <script>
 import { mapActions, mapGetters } from "vuex";
-import { ElLoading } from "element-plus";
+import { ElLoading, ElDropdown,
+  ElDropdownMenu,
+  ElDropdownItem, } from "element-plus";
 
 export default {
   data() {
@@ -287,76 +296,87 @@ export default {
   },
   components: {
     ElLoading,
+    ElDropdown,
+    ElDropdownMenu,
+    ElDropdownItem,
   },
   computed: {
-    // Remove the duplicate definition of handleSearchResultClick from computed
-    ...mapGetters("eventAdmin", ["getEventAdmin", "isLoading"]),
-    event() {
-      return this.getEventAdmin;
+    ...mapGetters("usersAdmin", ["getUsersAdmin", "isLoading"]),
+    users() {
+      return this.getUsersAdmin;
     },
-    filteredEvent() {
-      let filtered = this.event;
+filteredUsers() {
+  let filtered = this.users;
 
-      if (this.selectedFilter !== "all") {
-        const selectedFilterLower = this.selectedFilter.toLowerCase();
-        filtered = filtered.filter((item) => {
-          return (
-            item.admin_validation &&
-            item.admin_validation.toLowerCase() === selectedFilterLower
-          );
-        });
+  if (this.selectedFilter !== "all") {
+    const selectedFilterLower = this.selectedFilter.toLowerCase();
+    filtered = filtered.filter((item) => {
+      if (selectedFilterLower === 'verified' || selectedFilterLower === 'non-verified') {
+        return item.isVerified === (selectedFilterLower === 'verified');
+      } else if (selectedFilterLower === 'admin' || selectedFilterLower === 'user') {
+        return item.role.toLowerCase() === selectedFilterLower;
       }
+    });
+  }
 
-      if (this.searchKeyword) {
-        const keyword = this.searchKeyword.toLowerCase();
-        filtered = filtered.filter((item) => {
-          return (
-            item.id.toString().includes(keyword) ||
-            item.createdAt.toLowerCase().includes(keyword) ||
-            (item.admin_validation &&
-              item.admin_validation.toLowerCase().includes(keyword)) ||
-            (item.user &&
-              item?.user?.Profiles[0]?.firstName
-                .toLowerCase()
-                .includes(keyword)) ||
-            (item.user &&
-              item?.user?.Profiles[0]?.lastName
-                .toLowerCase()
-                .includes(keyword)) ||
-            (item.user && item?.user?.email.toLowerCase().includes(keyword)) ||
-            item.title.toLowerCase().includes(keyword)
-          );
-        });
-      }
+  if (this.searchKeyword) {
+    const keyword = this.searchKeyword.toLowerCase();
+    filtered = filtered.filter((item) => {
+      return (
+        item.id.toString().includes(keyword) ||
+        item.email.toLowerCase().includes(keyword) ||
+        item.username.toLowerCase().includes(keyword) ||
+        (item.Profiles[0]?.firstName.toLowerCase().includes(keyword)) ||
+        (item.Profiles[0]?.lastName.toLowerCase().includes(keyword)) ||
+        (item.Profiles[0]?.organize.toLowerCase().includes(keyword)) ||
+        item.role.toLowerCase().includes(keyword) ||
+        (item.isVerified ? 'verified' : 'non-verified').includes(keyword)
+      );
+    });
+  }
 
-      return filtered;
-    },
-    paginatedEvent() {
+  return filtered;
+},
+    paginatedUsers() {
       const startIndex = (this.currentPage - 1) * this.pageSize;
       const endIndex = Math.min(
         startIndex + this.pageSize,
-        this.filteredEvent.length
-      ); // Menggunakan this.filteredEvent.length sebagai panjang array
-      return this.filteredEvent.slice(startIndex, endIndex);
+        this.filteredUsers.length
+      );
+      return this.filteredUsers.slice(startIndex, endIndex);
     },
-
     pageCount() {
-      return Math.ceil(this.event.length / this.pageSize);
+      return Math.ceil(this.filteredUsers.length / this.pageSize);
     },
   },
   methods: {
-    ...mapActions("eventAdmin", ["fetchEventAdmin"]),
-    applyFilter() {
-      this.fetchEventAdmin();
+    ...mapActions("usersAdmin", ["fetchUsersAdmin"]),
+    viewItem(item) {
+      const uuid = item.uuid; // Ambil UUID dari item
+      const userName = item.username.replace(/\s+/g, "-").toLowerCase(); // Buat nama acara dan konversikan ke format slug
+      this.$router.push({
+        path: `/admin/${userName}/${uuid}`, // Pindah halaman dengan path yang sesuai
+      });
     },
+  // Fungsi untuk mengedit item
+  editItem(item) {
+    console.log('Editing item:', item);
+  },
+  // Fungsi untuk menghapus item
+  deleteItem(item) {
+    console.log('Deleting item:', item);
+  },
+  // Fungsi untuk menyalin URL item
+  copyURL(item) {
+    console.log('Copying URL of item:', item);
+  },
     handleSearchResultClick(command) {
-      this.searchKeyword = command.title;
+      this.searchKeyword = command.Profiles[0].firstName + ' ' + command.Profiles[0].lastName;
       this.searchResults = [];
       this.searching = true;
 
       try {
         // Perform your search logic
-        // await this.fetchEventAdmin();
       } finally {
         this.searching = false;
         this.$nextTick(() => {
@@ -364,23 +384,8 @@ export default {
         });
       }
     },
-    handleArchive(row) {
-      console.log("Mengarsipkan acara:", row);
-    },
-    handleDetail(row) {
-      this.$router.push({
-        name: "DetailEventAdmin",
-        params: { uuid: row.uuid },
-      });
-    },
     getStatusClass(status) {
-      const statusClassMap = {
-        Reviewed: "text-yellow-500 bg-yellow-100/60",
-        Approved: "text-emerald-500 bg-emerald-100/60",
-        Denied: "text-red-500 bg-red-100/60",
-      };
-
-      return statusClassMap[status] || "";
+      return status ? "text-emerald-500 bg-emerald-100/60" : "text-red-500 bg-red-100/60";
     },
     prevPage() {
       if (this.currentPage > 1) {
@@ -395,43 +400,27 @@ export default {
     changePage(pageNumber) {
       this.currentPage = pageNumber;
     },
-    handleSearchResultClick(command) {
-      this.searchKeyword = command.title;
-      this.searchResults = [];
-      this.searching = true;
-
-      try {
-        // Perform your search logic
-        // await this.fetchEventAdmin();
-      } finally {
-        this.searching = false;
-        this.$nextTick(() => {
-          this.$refs.searchInput.$refs.input.focus();
-        });
-      }
-    },
     goToAddEvent() {
       this.$router.push({ name: "AddEventAdmin" });
     },
   },
   mounted() {
     this.loadingEvent = true;
-    this.fetchEventAdmin().then(() => {
+    this.fetchUsersAdmin().then(() => {
       this.loadingEvent = false;
     });
   },
   beforeRouteEnter(to, from, next) {
-    document.title = "EventPlan - " + (to.meta.title || "Teks Default");
+    document.title = "EventPlan - " + (to.meta.title || "Default Text");
     next();
   },
 
   beforeRouteUpdate(to, from, next) {
-    document.title = "EventPlan - " + (to.meta.title || "Teks Default");
+    document.title = "EventPlan - " + (to.meta.title || "Default Text");
     next();
   },
 };
 </script>
-
 <style scoped>
 .fade-enter-active,
 .fade-leave-active {
