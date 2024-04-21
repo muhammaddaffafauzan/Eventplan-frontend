@@ -43,15 +43,15 @@ const router = createRouter({
       beforeEnter: (to, from, next) => {
         const isAuthenticated = store.getters["auth/isAuthenticated"];
         if (isAuthenticated) {
-          // Jika pengguna sudah login, arahkan ke halaman yang sesuai dengan rolenya
+          // Redirect user to the appropriate page based on their role
           const role = localStorage.getItem("role");
-          if (role === "admin") {
+          if (role === "admin" || role === "super admin") {
             next("/admin/dashboard");
           } else {
             next("/");
           }
         } else {
-          // Menampilkan halaman loading selama 1 detik sebelum masuk ke komponen
+          // Show loading page for 1 second before entering the component
           setTimeout(() => {
             next();
           }, 1000);
@@ -327,18 +327,22 @@ router.beforeEach(async (to, from, next) => {
   const role = localStorage.getItem("role");
 
   if (to.meta.requiresLogin && !isAuthenticated) {
-    // Redirect ke halaman login jika diperlukan login dan pengguna tidak terautentikasi
+    // Redirect to login page if login is required and user is not authenticated
     next("/auth/login");
-  } else if (to.meta.requiresAdmin && role !== "admin") {
-    // Redirect ke halaman dashboard admin jika diperlukan admin dan pengguna bukan admin
+  } else if (
+    to.meta.requiresAdmin &&
+    !(role === "admin" || role === "super admin")
+  ) {
+    // Redirect to admin dashboard page if admin access is required and user is not admin or super admin
     next("/admin/dashboard");
   } else if (to.meta.requiresUser && role !== "user") {
-    // Redirect ke halaman home jika diperlukan user dan pengguna bukan user
+    // Redirect to home page if user access is required and user is not a user role
     next("/");
   } else {
     // Continue with navigation
     next();
   }
 });
+
 
 export default router;

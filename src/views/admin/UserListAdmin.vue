@@ -36,14 +36,64 @@
                 class="search-loading"
               ></el-loading>
             </el-input>
-            <el-button
-              @click="goToAddEvent"
-              type="primary"
-              plain
-              class="ml-auto"
-            >
-              Add User
-            </el-button>
+           <el-button  @click="goToAddUser" type="primary" plain class="ml-auto">
+          Add User
+        </el-button>
+             <el-dialog
+                width="50%"
+                title="Add User"
+                :before-close="handleCloseModal"
+                v-model="addUserModalVisible"
+              >
+                <el-form ref="addUserForm" :rules="rules" :model="addUserData" label-width="150px">
+                  <el-form-item label="Role" prop="role">
+                  <el-select :disabled="successAddRoleUser === true" v-model="addUserData.role" @change="handleRoleChange">
+                    <el-option label="Admin" value="admin"></el-option>
+                    <el-option label="User" value="user"></el-option>
+                  </el-select>
+                </el-form-item>
+                  <el-form-item label="Username" prop="username">
+                    <el-input :disabled="successAddRoleUser === true" v-model="addUserData.username"></el-input>
+                  </el-form-item>
+                  <el-form-item label="Email" prop="email">
+                    <el-input :disabled="successAddRoleUser === true" v-model="addUserData.email"></el-input>
+                  </el-form-item>
+                  <el-form-item label="First Name" prop="firstName">
+                    <el-input :disabled="successAddRoleUser === true" v-model="addUserData.firstName"></el-input>
+                  </el-form-item>
+                  <el-form-item label="Last Name" prop="lastName">
+                    <el-input :disabled="successAddRoleUser === true" v-model="addUserData.lastName"></el-input>
+                  </el-form-item>
+                   <template v-if="addUserData.role === 'admin'">
+                   <el-form-item label="Password" prop="password">
+                    <el-input :disabled="successAddRoleUser === true" v-model="addUserData.password" show-password type="password"></el-input>
+                  </el-form-item>
+                <el-form-item label="Confirm Password" prop="confPassword">
+                    <el-input :disabled="successAddRoleUser === true" v-model="addUserData.confPassword" show-password type="password"></el-input>
+                  </el-form-item>
+                  </template>
+                  <el-form-item v-if="addUserData.role === 'admin'" label="Status" prop="status">
+                    <el-radio-group v-model="addUserData.isVerified">
+                      <el-radio label="true">Verified</el-radio>
+                      <el-radio label="false">Non-Verified</el-radio>
+                    </el-radio-group>
+                  </el-form-item>
+                  <template v-if="addUserData.role === 'user' && successAddRoleUser === true">
+                    <!-- Bagian verifikasi kode -->
+                    <el-form-item label="Verification Code" prop="verificationCode">
+                      <el-input v-model="addUserData.verificationCode"></el-input>
+                    </el-form-item>
+                    <el-form-item label=" ">
+                      <el-button type="text" @click="resendCode">resendCode</el-button>
+                    </el-form-item>
+                  </template>
+                </el-form>
+                <span slot="footer" class="dialog-footer">
+                <el-button @click="handleCloseModal">Cancel</el-button>
+                <el-button v-if="successAddRoleUser === true" type="primary" plain @click="handleVerification">verification</el-button>
+                 <el-button v-else type="primary" plain @click="handleSubmit">{{ submitLabel }}</el-button>
+              </span>
+              </el-dialog>
           </div>
           <div
             class="overflow-hidden border border-gray-200 dark:border-gray-700 md:rounded-lg"
@@ -191,14 +241,11 @@
                               <el-dropdown-item @click="viewItem(item)"
                                 >View</el-dropdown-item
                               >
-                              <el-dropdown-item @click="editItem(item)"
-                                >Edit</el-dropdown-item
-                              >
+                             <el-dropdown-item @click="handleToggleVerification(item)">
+                              {{ item.isVerified ? 'Deactivate Verification' : 'Activate Verification' }}
+                            </el-dropdown-item>
                               <el-dropdown-item @click="deleteItem(item)"
                                 >Delete</el-dropdown-item
-                              >
-                              <el-dropdown-item @click="copyURL(item)"
-                                >Copy URL</el-dropdown-item
                               >
                             </el-dropdown-menu>
                           </template>
@@ -280,7 +327,10 @@
 import { mapActions, mapGetters } from "vuex";
 import { ElLoading, ElDropdown,
   ElDropdownMenu,
-  ElDropdownItem, } from "element-plus";
+  ElDropdownItem,
+  ElDialog, ElForm, ElFormItem, ElInput, ElSelect, ElOption, ElRadio, ElRadioGroup, ElButton, ElMessage
+} from "element-plus";
+import axios from "axios";
 
 export default {
   data() {
@@ -292,6 +342,53 @@ export default {
       currentPage: 1,
       pageSize: 5,
       searching: false,
+       addUserModalVisible: false,
+      addUserData: {
+        username: "",
+        email: "",
+        firstName: "",
+        lastName: "",
+        password: "",
+        confPassword: "",
+        role: "admin",
+        isVerified: "true",
+        verificationCode: "",
+      },
+      rules: {
+  username: [
+    { required: true, message: "Please enter username", trigger: "blur" },
+    { min: 3, max: 20, message: "Username length should be between 3 and 20 characters", trigger: "blur" },
+    { pattern: /^[a-zA-Z0-9_]+$/, message: "Username can only contain letters, numbers, and underscores", trigger: "blur" }
+  ],
+  email: [
+    { required: true, message: "Please enter email address", trigger: "blur" },
+    { type: "email", message: "Please enter a valid email address", trigger: ["blur", "change"] },
+  ],
+  firstName: [
+    { required: true, message: "Please enter first name", trigger: "blur" },
+    { min: 2, max: 50, message: "First name length should be between 2 and 50 characters", trigger: "blur" }
+  ],
+  lastName: [
+    { required: true, message: "Please enter last name", trigger: "blur" },
+    { min: 2, max: 50, message: "Last name length should be between 2 and 50 characters", trigger: "blur" }
+  ],
+  password: [
+    { required: true, message: "Please enter password", trigger: "blur" },
+    { min: 6, max: 20, message: "Password length should be between 6 and 20 characters", trigger: "blur" }
+  ],
+  confPassword: [
+        { required: true, message: "Please enter confirm password", trigger: "blur" },
+        { validator: this.validateConfPassword, trigger: "blur" }
+      ],
+  role: [
+    { required: true, message: "Please select role", trigger: "change" }
+  ],
+  isVerified: [
+    { required: true, message: "Please select verification status", trigger: "change" }
+  ],
+      },
+      submitLabel: "Submit",
+      successAddRoleUser: false
     };
   },
   components: {
@@ -299,6 +396,16 @@ export default {
     ElDropdown,
     ElDropdownMenu,
     ElDropdownItem,
+    ElDialog,
+    ElForm,
+    ElFormItem,
+    ElInput,
+    ElSelect,
+    ElOption,
+    ElRadio,
+    ElRadioGroup,
+    ElButton,
+    ElMessage
   },
   computed: {
     ...mapGetters("usersAdmin", ["getUsersAdmin", "isLoading"]),
@@ -350,7 +457,7 @@ filteredUsers() {
     },
   },
   methods: {
-    ...mapActions("usersAdmin", ["fetchUsersAdmin"]),
+  ...mapActions("usersAdmin", ["fetchUsersAdmin", "createUser", "resendVerificationCodeAdmin", "deleteUser", "verifyEmailAdmin"]),
     viewItem(item) {
       const uuid = item.uuid; // Ambil UUID dari item
       const userName = item.username.replace(/\s+/g, "-").toLowerCase(); // Buat nama acara dan konversikan ke format slug
@@ -358,18 +465,69 @@ filteredUsers() {
         path: `/admin/${userName}/${uuid}`, // Pindah halaman dengan path yang sesuai
       });
     },
-  // Fungsi untuk mengedit item
-  editItem(item) {
-    console.log('Editing item:', item);
-  },
+handleToggleVerification(item) {
+  this.$confirm(`Are you sure you want to ${item.isVerified ? 'Deactivate Verification' : 'Activate Verification'} this user?`, "Confirmation", {
+    confirmButtonText: "Yes",
+    cancelButtonText: "No",
+    type: "warning",
+    buttonProps: {
+      confirm: {
+        plain: true
+      }
+    }
+  })
+  .then(async () => {
+    // Ambil token dari local storage
+    const token = localStorage.getItem("token");
+
+    try {
+      // Sertakan token dalam permintaan
+      const response = await axios.put(`/users/verified/${item.uuid}`, {}, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      // Tanggapan dari backend
+      ElMessage.success(response.data.msg);
+
+      // Jika berhasil, lakukan sesuatu, misalnya memperbarui daftar pengguna
+      this.fetchUsersAdmin();
+    } catch (error) {
+      console.error("Error toggling verification:", error);
+      // Tangani kesalahan jika ada
+      ElMessage.error(error.response.data.msg || "Failed to toggle verification");
+    }
+  })
+  .catch(() => {
+    // Tangani jika pengguna membatalkan aksi
+  });
+},
   // Fungsi untuk menghapus item
-  deleteItem(item) {
-    console.log('Deleting item:', item);
-  },
-  // Fungsi untuk menyalin URL item
-  copyURL(item) {
-    console.log('Copying URL of item:', item);
-  },
+deleteItem(item) {
+  this.$confirm("Are you sure you want to delete this user?", "Confirmation", {
+    confirmButtonText: "Yes",
+    cancelButtonText: "No",
+    type: "warning",
+    buttonProps: {
+      confirm: {
+        plain: true
+      }
+    }
+  })
+  .then(async () => {
+    // Panggil deleteUser action dengan parameter userId
+    const success = await this.deleteUser(item.uuid);
+    if (success) {
+      // Jika penghapusan berhasil, lakukan sesuatu di sini, seperti menyegarkan daftar pengguna
+      this.fetchUsersAdmin();
+    }
+  })
+  .catch(() => {
+    // Jika pengguna membatalkan penghapusan, tidak perlu melakukan apa pun
+  });
+},
+
     handleSearchResultClick(command) {
       this.searchKeyword = command.Profiles[0].firstName + ' ' + command.Profiles[0].lastName;
       this.searchResults = [];
@@ -400,9 +558,186 @@ filteredUsers() {
     changePage(pageNumber) {
       this.currentPage = pageNumber;
     },
-    goToAddEvent() {
-      this.$router.push({ name: "AddEventAdmin" });
+goToAddUser() {
+  // Periksa peran pengguna dari localStorage
+  const role = localStorage.getItem('role');
+  if (role !== 'super admin') {
+    // Jika peran bukan super admin, tampilkan pesan peringatan
+    ElMessage({
+      type: "warning",
+      message: "This feature can only be accessed by super admin",
+    });
+    return; // Langsung keluar dari fungsi
+  }
+
+  // Jika peran adalah super admin, lanjutkan dengan menampilkan modal penambahan pengguna
+  this.handleRoleChange();
+  this.addUserModalVisible = true;
+},
+
+handleCloseModal() {
+  if (this.isUserDataFilled()) {
+    // Jika data pengguna terisi, tampilkan konfirmasi
+    this.$confirm("Discard user data?", "Confirmation", {
+      confirmButtonText: "Yes",
+      cancelButtonText: "No",
+      type: "warning",
+       buttonProps: {
+    confirm: {
+      plain: true // Mengatur tombol "Yes" menjadi plain
+    }
+  }
+    })
+      .then(() => {
+        // Jika pengguna menekan tombol Yes, reset form data dan properti label
+        this.addUserModalVisible = false;
+        this.$refs.addUserForm.resetFields();
+        this.sendCodeLabel = "Send Code";
+        this.submitLabel = "Submit";
+      })
+      .catch(() => {
+        // Jika pengguna menekan tombol No, tutup saja dialog
+        return;
+      });
+  } else {
+    // Jika data pengguna tidak terisi, langsung tutup dialog
+    this.addUserModalVisible = false;
+    this.$refs.addUserForm.resetFields();
+    this.sendCodeLabel = "Send Code";
+    this.submitLabel = "Submit";
+  }
+},
+isUserDataFilled() {
+  // Periksa apakah ada data pengguna yang terisi
+  const userData = this.addUserData;
+  return (
+    userData.username ||
+    userData.email ||
+    userData.firstName ||
+    userData.lastName ||
+    userData.password ||
+    userData.confPassword ||
+    userData.verificationCode
+  );
+},
+     handleRoleChange(role) {
+      if (role === "user") {
+        this.submitLabel = "Create User";
+        this.addUserData.password = ""; // Set default password for user
+        this.addUserData.confPassword = ""; // Set default confirm password for user
+      } else {
+        this.submitLabel = "Create Admin";
+         this.addUserData.password = "12345678"; // Set default password for admin
+        this.addUserData.confPassword = "12345678"; // Set default confirm password for admin
+      }
     },
+ validateConfPassword(rule, value, callback) {
+      if (value === "") {
+        callback(new Error("Please enter confirm password"));
+      } else if (value !== this.addUserData.password) {
+        callback(new Error("The two passwords do not match"));
+      } else {
+        callback();
+      }
+    },
+    async resendCode() {
+      if (!this.addUserData.email) {
+        ElMessage({
+          type: "error",
+          message: "Please provide an email address",
+        });
+        return;
+      }
+      try {
+        await this.resendVerificationCodeAdmin(this.addUserData.email);
+        ElMessage({
+          type: "success",
+          message: "Verification code sent successfully",
+        });
+      } catch (error) {
+        console.error("Error resending verification code:", error);
+        ElMessage({
+          type: "error",
+          message: error.response.data.msg || "Failed to resend verification code",
+        });
+      }
+    },
+    async handleVerification() {
+      try {
+             if (this.successAddRoleUser === true) {
+                    if (!this.addUserData.verificationCode) {
+        this.$message({
+          type: "error",
+          message: "Please enter verification code",
+        });
+        return;
+      }
+
+      // Verifikasi email pengguna
+      await this.verifyEmailAdmin({
+        email: this.addUserData.email,
+        verificationToken: this.addUserData.verificationCode,
+      });
+       this.$message({
+        type: "success",
+        message: "Email verified successfully",
+      });
+       this.handleCloseModal();
+      this.fetchUsersAdmin();
+             }
+      } catch (error) {
+         console.error("Error verifying email:", error);
+      }
+    },
+  async handleSubmit() {
+    try {
+      // Lakukan validasi formulir
+      await this.$refs.addUserForm.validate();
+
+      // Formulir valid, lanjutkan dengan mengirimkan data
+      var data = {
+        username: this.addUserData.username,
+        email: this.addUserData.email,
+        firstName: this.addUserData.firstName,
+        lastName: this.addUserData.lastName,
+        role: this.addUserData.role
+      };
+
+      if (data.role === "user") {
+      
+        // Lakukan pengiriman data untuk membuat pengguna baru
+        const success = await this.createUser(data);
+        if (!success) {
+          this.successAddRoleUser = true; // Diubah hanya jika createUser berhasil
+        }
+      } else {
+        // Jika peran adalah admin, lanjutkan dengan membuat admin
+        this.createAdmin();
+      }
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      // Tangani kesalahan jika ada
+    }
+  },
+
+async createAdmin() {
+  try {
+    // Lakukan pengiriman data ke backend untuk membuat admin baru
+    const success = await this.createUser(this.addUserData);
+    // Reset form data
+    this.$refs.addUserForm.resetFields();
+    if (success) {
+      // Jika pembuatan admin berhasil, tutup modal
+      this.addUserModalVisible = false;
+    }
+  } catch (error) {
+    console.error("Error creating admin:", error);
+    this.$message({
+      type: "error",
+      message: error.response.data.msg || "Failed to create admin",
+    });
+  }
+},
   },
   mounted() {
     this.loadingEvent = true;

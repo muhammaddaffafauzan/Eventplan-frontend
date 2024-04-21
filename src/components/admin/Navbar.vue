@@ -37,14 +37,14 @@
 				 <!-- button titik 3 mobile only -->
 				<button v-if="me" class="middle none font-sans font-bold center uppercase transition-all disabled:opacity-50 disabled:shadow-none disabled:pointer-events-none text-xs py-3 rounded-lg text-gray-500 hover:bg-blue-gray-500/10 active:bg-blue-gray-500/30 hidden items-center gap-1 px-4 xl:flex" type="button">
 					<el-avatar>
-						<img :src="me.profile?.url" alt="profile">
+						<img :src="profileImage" alt="profile">
 					</el-avatar>   
 					{{ me.user?.username }}
 				</button>
 
 				<button v-if="!me" class="relative middle none font-sans font-medium text-center uppercase transition-all disabled:opacity-50 disabled:shadow-none disabled:pointer-events-none w-10 max-w-[40px] h-10 max-h-[40px] rounded-lg text-xs text-gray-500 hover:bg-blue-gray-500/10 active:bg-blue-gray-500/30 grid xl:hidden" type="button">
 					<el-avatar>
-						<img :src="me.profile.url" alt="profile">
+						<img :src="profileImage" alt="profile">
 					</el-avatar>
 					{{ me.user?.username }}
 				</button>
@@ -108,6 +108,18 @@ breadcrumbs() {
           to: route.path,
         };
       });
+	  },
+	 profileImage() {
+      const user = this.getMe;
+      if (!user || !user.profile || !user.profile || !user.profile.url) {
+        const profile = user?.profile;
+        const firstName = profile?.firstName;
+        const lastName = profile?.lastName;
+        const initials = firstName && lastName ? `${firstName.charAt(0)}${lastName.charAt(0)}` : '';
+        return `https://ui-avatars.com/api/?name=${initials}&background=random&size=150`;
+      } else {
+        return user.profile.url;
+      }
     },
   },
   methods: {

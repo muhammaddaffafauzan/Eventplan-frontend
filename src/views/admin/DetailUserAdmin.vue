@@ -269,14 +269,19 @@ export default {
     user() {
       return this.getUsersAdminById;  
     },
-    profileImage() {
-      const user = this.getUsersAdminById(this.$route.params.uuid);
-      if (!user || !user.Profiles || !user.Profiles[0] || !user.Profiles[0].url) {
-        return "https://via.placeholder.com/150"; // Menggunakan placeholder jika URL tidak tersedia
-      } else {
-        return user.Profiles[0].url;
-      }
-    },
+profileImage() {
+  const user = this.getUsersAdminById(this.$route.params.uuid);
+  
+  if (!user || !user.Profiles || !user.Profiles[0] || !user.Profiles[0].url) {
+    const profile = user?.Profiles[0];
+    const firstName = profile?.firstName;
+    const lastName = profile?.lastName;
+    const initials = firstName && lastName ? `${firstName.charAt(0)}${lastName.charAt(0)}` : '';
+    return `https://ui-avatars.com/api/?name=${initials}&background=random&size=150`;
+  } else {
+    return user.Profiles[0].url;
+  }
+},
     // Format tanggal createdAt
     formattedCreatedAt() {
       const user = this.getUsersAdminById(this.$route.params.uuid);

@@ -15,7 +15,7 @@ const usersAdmin = {
     isLoading: (state) => state.isLoading,
   },
   actions: {
-    async fetchUsersAdmin({ commit, state }) {
+    async fetchUsersAdmin({ commit }) {
       try {
         commit("SET_LOADING", true);
 
@@ -31,15 +31,12 @@ const usersAdmin = {
 
         return response.data;
       } catch (error) {
-        console.error(
-          "Error fetching users data:",
-          error.response.data.msg
-        );
+        console.error("Error fetching users data:", error.response.data.msg);
         commit("SET_LOADING", false);
         return false;
       }
     },
-    async fetchUsersAdminById({ commit, state }, uuid) {
+    async fetchUsersAdminById({ commit }, uuid) {
       try {
         commit("SET_LOADING", true);
 
@@ -63,6 +60,81 @@ const usersAdmin = {
         return false;
       }
     },
+    async createUser({commit}, userData) {
+      try {
+        const token = localStorage.getItem("token");
+        const response = await axios.post("/users/create", userData, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        ElMessage.success(response.data.msg);
+        return response.data;
+      } catch (error) {
+        console.error("Error creating user:", error.response.data.msg);
+        return false;
+      }
+    },
+    async deleteUser({ commit }, uuid) {
+      try {
+        const token = localStorage.getItem("token");
+        const response = await axios.delete(`/users/delete/${uuid}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        ElMessage.success(response.data.msg);
+        return response.data;
+      } catch (error) {
+        console.error("Error deleting user:", error.response.data.msg);
+        return false;
+      }
+    },
+    async resendVerificationCodeAdmin({ commit }, email) {
+      try {
+        const token = localStorage.getItem("token");
+        const response = await axios.post(
+          "/users/resend-verification",
+          { email },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        ElMessage.success(response.data.msg);
+        return response.data;
+      } catch (error) {
+        console.error(
+          "Error resending verification code:",
+          error.response.data.msg
+        );
+        return false;
+      }
+    },
+    async verifyEmailAdmin({ commit }, { email, verificationToken }) {
+      try {
+        const token = localStorage.getItem("token");
+        const response = await axios.post(
+          "/users/verify-email",
+          { email, verificationToken },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        ElMessage.success(response.data.msg);
+        return response.data;
+      } catch (error) {
+        console.error("Error verifying email:", error.response.data.msg);
+        return false;
+      }
+    }
   },
   mutations: {
     SET_USERS_ADMIN(state, usersAdmin) {

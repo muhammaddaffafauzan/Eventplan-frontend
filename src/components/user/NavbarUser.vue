@@ -81,7 +81,7 @@
           type="button"
         >
           <el-avatar>
-            <img :src="me.profile?.url" alt="profile" />
+            <img :src="profileImage" alt="profile" />
           </el-avatar>
           {{ me.user?.username }}
         </button>
@@ -92,7 +92,7 @@
           type="button"
         >
           <el-avatar>
-            <img :src="me.profile.url" alt="profile" />
+            <img :src="profileImage" alt="profile" />
           </el-avatar>
           {{ me.user?.username }}
         </button>
@@ -240,6 +240,18 @@ export default {
           to: route.path,
         };
       });
+    },
+    profileImage() {
+      const user = this.getMe;
+      if (!user || !user.profile || !user.profile || !user.profile.url) {
+        const profile = user?.profile;
+        const firstName = profile?.firstName;
+        const lastName = profile?.lastName;
+        const initials = firstName && lastName ? `${firstName.charAt(0)}${lastName.charAt(0)}` : '';
+        return `https://ui-avatars.com/api/?name=${initials}&background=random&size=150`;
+      } else {
+        return user.profile.url;
+      }
     },
     upcomingEvents() {
       // Pastikan getMyEvent ada dan memiliki data
