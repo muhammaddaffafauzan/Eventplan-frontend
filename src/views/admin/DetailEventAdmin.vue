@@ -179,8 +179,6 @@
 <script>
 import { ElButton, ElMessageBox, ElSkeleton, ElSkeletonItem, ElTag } from 'element-plus';
 import axios from 'axios';
-import { QuillEditor } from '@vueup/vue-quill';
-import '@vueup/vue-quill/dist/vue-quill.snow.css';
 
 export default {
   data() {
@@ -198,7 +196,6 @@ export default {
     ElSkeleton,
     ElSkeletonItem,
     ElTag,
-    QuillEditor 
   },
   computed: {
     event() {

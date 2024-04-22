@@ -194,20 +194,12 @@
             </el-col>
           </el-row>
         </el-form-item>
-        <!-- Quill Editor Column -->
+       
         <el-collapse class="mb-4">
           <el-collapse-item title="Description" name="description">
             <el-col :span="24">
               <el-form-item label="Description" prop="description">
-                <quill-editor
-                  ref="quillEditor"
-                  v-model="quillContent"
-                  :options="quillOptions"
-                  @input="onEditorChange"
-                />
-                <div class="output ql-snow">
-                  <div class="ql-editor" v-html="quillContent"></div>
-                </div>
+                  <ckeditor :editor="editor" v-model="eventForm.description" :config="editorConfig"></ckeditor>
               </el-form-item>
             </el-col>
           </el-collapse-item>
@@ -338,14 +330,13 @@ import {
   ElOption,
   ElMessageBox,
 } from "element-plus";
-import { QuillEditor } from "@vueup/vue-quill";
-import "@vueup/vue-quill/dist/vue-quill.snow.css";
-
 import { reactive } from "vue";
+import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 
 export default {
   data() {
     return {
+       editor: ClassicEditor,
       eventForm: {
         title: "",
         categoryId: null,
@@ -376,6 +367,36 @@ export default {
         lat: null,
         long: null,
       },
+            toolbar: {
+   editorConfig: {
+      toolbar: {
+        items: [
+          'heading',
+          '|',
+          'bold',
+          'italic',
+          'underline',
+          'strikethrough',
+          '|',
+          'alignment',
+          '|',
+          'bulletedList',
+          'numberedList',
+          '|',
+          'indent',
+          'outdent',
+          '|',
+          'blockQuote',
+          'codeBlock',
+          '|',
+          'link',
+          '|',
+          'undo',
+          'redo'
+        ]
+      }
+    },
+},
       tagInput: "",
       languageOptions: [],
       isLanguagesLoading: false,
@@ -385,24 +406,9 @@ export default {
       filePreview: null,
       originalFilePreview: null,
       isLoading: false,
-      quillContent: "",
-      dataProperty: "",
-      quillContent: "",
-      quillOptions: {
-        modules: {
-          toolbar: [
-            ["bold", "italic", "underline", "strike"],
-            [{ list: "ordered" }, { list: "bullet" }],
-            ["link"],
-          ],
-        },
-        theme: "snow",
-        placeholder: "Enter event description...",
-      },
     };
   },
   components: {
-    QuillEditor,
     ElForm,
     ElFormItem,
     ElInput,
@@ -514,8 +520,6 @@ if (parseFloat(eventData.price) > 0) {
   this.eventForm.customPrice = null;
 }
 
-    // Atur konten Quill Editor
-    this.quillContent = eventData.description;
 
     this.eventId = uuid;
   } catch (error) {
@@ -625,12 +629,6 @@ if (parseFloat(eventData.price) > 0) {
 
         // Adjusting date and time format before sending to backend
         this.adjustDateTimeFormat();
-
-        // Convert Quill Editor content to HTML string
-        const formattedDescription = this.getFormattedDescription();
-
-        // Set HTML string to eventForm.description
-        this.eventForm.description = formattedDescription;
 
         // Call isLocation() to ensure lat and long are updated
         this.isLocation();
@@ -798,24 +796,6 @@ if (parseFloat(eventData.price) > 0) {
       return this.eventForm.description;
     },
 
-    initializeQuillEditor() {
-      // Setelah Quill Editor terinisialisasi, dapatkan editor instance
-      this.$nextTick(() => {
-        // Pastikan ref telah terpasang
-        if (this.$refs.quillEditor) {
-          // Dapatkan instance Quill Editor dari ref
-          const quill = this.$refs.quillEditor.quill;
-          // Pastikan Quill instance tidak kosong
-          if (quill) {
-            // Tentukan event handler untuk perubahan isi editor
-            quill.on("text-change", this.onEditorChange);
-          }
-        }
-      });
-    },
-    updateQuillContent(content) {
-      this.quillContent = content;
-    },
     // New method to set location marker based on coordinates
     setLocationMarker(latitude, longitude) {
       // Update location data
@@ -967,17 +947,6 @@ if (parseFloat(eventData.price) > 0) {
         this.eventForm.long = null;
       }
     },
-    onEditorChange() {
-      if (this.$refs.quillEditor) {
-        // Dapatkan instance Quill Editor dari ref
-        const quill = this.$refs.quillEditor.quill;
-        // Pastikan Quill instance tidak kosong
-        if (quill) {
-          // Dapatkan konten dari Quill Editor
-          this.quillContent = quill.root.innerHTML;
-        }
-      }
-    },
   },
   watch: {
     "eventForm.type_location": function (newTypeLocation) {
@@ -998,7 +967,6 @@ if (parseFloat(eventData.price) > 0) {
     this.fetchCategories();
     this.initializeMap();
     this.isLocation();
-    this.initializeQuillEditor();
   },
   created() {
     this.fetchCategories();

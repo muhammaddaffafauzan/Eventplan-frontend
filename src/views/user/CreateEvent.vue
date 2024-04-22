@@ -1,6 +1,6 @@
 <template>
   <div class="event-form-container">
-    <h2 class="text-2xl font-semibold mb-4">Create Event</h2>
+    <h2 class="text-2xl font-semibold mb-4">Add Event</h2>
     <!-- Event Form -->
     <el-card>
       <form @submit.prevent="submitForm">
@@ -190,19 +190,11 @@
           </el-row>
         </el-form-item>
         <!-- Quill Editor Column -->
-        <el-collapse class="mb-4">
+        <el-collapse>
           <el-collapse-item title="Description" name="description">
             <el-col :span="24">
               <el-form-item label="Description" prop="description">
-                <quill-editor
-                  ref="quillEditor"
-                  v-model="quillContent"
-                  :options="quillOptions"
-                  @input="onEditorChange"
-                />
-                <div class="output ql-snow">
-                  <div class="ql-editor" v-html="quillContent"></div>
-                </div>
+                 <ckeditor :editor="editor" v-model="eventForm.description" :config="editorConfig"></ckeditor>
               </el-form-item>
             </el-col>
           </el-collapse-item>
@@ -343,14 +335,13 @@ import {
   ElOption,
   ElMessageBox,
 } from "element-plus";
-import { QuillEditor } from "@vueup/vue-quill";
-import "@vueup/vue-quill/dist/vue-quill.snow.css";
-
 import { reactive } from "vue";
+import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 
 export default {
   data() {
     return {
+      editor: ClassicEditor,
       eventForm: {
         title: "",
         categoryId: null,
@@ -366,7 +357,7 @@ export default {
         language: "",
         tags: [],
         inputFile: null,
-        city: "",
+         city: "",
         state: "",
         country: "",
         address: "",
@@ -381,6 +372,36 @@ export default {
         lat: null,
         long: null,
       },
+      toolbar: {
+   editorConfig: {
+      toolbar: {
+        items: [
+          'heading',
+          '|',
+          'bold',
+          'italic',
+          'underline',
+          'strikethrough',
+          '|',
+          'alignment',
+          '|',
+          'bulletedList',
+          'numberedList',
+          '|',
+          'indent',
+          'outdent',
+          '|',
+          'blockQuote',
+          'codeBlock',
+          '|',
+          'link',
+          '|',
+          'undo',
+          'redo'
+        ]
+      }
+    },
+},
       tagInput: "",
       languageOptions: [],
       isLanguagesLoading: false,
@@ -389,24 +410,9 @@ export default {
       locationLabel: null,
       filePreview: null,
       isLoading: false,
-      quillContent: "",
-      dataProperty: "",
-      quillContent: "",
-      quillOptions: {
-        modules: {
-          toolbar: [
-            ["bold", "italic", "underline", "strike"],
-            [{ list: "ordered" }, { list: "bullet" }],
-            ["link"],
-          ],
-        },
-        theme: "snow",
-        placeholder: "Enter event description...",
-      },
     };
   },
   components: {
-    QuillEditor,
     ElForm,
     ElFormItem,
     ElInput,
@@ -506,70 +512,67 @@ export default {
         );
       }
     },
-    async submitForm() {
-      try {
-        this.isLoading = true;
 
-        // Adjusting price
-        this.eventForm.price = parseFloat(this.eventForm.price);
-        if (this.eventForm.price === 1) {
-          this.eventForm.price = parseFloat(this.eventForm.customPrice);
-        } else {
-          this.eventForm.price = 0.0;
-        }
+    // Submit form
+   async submitForm() {
+  try {
+    this.isLoading = true;
 
-        // Adjusting location type
-        if (this.eventForm.type_location !== "location") {
-          this.location = {
-            country: "",
-            state: "",
-            city: "",
-            address: "",
-            lat: null,
-            long: null,
-          };
-        }
+    // Adjusting price
+    this.eventForm.price = parseFloat(this.eventForm.price);
+    if (this.eventForm.price === 1) {
+      this.eventForm.price = parseFloat(this.eventForm.customPrice);
+    } else {
+      this.eventForm.price = 0.0;
+    }
 
-        // Adjusting technical details
-        if (this.eventForm.technical === "repeat") {
-          this.eventForm.end_date = null;
-          this.eventForm.end_time = null;
-        }
+    // Adjusting location type
+    if (this.eventForm.type_location !== "location") {
+      this.location = {
+        country: "",
+        state: "",
+        city: "",
+        address: "",
+        lat: null,
+        long: null,
+      };
+    }
 
-        // Adjusting date and time format before sending to backend
-        this.adjustDateTimeFormat();
+    // Adjusting technical details
+    if (this.eventForm.technical === "repeat") {
+      this.eventForm.end_date = null;
+      this.eventForm.end_time = null;
+    }
 
-        // Convert Quill Editor content to HTML string
-        const formattedDescription = this.getFormattedDescription();
+    // Adjusting date and time format before sending to backend
+    this.adjustDateTimeFormat();
 
-        // Set HTML string to eventForm.description
-        this.eventForm.description = formattedDescription;
+    // Call isLocation() to ensure lat and long are updated
+    this.isLocation();
 
-        // Call isLocation() to ensure lat and long are updated
-        this.isLocation();
-
-        // Prepare payload for backend
-        const formData = new FormData();
-        Object.keys(this.eventForm).forEach((key) => {
-          if (key !== "inputFile") {
-            formData.append(key, this.eventForm[key]);
-          }
-        });
-
-        // Adding file to FormData
-        formData.append("inputFile", this.eventForm.inputFile);
-
-        // Calling action in store to create event
-        await this.createEvent(formData);
-
-        // Redirecting to EventAdmin page
-        this.$router.push({ name: "MyEvent" });
-      } catch (error) {
-        console.error("Error creating event:", error);
-      } finally {
-        this.isLoading = false;
+    // Prepare payload for backend
+    const formData = new FormData();
+    Object.keys(this.eventForm).forEach((key) => {
+      if (key !== "inputFile") {
+        formData.append(key, this.eventForm[key]);
       }
-    },
+    });
+
+    // Adding file to FormData
+    formData.append("inputFile", this.eventForm.inputFile);
+
+    // Calling action in store to create event
+    await this.createEvent(formData);
+
+    // Redirecting to EventAdmin page
+    this.$router.push({ name: "EventAdmin" });
+  } catch (error) {
+    console.error("Error creating event:", error);
+  } finally {
+    this.isLoading = false;
+  }
+},
+
 
     // Adjust time and date format before sending to backend
     adjustDateTimeFormat() {
@@ -687,30 +690,6 @@ export default {
         this.eventForm.tags.splice(index, 1);
       }
     },
-    getFormattedDescription() {
-      // Handle any formatting or cleaning of the description here if needed
-      return this.eventForm.description;
-    },
-
-    // Existing method for updating Quill content
-    initializeQuillEditor() {
-      // Setelah Quill Editor terinisialisasi, dapatkan editor instance
-      this.$nextTick(() => {
-        // Pastikan ref telah terpasang
-        if (this.$refs.quillEditor) {
-          // Dapatkan instance Quill Editor dari ref
-          const quill = this.$refs.quillEditor.quill;
-          // Pastikan Quill instance tidak kosong
-          if (quill) {
-            // Tentukan event handler untuk perubahan isi editor
-            quill.on("text-change", this.onEditorChange);
-          }
-        }
-      });
-    },
-    updateQuillContent(content) {
-      this.quillContent = content;
-    },
     getUserLocation() {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
@@ -729,125 +708,115 @@ export default {
       }
     },
 
-    // New method to set location marker based on coordinates
-    setLocationMarker(latitude, longitude) {
-      // Update location data
-      this.location.lat = latitude;
-      this.location.long = longitude;
+initializeMap() {
+  this.map = L.map("map").setView([0, 0], 2);
 
-      // Set marker position
-      this.marker.setLatLng([latitude, longitude]);
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    attribution: "© OpenStreetMap contributors",
+  }).addTo(this.map);
 
-      // Pan to the user's location
-      this.map.panTo([latitude, longitude]);
+  // Create a draggable marker without adding it to the map initially
+  this.marker = L.marker([0, 0], { draggable: true });
 
-      // Ensure that the marker remains draggable after setting the location
-      this.marker.dragging.enable();
+  // Add the marker to the map when initializing
+  this.marker.addTo(this.map);
+
+  this.marker.bindPopup(this.locationLabel).openPopup();
+
+  // Initialize geocoder control
+  const geocoder = L.Control.geocoder({
+    defaultMarkGeocode: false,
+  }).addTo(this.map);
+
+  // Handle 'markgeocode' event
+  geocoder.on("markgeocode", async (event) => {
+    const { latlng, name, properties } = event.geocode;
+
+    // Update location data
+    this.location.lat = latlng.lat;
+    this.location.long = latlng.lng;
+    this.location.address = name;
+
+    // Set marker position
+    this.marker.setLatLng(latlng);
+
+    // Pan to the searched location
+    this.map.panTo(latlng);
+
+    // Ensure that the marker remains draggable after the search
+    this.marker.dragging.enable();
+    this.updateLocationFields();
+
+    // Update City, State, Country based on geocoding result
+    this.location.city = (properties && properties.address.city) || "";
+    this.location.state = (properties && properties.address.state) || "";
+    this.location.country = (properties && properties.address.country) || "";
+    this.location.address = (properties && properties.address.address) || "";
+
+    // Update the form fields based on the location data
+    this.eventForm.city = this.location.city;
+    this.eventForm.state = this.location.state;
+    this.eventForm.country = this.location.country;
+    this.eventForm.address = this.location.address;
+
+    // Call isLocation() after obtaining user location
+    this.isLocation();
+
+    // Move the marker to the searched location
+    this.setLocationMarker(latlng.lat, latlng.lng);
+  });
+
+  // Handle 'dragend' event on the marker
+  this.marker.on("dragend", async () => {
+    const { lat, lng } = this.marker.getLatLng();
+    this.location.lat = lat;
+    this.location.long = lng;
+
+    // Reverse geocode to get the location name based on coordinates
+    try {
+      const response = await axios.get(
+        `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`
+      );
+
+      const locationName = response.data.display_name || "Unknown Location";
+
+      // Update locationLabel based on the reverse geocoding result
+      this.locationLabel = `Location: ${locationName}`;
+      this.marker.setPopupContent(this.locationLabel).openPopup();
+
+      // Update City, State, Country based on reverse geocoding result
+      this.location.city =
+        (response.data.address && response.data.address.city) || "";
+      this.location.state =
+        (response.data.address && response.data.address.state) || "";
+      this.location.country =
+        (response.data.address && response.data.address.country) || "";
+      this.location.address =
+        (response.data.address && response.data.address.address) || "";
+
       this.updateLocationFields();
-    },
 
-    initializeMap() {
-      this.map = L.map("map").setView([0, 0], 2);
+      // Call isLocation() after marker drag ends
+      this.isLocation();
+    } catch (error) {
+      console.error("Error reverse geocoding:", error);
+    }
+  });
 
-      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        attribution: "© OpenStreetMap contributors",
-      }).addTo(this.map);
+  this.getUserLocation();
+},
 
-      // Create a draggable marker without adding it to the map initially
-      this.marker = L.marker([0, 0], { draggable: true });
+// Function to set location marker based on coordinates
+setLocationMarker(latitude, longitude) {
+  // Update marker position
+  this.marker.setLatLng([latitude, longitude]);
 
-      // Add the marker to the map when initializing
-      this.marker.addTo(this.map);
+  // Pan to the searched location
+  this.map.panTo([latitude, longitude]);
 
-      this.marker.bindPopup(this.locationLabel).openPopup();
-
-      // Initialize geocoder control
-      const geocoder = L.Control.geocoder({
-        defaultMarkGeocode: false,
-      }).addTo(this.map);
-
-      // Handle 'markgeocode' event
-      geocoder.on("markgeocode", async (event) => {
-        const { latlng, name, properties } = event.geocode;
-
-        // Pemeriksaan keberadaan latlng
-        if (latlng) {
-          // Update location data
-          this.location.lat = latlng.lat;
-          this.location.long = latlng.lng;
-          this.location.address = name;
-
-          // Set marker position
-          this.marker.setLatLng(latlng);
-
-          // Pan to the searched location
-          this.map.panTo(latlng);
-
-          // Ensure that the marker remains draggable after the search
-          this.marker.dragging.enable();
-          this.updateLocationFields();
-
-          // Log response untuk pemeriksaan lebih lanjut
-          console.log("Geocoding Response:", event.geocode);
-
-          // Update City, State, Country based on geocoding result
-          this.location.city = (properties && properties.address.city) || "";
-          this.location.state = (properties && properties.address.state) || "";
-          this.location.country =
-            (properties && properties.address.country) || "";
-          this.location.address =
-            (properties && properties.address.address) || "";
-
-          // Update the form fields based on the location data
-          this.eventForm.city = this.location.city;
-          this.eventForm.state = this.location.state;
-          this.eventForm.country = this.location.country;
-          this.eventForm.address = this.location.address;
-
-          // Call isLocation() after obtaining user location
-          this.isLocation();
-        }
-      });
-
-      // Handle 'dragend' event on the marker
-      this.marker.on("dragend", async () => {
-        const { lat, lng } = this.marker.getLatLng();
-        this.location.lat = lat;
-        this.location.long = lng;
-
-        // Reverse geocode to get the location name based on coordinates
-        try {
-          const response = await axios.get(
-            `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`
-          );
-
-          const locationName = response.data.display_name || "Unknown Location";
-
-          // Update locationLabel based on the reverse geocoding result
-          this.locationLabel = `Location: ${locationName}`;
-          this.marker.setPopupContent(this.locationLabel).openPopup();
-
-          // Update City, State, Country based on reverse geocoding result
-          this.location.city =
-            (response.data.address && response.data.address.city) || "";
-          this.location.state =
-            (response.data.address && response.data.address.state) || "";
-          this.location.country =
-            (response.data.address && response.data.address.country) || "";
-          this.location.address =
-            (response.data.address && response.data.address.address) || "";
-
-          this.updateLocationFields();
-
-          // Call isLocation() after marker drag ends
-          this.isLocation();
-        } catch (error) {
-          console.error("Error reverse geocoding:", error);
-        }
-      });
-
-      this.getUserLocation();
-    },
+  // Ensure that the marker remains draggable after moving to the new location
+  this.marker.dragging.enable();
+},
 
     updateLocationFields() {
       // Update the form fields based on the location data
@@ -855,44 +824,34 @@ export default {
       this.eventForm.state = this.location.state;
       this.eventForm.country = this.location.country;
     },
-    isLocation() {
-      if (this.eventForm.type_location === "location") {
-        this.eventForm.country = this.location.country;
-        this.eventForm.state = this.location.state;
-        this.eventForm.city = this.location.city;
-        this.eventForm.address = this.location.address;
-        this.eventForm.lat = this.location.lat;
-        this.eventForm.long = this.location.long;
-      } else {
-        // Jika jenis lokasi bukan 'location', reset nilai objek location
-        this.location = {
-          country: "",
-          state: "",
-          city: "",
-          address: "",
-          lat: null,
-          long: null,
-        };
-        // Reset juga nilai pada eventForm
-        this.eventForm.country = "";
-        this.eventForm.state = "";
-        this.eventForm.city = "";
-        this.eventForm.address = "";
-        this.eventForm.lat = null;
-        this.eventForm.long = null;
-      }
-    },
-onEditorChange() {
- if (this.$refs.quillEditor) {
-  // Dapatkan instance Quill Editor dari ref
-  const quill = this.$refs.quillEditor.quill;
-  // Pastikan Quill instance tidak kosong
-  if (quill) {
-    // Dapatkan konten dari Quill Editor
-    this.quillContent = quill.root.innerHTML;
+isLocation() {
+  if (this.eventForm.type_location === 'location') {
+    this.eventForm.country = this.location.country;
+    this.eventForm.state = this.location.state;
+    this.eventForm.city = this.location.city;
+    this.eventForm.address = this.location.address;
+    this.eventForm.lat = this.location.lat;
+    this.eventForm.long = this.location.long;
+  } else {
+    // Jika jenis lokasi bukan 'location', reset nilai objek location
+    this.location = {
+      country: '',
+      state: '',
+      city: '',
+      address: '',
+      lat: null,
+      long: null,
+    };
+    // Reset juga nilai pada eventForm
+    this.eventForm.country = '';
+    this.eventForm.state = '';
+    this.eventForm.city = '';
+    this.eventForm.address = '';
+    this.eventForm.lat = null;
+    this.eventForm.long = null;
   }
 }
-}
+
   },
   watch: {
     "eventForm.type_location": function (newTypeLocation) {
@@ -913,7 +872,6 @@ onEditorChange() {
     this.fetchCategories();
     this.initializeMap();
     this.isLocation();
-    this.initializeQuillEditor();
   },
 };
 </script>
@@ -922,9 +880,5 @@ onEditorChange() {
   max-width: 100%;
   margin: 0 auto;
   padding: 20px;
-}
-
-.output {
-  margin-top: 20px;
 }
 </style>

@@ -194,10 +194,7 @@
           <el-collapse-item title="Description" name="description">
             <el-col :span="24">
               <el-form-item label="Description" prop="description">
-                <quill-editor
-                  v-model="eventForm.description"
-                  :options="quillOptions"
-                ></quill-editor>
+                 <ckeditor :editor="editor" v-model="eventForm.description" :config="editorConfig"></ckeditor>
               </el-form-item>
             </el-col>
           </el-collapse-item>
@@ -338,13 +335,13 @@ import {
   ElOption,
   ElMessageBox,
 } from "element-plus";
-import { QuillEditor } from "@vueup/vue-quill";
-import "@vueup/vue-quill/dist/vue-quill.snow.css";
 import { reactive } from "vue";
+import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 
 export default {
   data() {
     return {
+      editor: ClassicEditor,
       eventForm: {
         title: "",
         categoryId: null,
@@ -375,6 +372,36 @@ export default {
         lat: null,
         long: null,
       },
+      toolbar: {
+   editorConfig: {
+      toolbar: {
+        items: [
+          'heading',
+          '|',
+          'bold',
+          'italic',
+          'underline',
+          'strikethrough',
+          '|',
+          'alignment',
+          '|',
+          'bulletedList',
+          'numberedList',
+          '|',
+          'indent',
+          'outdent',
+          '|',
+          'blockQuote',
+          'codeBlock',
+          '|',
+          'link',
+          '|',
+          'undo',
+          'redo'
+        ]
+      }
+    },
+},
       tagInput: "",
       languageOptions: [],
       isLanguagesLoading: false,
@@ -383,31 +410,9 @@ export default {
       locationLabel: null,
       filePreview: null,
       isLoading: false,
-      quillOptions: {
-        modules: {
-          toolbar: [
-            ["bold", "italic", "underline", "strike"],
-            ["blockquote", "code-block"],
-            [{ header: 1 }, { header: 2 }],
-            [{ list: "ordered" }, { list: "bullet" }],
-            [{ script: "sub" }, { script: "super" }],
-            [{ indent: "-1" }, { indent: "+1" }],
-            [{ direction: "rtl" }],
-            [{ size: ["small", false, "large", "huge"] }],
-            [{ header: [1, 2, 3, 4, 5, 6, false] }],
-            [{ color: [] }, { background: [] }],
-            [{ font: [] }],
-            [{ align: [] }],
-            ["clean"],
-          ],
-        },
-        placeholder: "Event description...",
-        theme: "snow",
-      },
     };
   },
   components: {
-    QuillEditor,
     ElForm,
     ElFormItem,
     ElInput,
@@ -683,27 +688,6 @@ export default {
       const index = this.eventForm.tags.indexOf(tag);
       if (index !== -1) {
         this.eventForm.tags.splice(index, 1);
-      }
-    },
-    getFormattedDescription() {
-      // Handle any formatting or cleaning of the description here if needed
-      return this.eventForm.description;
-    },
-
-    // Existing method for updating Quill content
-    updateQuillContent() {
-      const quillEditor = this.$refs.quillEditor;
-      console.log("Quill Editor Reference:", quillEditor);
-
-      if (quillEditor) {
-        const content = quillEditor.quill.root.innerHTML;
-        console.log("Quill Content:", content);
-
-        // Hapus tag <p> yang dibungkus secara otomatis oleh Quill
-        const cleanContent = content.replace(/<\/?p>/g, "");
-
-        // Simpan isi ke dalam data eventForm
-        this.$set(this.eventForm, "description", cleanContent);
       }
     },
     getUserLocation() {

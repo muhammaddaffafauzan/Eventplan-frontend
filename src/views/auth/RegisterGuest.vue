@@ -7,7 +7,66 @@
         <p class="mt-3 text-left text-gray-500">
           Join us by filling out the form below.
         </p>
-        <form @submit.prevent="registerUser" class="flex flex-col pt-3 md:pt-5">
+        <!-- Form pendaftaran -->
+        <form v-if="!verificationComplete" class="flex flex-col pt-3 md:pt-5">
+          <!-- Input email -->
+          <div class="flex flex-col pt-2 mb-2">
+            <div class="focus-within:border-b-gray-500 relative flex overflow-hidden border-b-2 transition">
+              <input
+                type="email"
+                id="register-email"
+                class="w-full flex-1 appearance-none border-gray-300 bg-white px-4 py-2 text-base text-gray-700 placeholder-gray-400 focus:outline-none"
+                placeholder="Email"
+                v-model="registerForm.email"
+              />
+            </div>
+          </div>
+          <!-- Tombol verifikasi -->
+          <button
+            type="button"
+            @click="sendVerificationCode"
+            class="w-full rounded-lg bg-gray-900 px-4 py-2 text-center text-base font-semibold text-white shadow-md ring-gray-500 ring-offset-2 transition focus:ring-2"
+          >
+            Verify Email
+          </button>
+        </form>
+
+       <form v-if="verificationComplete && !verificationSuccess" class="flex flex-col pt-3 md:pt-5">
+    <!-- Input token -->
+    <div class="flex flex-col pt-2">
+      <div class="focus-within:border-b-gray-500 relative flex overflow-hidden border-b-2 transition">
+        <input
+          type="text"
+          id="verification-token"
+          class="w-full flex-1 appearance-none border-gray-300 bg-white px-4 py-2 text-base text-gray-700 placeholder-gray-400 focus:outline-none"
+          placeholder="Verification Code"
+          v-model="verificationToken"
+        />
+      </div>
+    </div>
+    <!-- Tombol resend -->
+    <button
+      type="button"
+      :disabled="resendDisabled"
+      @click="resendVerificationCode"
+      class="w-full rounded-lg bg-gray-900 px-2 py-2 text-center text-base font-semibold text-white shadow-md ring-gray-500 ring-offset-2 transition focus:ring-2"
+    >
+      {{ resendButtonText }}
+    </button>
+    <!-- Tombol submit -->
+    <button
+      type="button"
+      @click="verifyEmail"
+      :disabled="!verificationToken"
+      class="w-full rounded-lg bg-gray-900 px-4 py-2 text-center text-base font-semibold text-white shadow-md ring-gray-500 ring-offset-2 transition focus:ring-2 mt-2"
+    >
+      Verify
+    </button>
+  </form>
+
+        <!-- Form lengkap profil -->
+        <form v-if="verificationSuccess" @submit.prevent="completeProfile" class="flex flex-col pt-3 md:pt-5">
+          <!-- Input username -->
           <div class="flex flex-col pt-2">
             <div class="focus-within:border-b-gray-500 relative flex overflow-hidden border-b-2 transition">
               <input
@@ -19,39 +78,31 @@
               />
             </div>
           </div>
+          <!-- Input first name -->
           <div class="flex flex-col pt-2">
             <div class="focus-within:border-b-gray-500 relative flex overflow-hidden border-b-2 transition">
-              <input
-                type="email"
-                id="register-email"
-                class="w-full flex-1 appearance-none border-gray-300 bg-white px-4 py-2 text-base text-gray-700 placeholder-gray-400 focus:outline-none"
-                placeholder="Email"
-                v-model="registerForm.email"
-              />
-            </div>
-          </div>
-             <div class="flex flex-col pt-2">
-              <div class="focus-within:border-b-gray-500 relative flex overflow-hidden border-b-2 transition">
               <input
                 type="text"
                 id="register-firstname"
                 class="w-full flex-1 appearance-none border-gray-300 bg-white px-4 py-2 text-base text-gray-700 placeholder-gray-400 focus:outline-none"
-                placeholder="firstname"
+                placeholder="First Name"
                 v-model="registerForm.firstName"
               />
             </div>
           </div>
+          <!-- Input last name -->
           <div class="flex flex-col pt-2">
-              <div class="focus-within:border-b-gray-500 relative flex overflow-hidden border-b-2 transition">
+            <div class="focus-within:border-b-gray-500 relative flex overflow-hidden border-b-2 transition">
               <input
                 type="text"
                 id="register-lastname"
                 class="w-full flex-1 appearance-none border-gray-300 bg-white px-4 py-2 text-base text-gray-700 placeholder-gray-400 focus:outline-none"
-                placeholder="lastname"
+                placeholder="Last Name"
                 v-model="registerForm.lastName"
               />
             </div>
           </div>
+          <!-- Input password -->
           <div class="flex flex-col pt-2">
             <div class="focus-within:border-b-gray-500 relative flex overflow-hidden border-b-2 transition">
               <input
@@ -60,15 +111,11 @@
                 class="w-full flex-1 appearance-none border-gray-300 bg-white px-4 py-2 text-base text-gray-700 placeholder-gray-400 focus:outline-none"
                 placeholder="Password"
                 v-model="registerForm.password"
-                @input="validatePassword"
               />
             </div>
-            <div v-if="passwordTouched && !isValidPassword" class="text-red-500 mt-1 text-sm">
-              Password must be at least 8 characters and meet security criteria.
-            </div>
           </div>
-
-          <div class="mb-8 flex flex-col pt-2">
+          <!-- Input confirm password -->
+          <div class="flex flex-col pt-2">
             <div class="focus-within:border-b-gray-500 relative flex overflow-hidden border-b-2 transition">
               <input
                 type="password"
@@ -78,16 +125,14 @@
                 v-model="registerForm.confPassword"
               />
             </div>
-            <div v-if="!isValidConfPassword" class="text-red-500 mt-1 text-sm">
-              Passwords do not match.
-            </div>
           </div>
+          <!-- Tombol submit -->
           <button
             type="submit"
             :disabled="!isValidForm"
-            class="w-full rounded-lg bg-gray-900 px-4 py-2 text-center text-base font-semibold text-white shadow-md ring-gray-500 ring-offset-2 transition focus:ring-2"
+            class="w-full rounded-lg bg-gray-900 px-4 py-2 text-center text-base font-semibold text-white shadow-md ring-gray-500 ring-offset-2 transition focus:ring-2 mt-4"
           >
-            Register
+            Complete Profile
           </button>
         </form>
         <div class="relative mt-8 flex h-px place-items-center bg-gray-200">
@@ -142,15 +187,20 @@ export default {
   data() {
     return {
       registerForm: {
-        username: "",
         email: "",
+        username: "",
         firstName: "",
         lastName: "",
         password: "",
         confPassword: "",
       },
-      passwordTouched: false,
+      verificationToken: "",
+      verificationComplete: false,
+      verificationSuccess: false,
       loadingInstance: null,
+      passwordTouched: false,
+      resendButtonText: "Resend Code", // Teks tombol resend
+      resendDisabled: false, // Status tombol resend
     };
   },
   computed: {
@@ -163,15 +213,70 @@ export default {
       return this.registerForm.password === this.registerForm.confPassword;
     },
     isValidForm() {
-      return this.isValidPassword && this.isValidConfPassword;
+      return (
+        this.isValidEmail(this.registerForm.email) &&
+        this.isValidUsername(this.registerForm.username) &&
+        this.isValidPassword(this.registerForm.password) &&
+        this.isValidConfPassword(this.registerForm.confPassword)
+      );
     },
   },
   methods: {
-    ...mapActions("auth", ["registerGuest"]),
-    async registerUser() {
-      const formRegist = {
+    ...mapActions("auth", ["registerGuest", "verifyEmail", "resendVerificationCode"]),
+    async sendVerificationCode() {
+      // Validasi input sebelum mengirim verifikasi
+      if (!this.isValidEmail(this.registerForm.email)) {
+        ElMessage.error("Please enter a valid email address");
+        return;
+      }
+
+      try {
+        const formRegist = { email: this.registerForm.email };
+        // Panggil aksi registerGuest dari store Vuex
+        const success = await this.$store.dispatch("auth/registerGuest", formRegist);
+        if (success) {
+          // Jika pendaftaran berhasil, set verificationComplete menjadi true
+          this.verificationComplete = true;
+        } else {
+          // Jika pendaftaran gagal, pastikan verificationComplete tetap false
+          this.verificationComplete = false;
+        }
+      } catch (error) {
+        ElMessage.error("Failed to send verification code");
+        // Jika terjadi kesalahan, pastikan verificationComplete tetap false
+        this.verificationComplete = false;
+      }
+    },
+    async verifyEmail() {
+      const verificationData = { email: this.registerForm.email, verificationToken: this.verificationToken };
+      try {
+        // Panggil aksi verifyEmail dari store Vuex
+        const success = await this.$store.dispatch("auth/verifyEmail", verificationData);
+        if (success) {
+          // Jika verifikasi berhasil, set verificationSuccess menjadi true
+          this.verificationSuccess = true;
+        } else {
+          // Jika verifikasi gagal, pastikan verificationSuccess tetap false
+          this.verificationSuccess = false;
+        }
+      } catch (error) {
+        ElMessage.error("Failed to verify email");
+        // Jika terjadi kesalahan, pastikan verificationSuccess tetap false
+        this.verificationSuccess = false;
+      }
+    },
+    async resendVerificationCode() {
+      // Implementasi resend kode verifikasi
+      try {
+        await this.$store.dispatch("auth/resendVerificationCode", this.registerForm.email);
+      } catch (error) {
+        ElMessage.error("Failed to resend verification code");
+      }
+    },
+    async completeProfile() {
+      // Implementasi lengkapkan profil pengguna
+      const profileData = {
         username: this.registerForm.username,
-        email: this.registerForm.email,
         firstName: this.registerForm.firstName,
         lastName: this.registerForm.lastName,
         password: this.registerForm.password,
@@ -181,26 +286,58 @@ export default {
       try {
         this.loadingInstance = ElLoading.service({
           fullscreen: true,
-          text: 'Registering...',
+          text: "Completing profile...",
         });
 
-        // Panggil aksi registerGuest dari store Vuex
-        await this.$store.dispatch("auth/registerGuest", formRegist);
+        // Panggil aksi completeProfile dari store Vuex
+        const success = await this.$store.dispatch("auth/completeProfile", profileData);
 
-        // Jika berhasil, redirect ke halaman verifikasi email
-        this.$router.push({ name: 'VerificationEmail' });
+        if (success) {
+          // Jika lengkapkan profil berhasil, set verificationComplete menjadi true
+          this.verificationComplete = true;
+
+          // Contoh sederhana: menampilkan pesan sukses
+          ElMessage.success("Profile completed successfully");
+          window.location.href = "/";
+
+          // Redirect ke halaman lain atau lakukan aksi lainnya
+        } else {
+          // Jika lengkapkan profil gagal, pastikan verificationComplete tetap false
+          this.verificationComplete = false;
+          ElMessage.error("Completing profile failed");
+        }
       } catch (error) {
-        console.error('Registration failed', error);
-        ElMessage.error('Registration failed');
+        console.error("Completing profile failed", error);
+        ElMessage.error("Completing profile failed");
       } finally {
         if (this.loadingInstance) {
           this.loadingInstance.close();
         }
       }
     },
-    validatePassword() {
-      const passwordRegex = /^(?=.*[a-zA-Z])(?=.*\d).{8,}$/;
-      this.passwordTouched = true;
+    // Method untuk memvalidasi email
+    isValidEmail(email) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      return emailRegex.test(email);
+    },
+    // Method untuk memvalidasi username
+    isValidUsername(username) {
+      // Menambahkan aturan validasi untuk username, misalnya panjang minimal, karakter yang diperbolehkan, dll.
+      // Anda dapat menyesuaikan aturan validasi sesuai kebutuhan aplikasi Anda.
+      return username.length >= 4; // Contoh: Username harus memiliki panjang minimal 4 karakter
+    },
+    // Method untuk memvalidasi password
+    isValidPassword(password) {
+      // Menambahkan aturan validasi untuk password, misalnya panjang minimal, harus memiliki huruf dan angka, dll.
+      // Anda dapat menyesuaikan aturan validasi sesuai kebutuhan aplikasi Anda.
+      const passwordRegex = /^(?=.*[a-zA-Z])(?=.*\d).{8,}$/; // Contoh: Password harus memiliki panjang minimal 8 karakter dan setidaknya satu huruf dan satu angka
+      return passwordRegex.test(password);
+    },
+    // Method untuk memvalidasi konfirmasi password
+    isValidConfPassword(confPassword) {
+      // Menambahkan aturan validasi untuk konfirmasi password, misalnya harus sesuai dengan password yang dimasukkan sebelumnya, dll.
+      // Anda dapat menyesuaikan aturan validasi sesuai kebutuhan aplikasi Anda.
+      return confPassword === this.registerForm.password;
     },
   },
 };

@@ -11,7 +11,7 @@
       'top-0': true,
       'start-0': true,
       'border-b': false,
-      'p-1': true,
+      'p-0': true,
       'border-gray-100': !isEventRoute,
       'dark:border-gray-600': !isEventRoute,
     }"

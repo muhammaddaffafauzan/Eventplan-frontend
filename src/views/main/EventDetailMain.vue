@@ -641,14 +641,8 @@ toDetailEvent(item) {
   const eventName = item.title.replace(/\s+/g, "-").toLowerCase();
   
   // Navigasi tanpa menambahkan entri riwayat baru
-  this.$router.replace({
-    path: `/event/${eventName}/${uuid}`,
-  }).then(() => {
-    // Memperbarui path sebelum memanggil fetchEventDetails
-    this.$route.params.uuid = uuid;
-    this.fetchEventDetails();
-    window.location.reload();
-  });
+  window.location.href = `/event/${eventName}/${uuid}`
+  window.scrollTo(0, 0)
 },
 
   },

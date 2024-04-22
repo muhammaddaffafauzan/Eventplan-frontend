@@ -590,6 +590,7 @@ handleCloseModal() {
     })
       .then(() => {
         // Jika pengguna menekan tombol Yes, reset form data dan properti label
+        this.successAddRoleUser = false
         this.addUserModalVisible = false;
         this.$refs.addUserForm.resetFields();
         this.sendCodeLabel = "Send Code";
@@ -650,10 +651,6 @@ isUserDataFilled() {
       }
       try {
         await this.resendVerificationCodeAdmin(this.addUserData.email);
-        ElMessage({
-          type: "success",
-          message: "Verification code sent successfully",
-        });
       } catch (error) {
         console.error("Error resending verification code:", error);
         ElMessage({
@@ -662,63 +659,81 @@ isUserDataFilled() {
         });
       }
     },
-    async handleVerification() {
-      try {
-             if (this.successAddRoleUser === true) {
-                    if (!this.addUserData.verificationCode) {
-        this.$message({
-          type: "error",
-          message: "Please enter verification code",
-        });
-        return;
-      }
-
-      // Verifikasi email pengguna
-      await this.verifyEmailAdmin({
-        email: this.addUserData.email,
-        verificationToken: this.addUserData.verificationCode,
+async handleVerification() {
+  try {
+    // Periksa apakah pengguna telah memasukkan kode verifikasi
+    if (!this.addUserData.verificationCode) {
+      this.$message({
+        type: "error",
+        message: "Please enter verification code",
       });
-       this.$message({
-        type: "success",
-        message: "Email verified successfully",
-      });
-       this.handleCloseModal();
-      this.fetchUsersAdmin();
-             }
-      } catch (error) {
-         console.error("Error verifying email:", error);
-      }
-    },
-  async handleSubmit() {
-    try {
-      // Lakukan validasi formulir
-      await this.$refs.addUserForm.validate();
-
-      // Formulir valid, lanjutkan dengan mengirimkan data
-      var data = {
-        username: this.addUserData.username,
-        email: this.addUserData.email,
-        firstName: this.addUserData.firstName,
-        lastName: this.addUserData.lastName,
-        role: this.addUserData.role
-      };
-
-      if (data.role === "user") {
-      
-        // Lakukan pengiriman data untuk membuat pengguna baru
-        const success = await this.createUser(data);
-        if (!success) {
-          this.successAddRoleUser = true; // Diubah hanya jika createUser berhasil
-        }
-      } else {
-        // Jika peran adalah admin, lanjutkan dengan membuat admin
-        this.createAdmin();
-      }
-    } catch (error) {
-      console.error("Error submitting form:", error);
-      // Tangani kesalahan jika ada
+      return;
     }
-  },
+
+    // Verifikasi email pengguna
+    await this.verifyEmailAdmin({
+      email: this.addUserData.email,
+      verificationToken: this.addUserData.verificationCode,
+    });
+
+    // Setelah verifikasi berhasil, reset data dan tutup modal
+    this.successAddRoleUser = false;
+    this.addUserModalVisible = false;
+    this.$refs.addUserForm.resetFields();
+    this.sendCodeLabel = "Send Code";
+    this.submitLabel = "Submit";
+
+    // Ambil data pengguna terbaru setelah verifikasi
+    this.fetchUsersAdmin();
+  } catch (error) {
+    // Tangani kesalahan jika ada
+    console.error("Error verifying email:", error);
+    this.$message({
+      type: "error",
+      message: "Failed to verify email. Please try again later.",
+    });
+  }
+},
+
+ async handleSubmit() {
+    try {
+        // Lakukan validasi formulir
+        await this.$refs.addUserForm.validate();
+
+        // Formulir valid, lanjutkan dengan mengirimkan data
+        const data = {
+            username: this.addUserData.username,
+            email: this.addUserData.email,
+            firstName: this.addUserData.firstName,
+            lastName: this.addUserData.lastName,
+            role: this.addUserData.role
+        };
+
+        if (data.role === "user") {
+            // Lakukan pengiriman data untuk membuat pengguna baru
+             await this.createUser(data);
+             this.successAddRoleUser = true;
+        } else {
+            // Jika peran adalah admin, lanjutkan dengan membuat admin
+            this.createAdmin();
+        }
+    } catch (error) {
+        console.error("Error submitting form:", error);
+
+        // Tangani kesalahan jika ada
+        let errorMessage = "Failed to create user";
+        if (error.response && error.response.data && error.response.data.msg) {
+            errorMessage = error.response.data.msg;
+        } else if (error.success && error.success.data && error.success.data.msg) {
+            errorMessage = error.success.data.msg;
+        }
+
+        this.$message({
+            type: "error",
+            message: errorMessage
+        });
+    }
+},
 
 async createAdmin() {
   try {
@@ -734,7 +749,7 @@ async createAdmin() {
     console.error("Error creating admin:", error);
     this.$message({
       type: "error",
-      message: error.response.data.msg || "Failed to create admin",
+      message: error.success.data.msg || "Failed to create admin",
     });
   }
 },

@@ -17,18 +17,19 @@ const auth = {
     isLoading: (state) => state.Loading, // Getter untuk status loading
   },
   actions: {
-    async login({ commit }, credentials) {
+    async login({ commit, dispatch }, credentials) {
       try {
         const response = await axios.post("/auth/login", credentials);
 
         const user = response.data;
         localStorage.setItem("role", user.role);
         localStorage.setItem("token", user.accessToken);
-        commit("SET_USER_LOGIN", null);
         commit("SET_ROLE", user.role);
         commit("SET_TOKEN", user.accessToken);
 
-        // Display success notification using ElMessage
+        // Set timeout untuk logout otomatis ketika token kedaluwarsa
+        dispatch("setLogoutTimer", response.data.expiresIn);
+
         ElMessage({
           type: "success",
           message: "Login success!",
@@ -37,7 +38,6 @@ const auth = {
         return true;
       } catch (error) {
         const errorMessage = error.response.data.msg;
-        // Display error notification using ElMessage
         ElMessage({
           type: "error",
           message: "Login failed: " + errorMessage,
@@ -52,11 +52,6 @@ const auth = {
 
         const response = await axios.post("/auth/register", formRegist);
 
-        // Ambil email dari respons
-        const email = response.data.newUser.email;
-
-        // Simpan email ke dalam state 'verifyEmail'
-        commit("SET_VERIFY_EMAIL", email);
 
         // Tampilkan pesan sukses
         ElMessage({
@@ -80,6 +75,41 @@ const auth = {
           type: "error",
           message: "Registration failed: " + errorMessage,
         });
+
+        return false;
+      }
+    },
+    async completeProfile({ commit }, profileData) {
+      try {
+        // Set status loading menjadi true sebelum memuat data
+        commit("SET_LOADING", true);
+
+        // Ambil Bearer Token dari Local Storage
+        const token = localStorage.getItem("token"); // Gantilah 'your_token_key' dengan kunci token Anda
+
+        const response = await axios.post(
+          "/auth/complete-profile",
+          profileData,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        // Setelah data dimuat, atur status loading menjadi false
+        commit("SET_LOADING", false);
+
+        ElMessage({
+          type: "success",
+          message: response.data.msg || "Complete profile success!",
+        });
+        return true;
+      } catch (error) {
+        console.error("Error complate user data:", error.message);
+
+        // Jika terjadi error, tetap set status loading menjadi false
+        commit("SET_LOADING", false);
 
         return false;
       }
@@ -116,7 +146,6 @@ const auth = {
         return false;
       }
     },
-
     async resendVerificationCode({ commit }, email) {
       try {
         const response = await axios.post("/auth/resend-verification", {
@@ -191,11 +220,8 @@ const auth = {
     SET_TOKEN(state, token) {
       state.token = token;
     },
-    SET_USER_LOGIN(state, auth) {
-      state.user = auth;
-    },
-    SET_USER(state, auth) {
-      state.user = auth;
+    SET_USER(state, user) {
+      state.user = user;
     },
     SET_LOADING(state, isLoading) {
       state.isLoading = isLoading;

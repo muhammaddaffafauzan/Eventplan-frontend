@@ -373,6 +373,50 @@ export default {
         params: { uuid: row.uuid },
       });
     },
+     viewItem(item) {
+      const uuid = item.uuid; // Ambil UUID dari item
+      const eventName = item.title.replace(/\s+/g, "-").toLowerCase(); // Buat nama acara dan konversikan ke format slug
+      this.$router.push({
+        path: `/organizer/event/${eventName}/${uuid}`, // Pindah halaman dengan path yang sesuai
+      });
+    },
+    editItem(item) {
+      const { uuid, title } = item; // Ambil UUID dan judul dari item
+      const eventName = title.replace(/\s+/g, "-").toLowerCase(); // Buat nama acara dan konversikan ke format slug
+      this.$router.push({
+        path: `/organizer/edit/${eventName}/${uuid}`, // Pindah halaman dengan path yang sesuai
+      });
+    },
+     async deleteItem(item) {
+      try {
+        const confirmed = await ElMessageBox.confirm(
+          "Are you sure you want to delete this event?",
+          "Confirmation",
+          {
+            type: "warning",
+            confirmButtonText: "Delete",
+            cancelButtonText: "Cancel",
+            center: true,
+          }
+        );
+
+        if (confirmed) {
+          // Dispatch action deleteEvent dengan item.uuid sebagai payload
+          await this.$store.dispatch("eventMain/deleteEvent", item.uuid);
+          this.fetchMyEvents();
+        } else {
+          // Jika pengguna membatalkan penghapusan, tampilkan pesan bahwa penghapusan dibatalkan
+          ElMessage.info("Deletion canceled");
+        }
+      } catch (error) {
+        // Handle jika terjadi kesalahan saat penghapusan
+        ElMessage.error(`Failed to delete event: ${error.response.data.msg}`);
+      }
+    },
+    copyURL(item) {
+      console.log("Copy URL of item:", item);
+      // Handle copy URL action
+    },
     getStatusClass(status) {
       const statusClassMap = {
         Reviewed: "text-yellow-500 bg-yellow-100/60",
