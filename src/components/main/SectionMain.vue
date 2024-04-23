@@ -404,7 +404,8 @@
             <div
               v-for="organizer in organizers"
               :key="organizer.id"
-              class="w-56 h-60 px-5 py-4 border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 hover:shadow-2xl transition-shadow"
+               @click="showFeatureNotification('organizer')"
+              class="cursor-pointer w-56 h-60 px-5 py-4 border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 hover:shadow-2xl transition-shadow"
             >
               <div class="flex flex-col items-center pb-6">
                 <!-- Replace this with your image tag using organizer.image property -->
@@ -422,11 +423,10 @@
                   {{ formatNumber(organizer?.followersCount) }} followers
                 </span>
                 <div class="flex mt-4 md:mt-6">
-                  <a
-                    href="/"
+                  <button
+                  
                     class="inline-flex items-center px-4 py-2 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-                    >Follow</a
-                  >
+                    >Follow</button>
                 </div>
               </div>
             </div>
@@ -589,7 +589,7 @@
   </div>
 </template>
 <script>
-import { ElMessage } from "element-plus";
+import { ElMessage, ElNotification } from "element-plus";
 import { mapActions, mapGetters } from "vuex";
 
 export default {
@@ -652,6 +652,9 @@ export default {
   methods: {
     ...mapActions("eventMain", ["fetchEventMain", "fetchEventsFavorite", "addEventsFavorite", "removeEventsFavorite"]),
     ...mapActions("auth", ["fetchMe"]),
+   showFeatureNotification(text) {
+      this.$store.dispatch('settings/showFeatureNotification', text);
+    },
     toDetailEvent(event) {
       const uuid = event.uuid;
       const eventName = event.title.replace(/\s+/g, "-").toLowerCase();
@@ -661,19 +664,23 @@ export default {
       window.scrollTo(0, 0);
     },
     async fetchOrganizers() {
-      try {
-        await this.$store.dispatch("profile/fetchAllProfileUsers");
-        this.organizers = this.$store.getters["profile/profileData"];
-        // Filter out organizers where userId is the same as the currently logged-in user's ID
-        const meId = this.me?.profile?.userId; // Assuming you have a userId property in the `me` object
-        this.organizers = this.organizers.filter(
-          (organizer) => organizer?.profile?.userId !== meId
-        );
-        this.fetchMe();
-      } catch (error) {
-        console.error("Failed to fetch organizers:", error);
-      }
-    },
+  try {
+    await this.$store.dispatch("profile/fetchAllProfileUsers");
+    this.organizers = this.$store.getters["profile/profileData"];
+
+    // Filter out organizers where userId is the same as the currently logged-in user's ID
+    const meId = this.me?.profile?.userId;
+    this.organizers = this.organizers.filter(
+      (organizer) => organizer?.profile?.userId !== meId &&
+                     organizer?.profile?.organize && // Filter for presence of organize property
+                     organizer?.profile?.url        // Filter for presence of url property
+    );
+
+    this.fetchMe();
+  } catch (error) {
+    console.error("Failed to fetch organizers:", error);
+  }
+},
     searchEvents() {
       this.showResults = this.searchQuery.length > 0;
       if (this.searchQuery.trim() !== "") {

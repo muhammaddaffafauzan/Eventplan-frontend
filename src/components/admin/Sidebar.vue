@@ -10,7 +10,7 @@
             <img src="../../assets/img/letter-e.png" class="w-8 absolute z-20 group-hover:hidden transition-transform transform group-hover:scale-110 -my-2" alt="" srcset="" 
             :style="{ transform: ('100%'), left: '9%' }" >
             <p class="text-lg transition-all opacity-0 group-hover:opacity-100 group-hover:text-gray-800">
-              EventPlan
+              Eventplan
             </p>
           </div>
               <ul class="mt-6 space-y-2 tracking-wide">

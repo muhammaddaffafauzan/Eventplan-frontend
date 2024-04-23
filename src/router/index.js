@@ -22,11 +22,13 @@ import MyEvent from "../views/user/MyEvent.vue";
 import CreateEvent from "../views/user/CreateEvent.vue";
 import EventDetailUser from "../views/user/EventDetailUser.vue";
 import EditEventUser from "../views/user/EditEventUser.vue";
+import EditEventAdmin from "../views/admin/EditEventAdmin.vue";
 import EventMoreMain from "../views/main/EventMoreMain.vue";
 import EventDetailMain from "../views/main/EventDetailMain.vue";
 import EventFavorite from "../views/main/EventFavorite.vue";
 import UserListAdmin from "../views/admin/UserListAdmin.vue";
 import DetailUserAdmin from "../views/admin/DetailUserAdmin.vue";
+import AboutMain from "../views/main/AboutMain.vue";
 
 import store from "../store";
 
@@ -140,7 +142,7 @@ const router = createRouter({
           component: EventDetailMain,
           name: "EventDetailMain",
           meta: {
-            title: "Event",
+            title: "Events",
           },
         },
         {
@@ -150,6 +152,14 @@ const router = createRouter({
           meta: {
             requiresLogin: true,
             title: "Favorite",
+          },
+        },
+        {
+          path: "/about",
+          component: AboutMain,
+          name: "AboutMain",
+          meta: {
+            title: "About eventplan",
           },
         },
       ],
@@ -162,6 +172,7 @@ const router = createRouter({
       meta: {
         title: "Dashboard",
         requiresLogin: true,
+        requiresUser: true,
       },
       children: [
         {
@@ -194,14 +205,6 @@ const router = createRouter({
           name: "EventDetailUser",
           meta: {
             title: "Event detail",
-          },
-        },
-        {
-          path: "/organizer/edit/:eventName/:uuid",
-          component: EditEventUser,
-          name: "EditEventUser",
-          meta: {
-            title: "Event Edit",
           },
         },
       ],
@@ -239,6 +242,22 @@ const router = createRouter({
           name: "DetailEventAdmin",
           meta: {
             title: "Event Detail",
+          },
+        },
+        {
+          path: "/admin/event/:uuid",
+          component: DetailEventAdmin,
+          name: "DetailEventAdmin",
+          meta: {
+            title: "Event Detail",
+          },
+        },
+        {
+          path: "/admin/edit/:uuid",
+          component: EditEventAdmin,
+          name: "EditEventAdmin",
+          meta: {
+            title: "Event Edit",
           },
         },
         {
@@ -337,11 +356,18 @@ router.beforeEach(async (to, from, next) => {
     next("/admin/dashboard");
   } else if (to.meta.requiresUser && role !== "user") {
     // Redirect to home page if user access is required and user is not a user role
-    next("/");
+    if (role !== 'admin') {
+      next("/admin/dashboard");
+    } else {
+      next("/");
+    }
   } else {
     // Continue with navigation
     next();
   }
+
+  // Set document title
+  document.title = "EventPlan - " + (to.meta.title || "Default Text");
 });
 
 

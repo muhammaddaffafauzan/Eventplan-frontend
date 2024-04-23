@@ -17,7 +17,7 @@
     }"
   >
     <div
-      class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-2"
+      class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-3"
     >
       <!-- Brand Logo -->
       <a
@@ -323,7 +323,7 @@
         </div>
       </div>
       <!-- Kolom Kartu Kosong -->
-      <div class="flex-1">kosong</div>
+      <div class="flex-1 p-56 text-xl font-semibold">Features are still under development</div>
 
       <!-- Close Button -->
       <button

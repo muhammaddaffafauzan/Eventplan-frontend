@@ -129,7 +129,7 @@
             <p class="mt-1 text-gray-600">Choose your preferred language</p>
           </div>
         </button>
-        <button
+        <!-- <button
           @click="goToPrivacy"
           :class="{ active: $route.path === '/settings/privacy' }"
           class="md:col-span-5 group relative flex items-left justify-left gap-x-6 rounded-lg p-3 text-sm leading-6 hover:bg-gray-50 text-left"
@@ -161,28 +161,18 @@
             <span class="block font-semibold text-gray-900">Privacy</span>
             <p class="mt-1 text-gray-600">Manage your privacy settings</p>
           </div>
-        </button>
+        </button> -->
       </div>
     </div>
     <div class="p-4 col-span-6 md:col-span-4">
-      <LoadingPage v-if="loading"></LoadingPage>
-      <router-view></router-view>
+     <router-view></router-view>
     </div>
   </div>
 </template>
 
 <script>
-import LoadingPage from "../../components/LoadingPage.vue";
 
-export default {
-  data() {
-    return {
-      loading: false,
-    };
-  },
-  components: {
-    LoadingPage,
-  },
+export default {  
   methods: {
     goToPersonal() {
       this.$router.push("/settings/personal");
@@ -199,37 +189,15 @@ export default {
     goToPrivacy() {
       this.$router.push("/settings/privacy");
     },
-    showLoading() {
-      this.loading = true;
+  },
+    beforeRouteEnter(to, from, next) {
+      document.title = "EventPlan - " + (to.meta.title || "Teks Default");
+      next();
     },
-    hideLoading() {
-      this.loading = false;
+    beforeRouteUpdate(to, from, next) {
+      document.title = "EventPlan - " + (to.meta.title || "Teks Default");
+      next();
     },
-    handleRouteLoaded() {
-      ``;
-      console.log("Route loaded");
-    },
-  },
-  mounted() {
-    this.handleRouteLoaded();
-    this.hideLoading();
-  },
-  beforeRouteEnter(to, from, next) {
-    document.title = "EventPlan - " + (to.meta.title || "Default Title");
-    next((vm) => {
-      vm.showLoading();
-      setTimeout(() => {
-        vm.hideLoading();
-      }, 2000);
-    });
-  },
-  beforeRouteUpdate(to, from, next) {
-    document.title = "EventPlan - " + (to.meta.title || "Default Title");
-    this.showLoading();
-    next(() => {
-      this.hideLoading();
-    });
-  },
 };
 </script>
 

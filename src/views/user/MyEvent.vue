@@ -382,8 +382,25 @@ export default {
       }
     },
     copyURL(item) {
-      console.log("Copy URL of item:", item);
-      // Handle copy URL action
+      // Generate the URL
+      const uuid = item.uuid;
+      const eventName = item.title.replace(/\s+/g, "-").toLowerCase();
+      const url = `${window.location.origin}/event/${eventName}/${uuid}`;
+
+      // Copy URL to clipboard
+      const el = document.createElement("textarea");
+      el.value = url;
+      el.setAttribute("readonly", "");
+      el.style.position = "absolute";
+      el.style.left = "-9999px";
+      document.body.appendChild(el);
+      el.select();
+      document.execCommand("copy");
+      document.body.removeChild(el);
+
+      // Log and/or notify the user
+      console.log("URL copied to clipboard:", url);
+      // You can also notify the user here, e.g., using a toast or a modal
     },
     applyFilter() {
       this.fetchEventAdmin();

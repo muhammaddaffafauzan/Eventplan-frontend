@@ -1,15 +1,15 @@
 <template>
   <div class="max-h-full bg-gray-100 flex">
     <div
-      class="sidebar min-h-screen w-[3.35rem] overflow-hidden border-r border-opacity-100 group hover:w-56 hover:bg-white"
+      class="sidebar min-h-screen w-[3.35rem] overflow-hidden border-r border-opacity-100 group hover:w-56 bg-blue-100 hover:bg-white"
     >
       <div class="flex h-screen flex-col justify-between pt-2 pb-6">
         <div>
-          <div class="w-max p-2.5 relative">
+          <div class="w-max group-hover:p-2.5 p-1 relative">
             <span
               class="text-2xl font-bold transition-all opacity-0 group-hover:opacity-100 group-hover:text-gray-800"
             >
-              My Event
+            My Event
             </span>
             <img
               src="../../assets/img/letter-e.png"
@@ -21,7 +21,7 @@
             <p
               class="text-lg transition-all opacity-0 group-hover:opacity-100 group-hover:text-gray-800"
             >
-              EventPlan
+              Eventplan
             </p>
           </div>
           <ul class="mt-6 space-y-2 tracking-wide">

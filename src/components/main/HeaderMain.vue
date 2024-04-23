@@ -24,6 +24,7 @@
               </p>
 
               <button
+              @click="showFeatureNotification('find next')"
                 class="button-find-event group relative mt-8 px-4 py-2 min-h-[40px] md:min-h-[50px] w-[50%] md:w-40 lg:w-[25%] xl:w-[20%] overflow-hidden border border-white text-white-500 shadow-2xl transition-all before:absolute before:left-0 before:top-0 before:h-0 before:w-1/4 before:bg-white before:duration-500 after:absolute after:bottom-0 after:right-0 after:h-0 after:w-1/4 after:bg-white after:duration-500 hover:text-white hover:before:h-full hover:after:h-full"
               >
                 <span
@@ -48,6 +49,7 @@
       <!-- Category Button 1 -->
       <div class="category-button flex flex-col items-center">
         <button
+         @click="showFeatureNotification('category')"
           class="rounded-full bg-transparent p-8 mb-3 hover:border-sky-200 border border-gray-300 mx-auto"
         >
           <svg
@@ -73,6 +75,7 @@
       <!-- Category Button 2 -->
       <div class="category-button">
         <button
+         @click="showFeatureNotification('category')"
           class="rounded-full bg-transparent p-8 mb-3 hover:border-sky-200 border border-gray-300 flex flex-col items-center mx-auto"
         >
           <svg
@@ -98,6 +101,7 @@
 
       <div class="category-button flex flex-col items-center">
         <button
+         @click="showFeatureNotification('category')"
           class="rounded-full bg-transparent p-8 mb-3 hover:border-sky-200 border border-gray-300 mx-auto"
         >
           <svg
@@ -124,6 +128,7 @@
       </div>
       <div class="category-button flex flex-col items-center">
         <button
+         @click="showFeatureNotification('category')"
           class="rounded-full bg-transparent p-8 mb-3 hover:border-sky-200 border border-gray-300 mx-auto"
         >
           <svg
@@ -152,6 +157,7 @@
       </div>
       <div class="category-button flex flex-col items-center">
         <button
+         @click="showFeatureNotification('category')"
           class="rounded-full bg-transparent p-8 mb-3 hover:border-sky-200 border border-gray-300 mx-auto"
         >
           <svg
@@ -175,6 +181,7 @@
       </div>
       <div class="category-button flex flex-col items-center">
         <button
+         @click="showFeatureNotification('category')"
           class="rounded-full bg-transparent p-8 mb-3 hover:border-sky-200 border border-gray-300 mx-auto"
         >
           <svg
@@ -203,6 +210,7 @@
       </div>
       <div class="category-button flex flex-col items-center">
         <button
+         @click="showFeatureNotification('category')"
           class="rounded-full bg-transparent p-8 mb-3 hover:border-sky-200 border border-gray-300 mx-auto"
         >
           <svg
@@ -231,6 +239,7 @@
       </div>
       <div class="category-button flex flex-col items-center">
         <button
+         @click="showFeatureNotification('category')"
           class="rounded-full bg-transparent p-8 mb-3 hover:border-sky-200 border border-gray-300 mx-auto"
         >
           <svg
@@ -264,7 +273,15 @@
 </template>
 
 <script>
-export default {};
+import { mapGetters, mapActions } from "vuex"
+
+export default {
+  methods: {
+    showFeatureNotification(text) {
+      this.$store.dispatch('settings/showFeatureNotification', text);
+    }
+  }
+};
 </script>
 
 <style scoped>

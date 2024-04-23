@@ -42,7 +42,7 @@
               plain
               class="ml-auto"
             >
-              Add Event
+              Create Event
             </el-button>
           </div>
           <div
@@ -188,15 +188,42 @@
                     </td>
                     <td class="px-4 py-4 text-sm whitespace-nowrap">
                       <div class="flex items-center gap-x-6">
-                        <!-- <button @click="handleArchive(item)" class="text-gray-500 transition-colors duration-200 dark:hover:text-indigo-500 dark:text-gray-300 hover:text-indigo-500 focus:outline-none">
-                                    Archive
-                                  </button> -->
-                        <button
-                          @click="handleDetail(item)"
-                          class="text-blue-500 transition-colors duration-200 hover:text-indigo-500 focus:outline-none"
-                        >
-                          Detail
-                        </button>
+                        <el-dropdown trigger="click">
+                          <span class="cursor-pointer">
+                            <svg
+                              class="w-6 h-6 text-gray-800 dark:text-white"
+                              aria-hidden="true"
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="24"
+                              height="24"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                stroke="currentColor"
+                                stroke-linecap="round"
+                                stroke-width="2"
+                                d="M12 6h.01M12 12h.01M12 18h.01"
+                              />
+                            </svg>
+                          </span>
+                          <template #dropdown>
+                            <el-dropdown-menu class="text-sm">
+                              <el-dropdown-item @click="viewItem(item)"
+                                >View</el-dropdown-item
+                              >
+                              <el-dropdown-item @click="editItem(item)"
+                                >Edit</el-dropdown-item
+                              >
+                              <el-dropdown-item @click="deleteItem(item)"
+                                >Delete</el-dropdown-item
+                              >
+                              <el-dropdown-item @click="copyURL(item)"
+                                >Copy URL</el-dropdown-item
+                              >
+                            </el-dropdown-menu>
+                          </template>
+                        </el-dropdown>
                       </div>
                     </td>
                   </tr>
@@ -271,7 +298,7 @@
 </template>
 <script>
 import { mapActions, mapGetters } from "vuex";
-import { ElLoading } from "element-plus";
+import { ElLoading, ElMessageBox } from "element-plus";
 
 export default {
   data() {
@@ -375,16 +402,14 @@ export default {
     },
      viewItem(item) {
       const uuid = item.uuid; // Ambil UUID dari item
-      const eventName = item.title.replace(/\s+/g, "-").toLowerCase(); // Buat nama acara dan konversikan ke format slug
       this.$router.push({
-        path: `/organizer/event/${eventName}/${uuid}`, // Pindah halaman dengan path yang sesuai
+        path: `/admin/event/${uuid}`, // Pindah halaman dengan path yang sesuai
       });
     },
     editItem(item) {
       const { uuid, title } = item; // Ambil UUID dan judul dari item
-      const eventName = title.replace(/\s+/g, "-").toLowerCase(); // Buat nama acara dan konversikan ke format slug
       this.$router.push({
-        path: `/organizer/edit/${eventName}/${uuid}`, // Pindah halaman dengan path yang sesuai
+        path: `/admin/edit/${uuid}`, // Pindah halaman dengan path yang sesuai
       });
     },
      async deleteItem(item) {
@@ -403,7 +428,7 @@ export default {
         if (confirmed) {
           // Dispatch action deleteEvent dengan item.uuid sebagai payload
           await this.$store.dispatch("eventMain/deleteEvent", item.uuid);
-          this.fetchMyEvents();
+          this.fetchEventAdmin();
         } else {
           // Jika pengguna membatalkan penghapusan, tampilkan pesan bahwa penghapusan dibatalkan
           ElMessage.info("Deletion canceled");
@@ -413,10 +438,27 @@ export default {
         ElMessage.error(`Failed to delete event: ${error.response.data.msg}`);
       }
     },
-    copyURL(item) {
-      console.log("Copy URL of item:", item);
-      // Handle copy URL action
-    },
+copyURL(item) {
+  // Generate the URL
+  const uuid = item.uuid;
+  const eventName = item.title.replace(/\s+/g, "-").toLowerCase();
+  const url = `${window.location.origin}/event/${eventName}/${uuid}`;
+
+  // Copy URL to clipboard
+  const el = document.createElement("textarea");
+  el.value = url;
+  el.setAttribute("readonly", "");
+  el.style.position = "absolute";
+  el.style.left = "-9999px";
+  document.body.appendChild(el);
+  el.select();
+  document.execCommand("copy");
+  document.body.removeChild(el);
+
+  // Log and/or notify the user
+  console.log("URL copied to clipboard:", url);
+  // You can also notify the user here, e.g., using a toast or a modal
+},
     getStatusClass(status) {
       const statusClassMap = {
         Reviewed: "text-yellow-500 bg-yellow-100/60",

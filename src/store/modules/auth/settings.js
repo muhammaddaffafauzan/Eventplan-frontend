@@ -1,5 +1,5 @@
 import axios from "axios";
-import { ElMessage } from "element-plus";
+import { ElMessage, ElNotification } from "element-plus";
 
 const settings = {
   namespaced: true,
@@ -167,7 +167,7 @@ const settings = {
         throw error;
       }
     },
-    async resendCodeEmailForgotPassword({ commit }, {email}) {
+    async resendCodeEmailForgotPassword({ commit }, { email }) {
       try {
         const response = await axios.post("/auth/resend-code-forgot-password", {
           email,
@@ -211,6 +211,13 @@ const settings = {
         }
         throw error;
       }
+    },
+    showFeatureNotification({ commit }, text) {
+      ElNotification({
+        title: "Information",
+        message: `this feature ${text} is coming soon, in development `,
+        type: "info",
+      });
     },
   },
   mutations: {

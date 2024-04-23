@@ -5,7 +5,7 @@
       <h1 class="font-bold text-center text-2xl mb-5"><span class="text-blue-500">Eventplan</span> Admin</h1>
       <div class="bg-white shadow w-full rounded-lg divide-y divide-gray-200">
         <div class="px-5 py-7">
-          <label class="font-semibold text-sm text-gray-600 pb-1 block">E-mail</label>
+          <label class="font-semibold text-sm text-gray-600 pb-1 block">E-mail or Username</label>
           <input v-model="auth.identifier" type="text" class="border rounded-lg px-3 py-2 mt-1 mb-5 text-sm w-full" />
           <label class="font-semibold text-sm text-gray-600 pb-1 block">Password</label>
           <input v-model="auth.password" type="password" class="border rounded-lg px-3 py-2 mt-1 mb-5 text-sm w-full" />

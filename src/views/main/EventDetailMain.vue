@@ -358,12 +358,14 @@
                 <div>
                   <!-- Contact button -->
                   <span
+                  @click="showFeatureNotification('contact')"
                     class="ml-16 text-sm text-blue-500 rounded hover:text-blue-600 cursor-pointer"
                   >
                     Contact
                   </span>
                   <!-- Button follow -->
                   <button
+                  @click="showFeatureNotification('follow')"
                     class="ml-8 px-6 py-3 text-sm bg-blue-500 text-white rounded hover:bg-blue-600"
                   >
                     Follow
@@ -451,24 +453,43 @@
                 >
                   {{ item?.price === 0 ? "Free" : "Paid" }}
                 </p>
-                <div class="hidden group-hover:block">
-                  <span
-                    class="flex absolute z-20 hover:border hover:transition-all hover:scale-125 hover:border-gray-400 bottom-0 right-0 mb-2 mr-2 bg-gray-100 rounded-full w-8 h-8 font-semibold text-gray-700 items-center justify-center"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="16"
-                      height="16"
-                      fill="currentColor"
-                      class="bi bi-heart text-gray-800 font-bold"
-                      viewBox="0 0 16 16"
-                    >
-                      <path
-                        d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"
-                      />
-                    </svg>
-                  </span>
-                </div>
+           <div class="block md:block sm:block lg:block xl:hidden group-hover:block">
+              <span
+                v-if="isAuthenticated"
+                @click="event.isFavorite ? removeEventFav(event) : addEventToFavorites(event)"
+                class="flex absolute cursor-pointer z-15 hover:border hover:transition-all hover:scale-125 hover:border-gray-400 bottom-0 right-0 mb-2 mr-2 bg-gray-100 rounded-full w-8 h-8 font-semibold text-gray-700 items-center justify-center"
+              >
+            <!-- icon fill -->
+            <svg
+              v-if="event.isFavorite"
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              fill="red"
+              class="bi bi-heart"
+              viewBox="0 0 16 16"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314"
+              />
+            </svg>
+            <!-- icon no fill -->
+            <svg
+              v-else
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              fill="currentColor"
+              class="bi bi-heart"
+              viewBox="0 0 16 16"
+            >
+              <path
+                d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"
+              />
+            </svg>
+          </span>
+            </div>
               </div>
               <p class="text-left mt-4 text-gray-800 text-lg font-semibold">
                 {{
@@ -584,7 +605,10 @@ export default {
     }
   },
   methods: {
-     ...mapActions("eventMain", ["fetchEventMain"]),
+    ...mapActions("eventMain", ["fetchEventMain", "addEventsFavorite"]),
+      showFeatureNotification(text) {
+      this.$store.dispatch('settings/showFeatureNotification', text);
+    },
     async fetchEventDetails() {
       try {
         const uuid = this.$route.params.uuid;
@@ -644,7 +668,48 @@ toDetailEvent(item) {
   window.location.href = `/event/${eventName}/${uuid}`
   window.scrollTo(0, 0)
 },
+ async addEventToFavorites(event) {
+    // Periksa apakah pengguna terautentikasi
+    if (!this.isAuthenticated) {
+      // Jika tidak terautentikasi, arahkan pengguna ke halaman login
+      this.$router.push("/auth/login");
+      // Tampilkan pesan untuk memberi tahu pengguna bahwa mereka harus login terlebih dahulu
+      ElMessage({
+        type: "warning",
+        message: "You need to log in to add events to favorites.",
+      });
+      return;
+    }
 
+    try {
+      // Panggil aksi untuk menambahkan event ke daftar favorit
+      await this.addEventsFavorite(event.id);
+      event.isFavorite = true;
+      // Panggil fungsi addEventFav dengan menggunakan this.addEventFav
+    } catch (error) {
+      console.error("Failed to add event to favorites:", error);
+      // Tampilkan pesan kesalahan jika terjadi kesalahan saat menambahkan event ke daftar favorit
+      ElMessage({
+        type: "error",
+        message: "Failed to add event to favorites. Please try again later.",
+      });
+    }
+  },
+
+async removeEventFav(event) {
+  try {
+    await this.$store.dispatch("eventMain/removeEventsFavorite", event.id);
+    // Set isFavorite menjadi false pada objek event yang sesuai
+    event.isFavorite = false;
+  } catch (error) {
+    console.log(error.message);
+  }
+},
+
+isEventFavorite(event) {
+  // Periksa apakah event ada di dalam eventFav
+  return this.eventFav.some((favEvent) => favEvent.eventId === event.id);
+},
   },
   created() {
     this.fetchEventDetails();
