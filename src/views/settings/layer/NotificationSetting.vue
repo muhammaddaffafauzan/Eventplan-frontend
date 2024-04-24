@@ -54,7 +54,7 @@ export default {
       notificationSettings: {
         enableNotifications: false,
         allowBrowserNotifications: false,
-        reminderDays: 7, // Default reminder days
+        reminderDays: 1, // Default reminder days
       },
     };
   },

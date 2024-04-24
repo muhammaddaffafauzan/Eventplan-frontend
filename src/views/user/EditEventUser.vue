@@ -367,36 +367,34 @@ export default {
         lat: null,
         long: null,
       },
-            toolbar: {
-   editorConfig: {
-      toolbar: {
-        items: [
-          'heading',
-          '|',
-          'bold',
-          'italic',
-          'underline',
-          'strikethrough',
-          '|',
-          'alignment',
-          '|',
-          'bulletedList',
-          'numberedList',
-          '|',
-          'indent',
-          'outdent',
-          '|',
-          'blockQuote',
-          'codeBlock',
-          '|',
-          'link',
-          '|',
-          'undo',
-          'redo'
-        ]
-      }
-    },
-},
+               toolbar: {
+            editorConfig: {
+                toolbar: [
+                    'heading',
+                    '|',
+                    'bold',
+                    'italic',
+                    'underline',
+                    'strikethrough',
+                    '|',
+                    'alignment',
+                    '|',
+                    'bulletedList',
+                    'numberedList',
+                    '|',
+                    'indent',
+                    'outdent',
+                    '|',
+                    'blockQuote',
+                    'codeBlock',
+                    '|',
+                    'link',
+                    '|',
+                    'undo',
+                    'redo'
+                ]
+            }
+        },
       tagInput: "",
       languageOptions: [],
       isLanguagesLoading: false,

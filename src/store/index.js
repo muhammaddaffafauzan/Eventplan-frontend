@@ -6,6 +6,8 @@ import eventMain from "./modules/user/eventMain";
 import settings from "./modules/auth/settings";
 import profile from "./modules/user/profile";
 import usersAdmin from "./modules/admin/users";
+import notification from "./modules/notifcation/notifcation";
+
 
 const store = createStore({
   state: {
@@ -19,6 +21,7 @@ const store = createStore({
     settings,
     profile,
     usersAdmin,
+    notification,
   },
 });
 

@@ -207,6 +207,14 @@ const router = createRouter({
             title: "Event detail",
           },
         },
+        {
+          path: "/organizer/edit/:eventName/:uuid",
+          component: EditEventUser,
+          name: "EditEventUser",
+          meta: {
+            title: "Event edit",
+          },
+        },
       ],
     },
 

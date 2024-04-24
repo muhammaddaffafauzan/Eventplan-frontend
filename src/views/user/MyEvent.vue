@@ -89,6 +89,12 @@
                     >
                       Event
                     </th>
+                     <th
+                      scope="col"
+                      class="px-4 py-3.5 text-sm font-normal text-left rtl:text-right text-gray-500 dark:text-gray-400"
+                    >
+                      views
+                    </th>
                     <th
                       scope="col"
                       class="px-4 py-3.5 text-sm font-normal text-left rtl:text-right text-gray-500 dark:text-gray-400"
@@ -132,6 +138,19 @@
                         </span>
                       </div>
                     </td>
+                        <td class="px-4 py-4 text-sm font-medium text-gray-700 dark:text-gray-200 whitespace-nowrap">
+                            <div class="flex items-center">
+                                <div class="grid grid-cols-2 gap-1 items-center font-medium text-gray-500">
+                                    <div>
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye" viewBox="0 0 16 16">
+                                            <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8M1.173 8a13 13 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5s3.879 1.168 5.168 2.457A13 13 0 0 1 14.828 8q-.086.13-.195.288c-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5s-3.879-1.168-5.168-2.457A13 13 0 0 1 1.172 8z"/>
+                                            <path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5M4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0"/>
+                                        </svg>
+                                    </div>
+                                    <div>{{ formatViews(item?.views) }}</div>
+                                </div>
+                            </div>
+                        </td>
                     <td
                       class="px-4 py-4 text-sm font-medium text-gray-700 whitespace-nowrap"
                     >
@@ -525,6 +544,15 @@ export default {
       const date = new Date(createdAt);
       return date.getDate();
     },
+    formatViews(views) {
+        if (views >= 1000000) {
+            return (views / 1000000).toFixed(1) + 'm';
+        } else if (views >= 1000) {
+            return (views / 1000).toFixed(1) + 'k';
+        } else {
+            return views;
+        }
+    }
   },
   mounted() {
     this.loadingEvent = true;

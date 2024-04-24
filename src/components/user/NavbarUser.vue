@@ -125,8 +125,6 @@
               <el-dropdown-item command="settings" @click="toSettings"
                 >Settings</el-dropdown-item
               >
-              <!-- <el-dropdown-item command="change-password">Change Password</el-dropdown-item>
-							<el-dropdown-item command="security">Security</el-dropdown-item> -->
               <hr />
               <el-dropdown-item command="logout" @click="confirmLogout"
                 >log out</el-dropdown-item
@@ -166,37 +164,58 @@
             </div>
           </button>
           <!-- Menu dropdown untuk notifikasi -->
+   <div
+        v-if="isNotificationsVisible && upcomingEvents.length"
+        class="absolute top-full left-0  md:left-auto md:right-0 md:mt-2 bg-white border border-gray-200 shadow-lg rounded-lg z-10 w-auto overflow-y-auto h-72"
+        :class="{
+          'md:left-0': isNotificationsVisible,
+          'h-auto': upcomingEvents.length < 4 ,
+        }"
+        style="min-width: 300px; max-width: 400px"
+      >
+        <div>
+          <el-empty
+            v-if="upcomingEvents.length < 0"
+            description="No upcoming events"
+          ></el-empty>
           <div
-            v-if="isNotificationsVisible && upcomingEvents.length"
-            class="absolute top-full left-0 md:left-auto md:right-0 md:mt-2 bg-white border border-gray-200 shadow-lg rounded-lg z-10 w-auto overflow-y-auto h-72"
-            :class="{ 'md:left-0': isNotificationsVisible }"
-            style="min-width: 300px; max-width: 400px"
+            v-else
+            v-for="(event, index) in upcomingEvents"
+            :key="index"
+            class="px-4 py-2 hover:bg-gray-100 cursor-pointer text-gray-500 relative"
+            style="white-space: normal"
+            @click="goToEvent(event)"
           >
-            <div>
-              <el-empty
-                v-if="upcomingEvents.length === 0"
-                description="No upcoming events"
-              ></el-empty>
-              <div
-                v-else
-                v-for="(event, index) in upcomingEvents"
-                :key="index"
-                class="px-4 py-2 hover:bg-gray-100 cursor-pointer text-gray-500"
-                style="white-space: normal"
-                @click="goToEvent(event)"
+            <!-- Tombol X untuk menghapus notifikasi -->
+            <button
+              class="absolute top-0 right-0 p-1 focus:outline-none"
+              @click.stop="removeNotification(event)"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+                class="h-4 w-4 text-gray-500 hover:text-red-500"
               >
-                <!-- Gunakan judul acara sebagai header notifikasi -->
-                <span class="font-semibold">{{ event.title }}</span>
-                <br />
-                <!-- Tambahkan baris ini untuk membuat baris baru -->
-                <span class="text-sm">{{
-                  generateNotificationMessage(event)
-                }}</span>
-                <hr class="separator" />
-                <!-- Tambahkan baris ini untuk menampilkan pesan notifikasi -->
-              </div>
-            </div>
+                <path
+                  fill-rule="evenodd"
+                  d="M5.293 6.707a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414L11.414 12l3.293 3.293a1 1 0 01-1.414 1.414L10 13.414l-3.293 3.293a1 1 0 01-1.414-1.414L8.586 12 5.293 8.707a1 1 0 010-1.414z"
+                  clip-rule="evenodd"
+                ></path>
+              </svg>
+            </button>
+            <!-- Gunakan judul acara sebagai header notifikasi -->
+            <span class="font-semibold">{{ event.title }}</span>
+            <br />
+            <!-- Tambahkan baris ini untuk membuat baris baru -->
+            <span class="text-sm">{{
+              generateNotificationMessage(event)
+            }}</span>
+            <hr class="separator" />
+            <!-- Tambahkan baris ini untuk menampilkan pesan notifikasi -->
           </div>
+        </div>
+      </div>
         </div>
         <!-- End Tombol notifikasi -->
       </div>
@@ -253,45 +272,67 @@ export default {
         return user.profile.url;
       }
     },
-    upcomingEvents() {
-      // Pastikan getMyEvent ada dan memiliki data
-      if (!this.getMyEvent || !Array.isArray(this.getMyEvent)) {
-        return [];
-      }
-
-      // Ambil pengaturan notifikasi dari local storage
-      const notificationSettings = JSON.parse(
-        localStorage.getItem("notificationSettings")
-      );
-
-      // Pastikan pengaturan notifikasi ada dan diaktifkan
-      if (notificationSettings && notificationSettings.enableNotifications) {
-        // Dapatkan pengaturan yang diperlukan
-        const { reminderDays } = notificationSettings;
-
-        // Dapatkan tanggal hari ini dan tambahkan reminderDays
-        const today = new Date();
-        const futureDate = new Date();
-        futureDate.setDate(today.getDate() + parseInt(reminderDays));
-
-        // Filter event berdasarkan start_date yang akan dimulai dalam reminderDays hari
-        return this.getMyEvent.filter((event) => {
-          if (event.start_date) {
-            const eventStartDate = new Date(event.start_date);
-
-            // Filter hanya acara yang dimulai sebelum atau pada tanggal hari ini
-            return eventStartDate <= today && eventStartDate <= futureDate;
+      upcomingEvents() {
+          // Pastikan getMyEvent ada dan memiliki data
+          if (!this.getMyEvent || !Array.isArray(this.getMyEvent)) {
+            return [];
           }
-          return false;
-        });
-      }
 
-      return [];
-    },
+          // Ambil pengaturan notifikasi dari local storage
+          const notificationSettings = JSON.parse(
+            localStorage.getItem("notificationSettings")
+          );
+
+          // Tetapkan hari sebelumnya sebagai default (h-1)
+          const defaultNotificationDay = notificationSettings.reminderDays;
+
+          // Pastikan pengaturan notifikasi ada dan diaktifkan
+          if (notificationSettings && notificationSettings.enableNotifications) {
+            // Dapatkan tanggal hari ini dan tambahkan jumlah hari sesuai dengan pengaturan atau default
+            const today = new Date();
+            const futureDate = new Date();
+            futureDate.setDate(today.getDate() + defaultNotificationDay);
+
+            // Filter event berdasarkan start_date yang akan dimulai dalam waktu tertentu dari sekarang
+            return this.getMyEvent.filter((event) => {
+              if (event.start_date && event.end_date) {
+                const eventStartDate = new Date(event.start_date);
+                const eventEndDate = new Date(event.end_date);
+
+                // Filter hanya acara yang dimulai atau berlangsung saat ini dan belum berakhir
+                return (eventStartDate <= today && eventEndDate >= today) || (eventStartDate <= futureDate && eventEndDate >= today);
+              }
+              return false;
+            });
+          }
+
+          return [];
+        },
   },
   methods: {
     ...mapActions("auth", ["fetchMe", "logout"]),
     ...mapActions("eventMain", ["fetchMyEvents"]),
+    ...mapActions("notification", ["sendEventReminders"]),
+removeNotification(event) {
+  // Temukan indeks notifikasi yang akan dihapus di dalam array upcomingEvents
+  const index = this.upcomingEvents.findIndex((item) => item.id === event.id);
+
+  // Periksa apakah indeks ditemukan
+  if (index !== -1) {
+    // Buat salinan array upcomingEvents agar tidak memodifikasi langsung state
+    const updatedUpcomingEvents = [...this.upcomingEvents];
+
+    // Hapus notifikasi dari array upcomingEvents yang disalin
+    updatedUpcomingEvents.splice(index, 1);
+
+    // Simpan kembali array upcomingEvents yang telah diperbarui ke state
+    this.upcomingEvents = updatedUpcomingEvents;
+
+    // Simpan array upcomingEvents yang telah diperbarui ke local storage
+    localStorage.setItem('upcomingEvents', JSON.stringify(updatedUpcomingEvents));
+  }
+},
+
     generateNotificationMessage(event) {
       // Pastikan event dan properti start_date tersedia sebelum mengaksesnya
       if (event && event.start_date) {
@@ -365,25 +406,23 @@ export default {
   },
 mounted() {
   this.fetchMe();
+  this.sendEventReminders();
   const notificationSettings = JSON.parse(
     localStorage.getItem("notificationSettings")
   );
 
   // Pastikan pengaturan notifikasi ada dan diaktifkan
   if (notificationSettings && notificationSettings.enableNotifications) {
-    // Dapatkan pengaturan yang diperlukan
-    const { reminderDays } = notificationSettings;
-
     // Lakukan logika untuk menentukan kapan notifikasi harus ditampilkan
     const today = new Date();
     const futureDate = new Date();
-    futureDate.setDate(today.getDate() + parseInt(reminderDays));
+    futureDate.setDate(today.getDate() + 1); // Set default menjadi 1 hari sebelum acara dimulai
 
-    // Filter event berdasarkan start_date yang akan dimulai dalam reminderDays hari
+    // Filter event berdasarkan start_date yang akan dimulai dalam 1 hari dari sekarang
     const isEventNear = this.upcomingEvents.some((event) => {
       const eventStartDate = new Date(event.start_date);
       // Memeriksa apakah event dimulai dalam rentang waktu yang ditentukan
-      return eventStartDate >= today && eventStartDate <= futureDate;
+      return eventStartDate >= today && eventStartDate <= futureDate
     });
 
     // Jika ada event dekat, tampilkan notifikasi
@@ -394,6 +433,6 @@ mounted() {
       }
     }
   }
-}
+},
 };
 </script>

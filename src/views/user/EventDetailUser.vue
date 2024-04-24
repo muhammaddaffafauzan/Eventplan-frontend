@@ -50,8 +50,11 @@
             />
           </el-card>
         </el-col>
-
-        <el-col :span="24">
+          <!-- event collapse -->
+         <el-collapse v-model="isCollapsed" class="mb-4 w-full">
+          <el-collapse-item  title="Event detail" name="event-detail">
+            <div class="w-full">
+                        <el-col :span="24">
           <!-- Event Details -->
           <el-card v-if="event" class="mb-4">
             <h3 class="text-2xl font-semibold mb-4">Event Details</h3>
@@ -179,6 +182,9 @@
             <div v-else v-html="event.description"></div>
           </el-card>
         </el-col>
+            </div>
+          </el-collapse-item>
+          </el-collapse>
 
         <!-- Checklist Section -->
         <el-col :span="24">
@@ -330,6 +336,7 @@ export default {
       form: {
         item: "",
       },
+      isCollapsed: true,
     };
   },
 
