@@ -562,10 +562,13 @@ export default {
     formData.append("inputFile", this.eventForm.inputFile);
 
     // Calling action in store to create event
-    await this.createEvent(formData);
+    const success = await this.createEvent(formData);
 
     // Redirecting to EventAdmin page
+    if (condition) {
     this.$router.push({ name: "EventAdmin" });
+    }
+    
   } catch (error) {
     console.error("Error creating event:", error);
   } finally {

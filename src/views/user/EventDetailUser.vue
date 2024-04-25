@@ -42,12 +42,30 @@
           <h2 class="text-3xl font-semibold">{{ event?.title }}</h2>
           <p class="text-gray-600 mb-4">{{ event?.organizer }}</p>
           <el-card v-if="event && event.url" class="mb-4">
-            <el-image
-              :src="event.url"
-              style="width: 100%; height: auto"
-              :preview-src-list="[event.url]"
-              fit="cover"
-            />
+        <div class="my-16 container mx-auto md:px-6 relative overflow-hidden">
+          <!-- Background blur dengan gambar dari event.url -->
+          <div class="absolute inset-0 z-0 flex justify-center items-center">
+            <div 
+              class="blur-xl bg-center rounded-xl"
+              :style="{
+                backgroundImage: `url(${event?.url})`,
+                width: '100vw' /* Lebar 100% dari lebar viewport */,
+                height: '100vh' /* Tinggi 100% dari tinggi viewport */,
+              }"
+            ></div>
+          </div>
+
+          <!-- Kontainer gambar -->
+          <div class="relative z-10 overflow-hidden flex justify-center">
+            <!-- Gambar dengan efek cover -->
+              <el-image
+                  :src="event.url"
+                  class="w-full sm:h-[500px] sm:w-[600px] md:h-[480px] md:w-[800px] lg:h-[490px] lg:w-[900px] xl:h-[500px] xl:w-[1000px] object-fill mx-auto"  
+                  :preview-src-list="[event.url]"
+                  fit="cover"
+                />
+          </div>
+        </div>
           </el-card>
         </el-col>
           <!-- event collapse -->

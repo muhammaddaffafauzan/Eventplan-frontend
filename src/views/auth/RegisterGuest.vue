@@ -9,7 +9,7 @@
         </p>
         <!-- Registration form -->
         <form v-if="!verificationComplete" class="flex flex-col pt-3 md:pt-5">
-          <!-- Email input -->
+        <!-- Email input -->
           <div class="flex flex-col pt-2 mb-2">
             <div class="focus-within:border-b-gray-500 relative flex overflow-hidden border-b-2 transition">
               <input
@@ -21,6 +21,10 @@
               />
             </div>
           </div>
+          <!-- Informasi email -->
+          <p v-if="registerForm.email && !isValidEmail" class="text-left text-sm mt-1" :class="{ 'text-red-500': registerForm.email && !isValidEmail }">
+            {{ emailFormatInfo }}
+          </p>
           <!-- Verify button -->
           <button
             type="button"
@@ -78,6 +82,11 @@
               />
             </div>
           </div>
+          <!-- Informasi username -->
+          <p v-if="registerForm.username && !isValidUsername" class="text-left text-sm mt-1" :class="{ 'text-red-500': registerForm.username && !isValidUsername }">
+            {{ usernameFormatInfo }}
+          </p>
+
           <!-- First name input -->
           <div class="flex flex-col pt-2">
             <div class="focus-within:border-b-gray-500 relative flex overflow-hidden border-b-2 transition">
@@ -102,19 +111,23 @@
               />
             </div>
           </div>
-          <!-- Password input -->
-          <div class="flex flex-col pt-2">
-            <div class="focus-within:border-b-gray-500 relative flex overflow-hidden border-b-2 transition">
-              <input
-                type="password"
-                id="register-password"
-                class="w-full flex-1 appearance-none border-gray-300 bg-white px-4 py-2 text-base text-gray-700 placeholder-gray-400 focus:outline-none"
-                placeholder="Password"
-                v-model="registerForm.password"
-              />
-            </div>
+         <!-- Password input -->
+        <div class="flex flex-col pt-2">
+          <div class="focus-within:border-b-gray-500 relative flex overflow-hidden border-b-2 transition">
+            <input
+              type="password"
+              id="register-password"
+              class="w-full flex-1 appearance-none border-gray-300 bg-white px-4 py-2 text-base text-gray-700 placeholder-gray-400 focus:outline-none"
+              placeholder="Password"
+              v-model="registerForm.password"
+            />
           </div>
-          <!-- Confirm password input -->
+        </div>
+          <!-- Informasi password -->
+          <p v-if="registerForm.password && !isValidPassword" class="text-left text-sm mt-1" :class="{ 'text-red-500': registerForm.password && !isValidPassword }">
+            {{ isValidPasswordInfo }}
+          </p>
+                    <!-- Confirm password input -->
           <div class="flex flex-col pt-2">
             <div class="focus-within:border-b-gray-500 relative flex overflow-hidden border-b-2 transition">
               <input
@@ -126,14 +139,18 @@
               />
             </div>
           </div>
+          <!-- Informasi konfirmasi password -->
+          <p v-if="registerForm.confPassword && registerForm.password !== registerForm.confPassword" class="text-left text-sm mt-1" :class="{ 'text-red-500': registerForm.confPassword && registerForm.password !== registerForm.confPassword }">
+            {{ confirmPasswordMismatchInfo }}
+          </p>
           <!-- Submit button -->
-          <button
-            type="submit"
-   
-            class="w-full rounded-lg bg-gray-900 px-4 py-2 text-center text-base font-semibold text-white shadow-md ring-gray-500 ring-offset-2 transition focus:ring-2 mt-4"
-          >
-            Complete Profile
-          </button>
+        <button
+          type="submit"
+          :disabled="!isValidForm"
+          class="w-full rounded-lg bg-gray-900 px-4 py-2 text-center text-base font-semibold text-white shadow-md ring-gray-500 ring-offset-2 transition focus:ring-2 mt-4"
+        >
+          Complete Profile
+        </button>
         </form>
 
         <!-- Separator -->
@@ -211,6 +228,10 @@ export default {
       passwordTouched: false,
       resendButtonText: "Resend Code",
       resendDisabled: false,
+       isValidPasswordInfo: "Password must be at least 8 characters long and contain at least one letter and one number.",
+      confirmPasswordMismatchInfo: "Passwords do not match.",
+        emailFormatInfo: "Email must be a valid Gmail address (e.g., example@gmail.com).",
+    usernameFormatInfo: "Username must be at least 4 characters long and cannot contain spaces.",
     };
   },
   components: {
@@ -218,26 +239,36 @@ export default {
   },
   computed: {
     ...mapGetters("auth", ["isLoading"]),
-    isValidPassword() {
-      const passwordRegex = /^(?=.*[a-zA-Z])(?=.*\d).{8,}$/;
-      return passwordRegex.test(this.registerForm.password);
-    },
-    isValidConfPassword() {
-      return this.registerForm.password === this.registerForm.confPassword;
-    },
-    isValidForm() {
-      return (
-        this.isValidEmail(this.registerForm.email) &&
-        this.isValidUsername(this.registerForm.username) &&
-        this.isValidPassword(this.registerForm.password) &&
-        this.isValidConfPassword(this.registerForm.confPassword)
-      );
-    },
+  isValidEmail() {
+    const emailRegex = /^[^\s@]+@gmail\.com$/; // Email harus diakhiri dengan @gmail.com
+    return emailRegex.test(this.registerForm.email);
+  },
+  isValidUsername() {
+    return this.registerForm.username.length >= 4 && !/\s/.test(this.registerForm.username); // Username tidak boleh mengandung spasi
+  },
+  isValidPassword() {
+    const passwordRegex = /^(?=.*[a-zA-Z])(?=.*\d).{8,}$/;
+    return passwordRegex.test(this.registerForm.password);
+  },
+  isValidConfPassword() {
+    return this.registerForm.password === this.registerForm.confPassword;
+  },
+  isValidForm() {
+    return (
+      this.isValidEmail &&
+      this.isValidUsername &&
+      this.isValidPassword &&
+      this.isValidConfPassword
+    );
+  },
   },
   methods: {
     ...mapActions("auth", ["registerGuest", "verifyEmail", "resendVerificationCode"]),
+        showFeatureNotification(text) {
+      this.$store.dispatch('settings/showFeatureNotification', text);
+    },
     async sendVerificationCode() {
-      if (!this.isValidEmail(this.registerForm.email)) {
+      if (!this.isValidEmail) {
         ElMessage.error("Please enter a valid email address");
         return;
       }
@@ -310,20 +341,6 @@ export default {
           this.loadingInstance.close();
         }
       }
-    },
-    isValidEmail(email) {
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      return emailRegex.test(email);
-    },
-    isValidUsername(username) {
-      return username.length >= 4;
-    },
-    isValidPassword(password) {
-      const passwordRegex = /^(?=.*[a-zA-Z])(?=.*\d).{8,}$/;
-      return passwordRegex.test(password);
-    },
-    isValidConfPassword(confPassword) {
-      return confPassword === this.registerForm.password;
     },
   },
 };

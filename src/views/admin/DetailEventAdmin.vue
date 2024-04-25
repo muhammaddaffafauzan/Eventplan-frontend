@@ -148,33 +148,30 @@
       <el-row class="fixed bottom-8 right-8">
         <el-col :span="24">
           <el-button
-          v-if="showValidation && event && event.admin_validation !== undefined && event.admin_validation !== null"
-          :type="getButtonType('Approved')"
-          :loading="loadingEvent"
-          @click="handleValidation('Approved')"
-          :plain="true"
-          :class="event.admin_validation === 'Approved' ? 'bg-lime-600 text-white' : 'bg-transparent'"
-        >
-          Approved
-        </el-button>
-        
-        <el-button
-          v-if="showValidation && event && event.admin_validation !== undefined && event.admin_validation !== null"
-          :type="getButtonType('Denied')"
-          :loading="loadingEvent"
-          @click="handleValidation('Denied')"
-          :plain="true"
-          :class="event.admin_validation === 'Denied' ? 'bg-red-600 text-white' : 'bg-transparent'"
-        >
-          Denied
-        </el-button>
-        
+            v-if="showValidation && event && event.admin_validation !== undefined && event.admin_validation !== null"
+            :type="getButtonType('Approved')"
+            :loading="loadingEvent"
+            @click="handleValidation('Approved')"
+            :plain="true"
+            :class="event.admin_validation === 'Approved' ? 'bg-lime-600 text-white' : 'bg-transparent'"
+          >
+            Approved
+          </el-button>
+          <el-button
+            v-if="showValidation && event && event.admin_validation !== undefined && event.admin_validation !== null"
+            :type="getButtonType('Denied')"
+            :loading="loadingEvent"
+            @click="handleValidation('Denied')"
+            :plain="true"
+            :class="event.admin_validation === 'Denied' ? 'bg-red-600 text-white' : 'bg-transparent'"
+          >
+            Denied
+          </el-button>
         </el-col>
       </el-row>
     </el-container>
   </div>
 </template>
-
 
 <script>
 import { ElButton, ElMessageBox, ElSkeleton, ElSkeletonItem, ElTag } from 'element-plus';
@@ -183,12 +180,12 @@ import axios from 'axios';
 export default {
   data() {
     return {
-    showValidation: true,
-    isApproved: false,
-    showApproval: 'Reviewed',
-    loadingEvent: false,
-    collapsedMap: true,
-    event: null,
+      showValidation: true,
+      isApproved: false,
+      showApproval: 'Reviewed',
+      loadingEvent: false,
+      collapsedMap: true,
+      event: null,
     };
   },
   components: {
@@ -219,9 +216,32 @@ export default {
       this.showValidation = !this.showValidation;
     },
     toggleMapHeight() {
-    this.collapsedMap = !this.collapsedMap;
-  },
+      this.collapsedMap = !this.collapsedMap;
+    },
     handleValidation(action) {
+      if (action === 'Denied') {
+        this.showRejectionReasonDialog();
+      } else {
+        this.processValidation(action, null);
+      }
+    },
+    showRejectionReasonDialog() {
+      ElMessageBox.prompt('Please enter the reason for denial:', 'Denial Reason', {
+        confirmButtonText: 'Submit',
+        cancelButtonText: 'Cancel',
+        inputPlaceholder: 'Enter reason',
+        inputValidator: (input) => {
+          if (!input) {
+            return 'Reason is required';
+          }
+        }
+      }).then(({ value }) => {
+        this.processValidation('Denied', value);
+      }).catch(() => {
+        // Dialog canceled
+      });
+    },
+    processValidation(action, rejectionReason) {
       const actionText = action === 'Approved' ? 'approve' : 'deny';
       const uuid = this.$route.params.uuid;
 
@@ -234,6 +254,7 @@ export default {
             // Memanggil API untuk validasi
             const payload = {
               admin_validation: action,
+              rejectionReason: rejectionReason // Pass rejection reason to backend
             };
             const token = localStorage.getItem('token');
 
@@ -294,28 +315,27 @@ export default {
       }
     },
     parseTags(tagsString) {
-  try {
-    // Mencoba mem-parsing string tags sebagai JSON
-    const parsedTags = JSON.parse(tagsString);
+      try {
+        // Mencoba mem-parsing string tags sebagai JSON
+        const parsedTags = JSON.parse(tagsString);
 
-    // Memeriksa apakah tags yang di-parse adalah array
-    if (Array.isArray(parsedTags)) {
-      return parsedTags;
-    } else {
-      console.error("Invalid tags format. Expected an array.");
-      return [];
-    }
-  } catch (error) {
-    console.error("Error parsing tags:", error);
-    return [];
-  }
-},
+        // Memeriksa apakah tags yang di-parse adalah array
+        if (Array.isArray(parsedTags)) {
+          return parsedTags;
+        } else {
+          console.error("Invalid tags format. Expected an array.");
+          return [];
+        }
+      } catch (error) {
+        console.error("Error parsing tags:", error);
+        return [];
+      }
+    },
     generateGoogleMapsLink(latitude, longitude, eventTitle) {
-  const encodedTitle = encodeURIComponent(eventTitle);
-  const markerLabel = 'E';
-  return `https://www.google.com/maps?q=${latitude},${longitude}&hl=en&z=15&t=m&output=embed`;
-},
-
+      const encodedTitle = encodeURIComponent(eventTitle);
+      const markerLabel = 'E';
+      return `https://www.google.com/maps?q=${latitude},${longitude}&hl=en&z=15&t=m&output=embed`;
+    },
   },
   mounted() {
     const uuid = this.$route.params.uuid;
@@ -349,3 +369,4 @@ export default {
   },
 };
 </script>
+

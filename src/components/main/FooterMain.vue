@@ -63,7 +63,7 @@
         </div>
 
         <div class="flex gap-4 hover:cursor-pointer">
-           <span  @click="showFeatureNotification">
+           <span  @click="showFeatureNotification('facebook')">
              <img
             src="https://www.svgrepo.com/show/303114/facebook-3-logo.svg"
             width="30"
@@ -72,7 +72,7 @@
           />
            </span>
          
-            <span  @click="showFeatureNotification">
+            <span  @click="showFeatureNotification('twiter/X')">
               <img
             src="https://www.svgrepo.com/show/303115/twitter-3-logo.svg"
             width="30"
@@ -115,12 +115,8 @@ import { ElNotification } from 'element-plus';
 
 export default {
   methods: {
-    showFeatureNotification() {
-      ElNotification({
-        title: 'Informasi',
-        message: 'Fitur ini segera hadir',
-        type: 'info'
-      });
+        showFeatureNotification(text) {
+      this.$store.dispatch('settings/showFeatureNotification', text);
     }
   }
 };

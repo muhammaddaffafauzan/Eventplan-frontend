@@ -321,43 +321,47 @@ export default {
     event() {
       return this.getEventAdmin;
     },
-    filteredEvent() {
-      let filtered = this.event;
+filteredEvent() {
+  let filtered = this.event;
 
-      if (this.selectedFilter !== "all") {
-        const selectedFilterLower = this.selectedFilter.toLowerCase();
-        filtered = filtered.filter((item) => {
-          return (
-            item.admin_validation &&
-            item.admin_validation.toLowerCase() === selectedFilterLower
-          );
-        });
-      }
+  if (this.selectedFilter !== "all") {
+    const selectedFilterLower = this.selectedFilter.toLowerCase();
+    filtered = filtered.filter((item) => {
+      return (
+        item.admin_validation &&
+        item.admin_validation.toLowerCase() === selectedFilterLower
+      );
+    });
+  }
 
-      if (this.searchKeyword) {
-        const keyword = this.searchKeyword.toLowerCase();
-        filtered = filtered.filter((item) => {
-          return (
-            item.id.toString().includes(keyword) ||
-            item.createdAt.toLowerCase().includes(keyword) ||
-            (item.admin_validation &&
-              item.admin_validation.toLowerCase().includes(keyword)) ||
-            (item.user &&
-              item?.user?.Profiles[0]?.firstName
-                .toLowerCase()
-                .includes(keyword)) ||
-            (item.user &&
-              item?.user?.Profiles[0]?.lastName
-                .toLowerCase()
-                .includes(keyword)) ||
-            (item.user && item?.user?.email.toLowerCase().includes(keyword)) ||
-            item.title.toLowerCase().includes(keyword)
-          );
-        });
-      }
+  if (this.searchKeyword) {
+    const keyword = this.searchKeyword.toLowerCase();
+    filtered = filtered.filter((item) => {
+      return (
+        item.id.toString().includes(keyword) ||
+        item.createdAt.toLowerCase().includes(keyword) ||
+        (item.admin_validation &&
+          item.admin_validation.toLowerCase().includes(keyword)) ||
+        (item.user &&
+          item?.user?.Profiles[0]?.firstName
+            .toLowerCase()
+            .includes(keyword)) ||
+        (item.user &&
+          item?.user?.Profiles[0]?.lastName
+            .toLowerCase()
+            .includes(keyword)) ||
+        (item.user && item?.user?.email.toLowerCase().includes(keyword)) ||
+        item.title.toLowerCase().includes(keyword)
+      );
+    });
+  }
 
-      return filtered;
-    },
+  // Sort events by creation date in descending order
+  filtered.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+  return filtered;
+},
+
     paginatedEvent() {
       const startIndex = (this.currentPage - 1) * this.pageSize;
       const endIndex = Math.min(

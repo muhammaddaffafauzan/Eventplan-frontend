@@ -565,7 +565,7 @@ export default {
     await this.createEvent(formData);
 
     // Redirecting to EventAdmin page
-    this.$router.push({ name: "EventAdmin" });
+    this.$router.push('/organizer/events');
   } catch (error) {
     console.error("Error creating event:", error);
   } finally {

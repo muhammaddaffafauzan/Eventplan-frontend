@@ -392,6 +392,7 @@ export default {
   },
   methods: {
     ...mapActions("auth", ["fetchMe", "logout"]),
+      ...mapActions("notification", ["updateNotificationSettings"]),
     toLogin() {
          window.scrollTo(0, 0)
       window.location.href = '/auth/login';
@@ -475,13 +476,30 @@ export default {
       this.recentSearches = searches;
     },
   },
-  mounted() {
-    this.fetchMe();
-    const profileData = this.getMe;
-    this.photoProfile = profileData?.profile?.url;
-    document.addEventListener("click", this.handleClickOutside);
-    this.fetchCurrentLocation();
-  },
+mounted() {
+  this.fetchMe(); // Memastikan data pengguna telah dimuat
+  const profileData = this.getMe;
+  this.photoProfile = profileData?.profile?.url;
+  document.addEventListener("click", this.handleClickOutside);
+  this.fetchCurrentLocation();
+  
+  // Mengatur nilai default notificationSettings jika belum ada
+  const notificationSettings = JSON.parse(localStorage.getItem("notificationSettings"));
+  if (!notificationSettings) {
+    // Jika tidak ada pengaturan notifikasi dalam localStorage, atur nilai default
+    const defaultNotificationSettings = {
+      enableNotifications: false,
+      allowBrowserNotifications: false,
+      reminderDays: 1, // Default reminder days
+    };
+    // Simpan nilai default ke dalam localStorage
+    localStorage.setItem("notificationSettings", JSON.stringify(defaultNotificationSettings));
+    
+    // Panggil aksi updateNotificationSettings untuk menyimpan nilai default ke dalam Vuex store
+    this.updateNotificationSettings(defaultNotificationSettings);
+  }
+},
+
   beforeUnmount() {
     // Clean up event listener when component is unmounted
     document.removeEventListener("click", this.handleClickOutside);

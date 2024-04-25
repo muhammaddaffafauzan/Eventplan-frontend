@@ -12,6 +12,11 @@ const notification = {
     },
   },
   actions: {
+    updateNotificationSettings({ commit }, settings) {
+      commit("SET_NOTIFICATION_SETTINGS", settings);
+      localStorage.setItem("notificationSettings", JSON.stringify(settings));
+    },
+
     async sendEventReminders({ commit }) {
       try {
         const token = localStorage.getItem("token");
@@ -76,6 +81,9 @@ const notification = {
   mutations: {
     SET_EVENT_REMINDERS(state, notifications) {
       state.eventReminders = notifications;
+    },
+    SET_NOTIFICATION_SETTINGS: (state, settings) => {
+      state.notificationSettings = settings;
     },
   },
 };

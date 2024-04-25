@@ -284,7 +284,7 @@ export default {
           );
 
           // Tetapkan hari sebelumnya sebagai default (h-1)
-          const defaultNotificationDay = notificationSettings.reminderDays;
+          const defaultNotificationDay = notificationSettings.reminderDays || 1;
 
           // Pastikan pengaturan notifikasi ada dan diaktifkan
           if (notificationSettings && notificationSettings.enableNotifications) {
