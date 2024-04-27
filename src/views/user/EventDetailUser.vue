@@ -278,10 +278,10 @@
                     <el-input v-model="editForm.item"></el-input>
                   </el-form-item>
                   <el-form-item>
-                    <el-button type="primary" @click="saveEdit">
+                    <el-button type="primary" native-type="button" plain @click="saveEdit">
                       {{ editMode ? "Save" : "Add" }}
                     </el-button>
-                    <el-button @click="cancelEdit">Cancel</el-button>
+                    <el-button type="primary" native-type="button" plain @click="cancelEdit">Cancel</el-button>
                   </el-form-item>
                 </el-form>
               </el-col>
@@ -298,25 +298,6 @@
         </el-col>
       </el-row>
     </el-container>
-    <!-- Dialog untuk mengedit item checklist -->
-    <el-dialog
-      :visible.sync="editDialogVisible"
-      title="Edit Checklist Item"
-      width="30%"
-      :before-close="resetEditForm"
-    >
-      <el-form :model="editForm" ref="editForm" label-width="100px">
-        <el-form-item label="Item">
-          <el-input v-model="editForm.item"></el-input>
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" plain @click="saveEdit">
-            {{ editMode ? "Save" : "Add" }}
-          </el-button>
-          <el-button @click="cancelEdit">Cancel</el-button>
-        </el-form-item>
-      </el-form>
-    </el-dialog>
   </div>
 </template>
 
@@ -465,7 +446,7 @@ export default {
       }
     },
     async editChecklist(checklistItem) {
-      this.editMode = true;
+      this.editMode = !this.editMode;
       this.editForm.id = checklistItem.id;
       this.editForm.item = checklistItem.item;
       this.editDialogVisible = true;
@@ -474,7 +455,7 @@ export default {
       try {
         const { id, item } = this.editForm;
         const token = localStorage.getItem("token");
-        const response = await axios.patch(
+        const response = await axios.put(
           `/event/checklist/update/${this.event.uuid}/${id}`,
           {
             item: item,
@@ -485,11 +466,9 @@ export default {
             },
           }
         );
-        console.log("Checklist item updated successfully:", response.data);
-
         this.resetEditForm();
         this.editDialogVisible = false;
-
+        this.editMode = false
         this.fetchEventDetails();
       } catch (error) {
         console.error("Error updating checklist item:", error);

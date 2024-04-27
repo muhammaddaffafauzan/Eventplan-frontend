@@ -7,7 +7,7 @@
         ref="eventFormRef"
         :model="eventForm"
         :rules="rules"
-        @submit.prevent="validateBeforeSubmit"
+        @submit.prevent="submitForm"
       >
         <el-form-item label="Title" prop="title">
           <el-input
@@ -567,33 +567,6 @@ if (parseFloat(eventData.price) > 0) {
         console.error("Error fetching languages:", error);
       } finally {
         this.isLanguagesLoading = false;
-      }
-    },
-    async validateBeforeSubmit() {
-      // Periksa apakah referensi ke el-form tersedia
-      if (!this.$refs.eventFormRef) {
-        // Tangani kasus ketika referensi tidak tersedia
-        this.$message.error("Form reference is not available");
-        return;
-      }
-
-      try {
-        // Panggil metode validate dari referensi el-form
-        const isValid = await this.$refs.eventFormRef.validate();
-
-        if (isValid) {
-          // Lanjutkan dengan pengiriman formulir jika validasi berhasil
-          this.submitForm();
-        } else {
-          // Tangani ketika validasi gagal
-          this.$message.error("Please fill in all required fields.");
-        }
-      } catch (error) {
-        // Tangani kesalahan saat validasi
-        console.error("Form validation error:", error);
-        this.$message.error(
-          error.message || "An error occurred while validating the form."
-        );
       }
     },
 

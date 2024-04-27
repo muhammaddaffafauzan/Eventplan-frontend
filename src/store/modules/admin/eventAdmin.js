@@ -86,6 +86,10 @@ const eventAdmin = {
 
         return response.data;
       } catch (error) {
+                ElMessage({
+                  type: "error",
+                  message: `reate event failed: ${error.response.data.msg} `,
+                });
         console.error("Error creating event:", error);
 
         // Periksa apakah error.response terdefinisi sebelum mencoba mengakses properti 'data'

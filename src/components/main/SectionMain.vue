@@ -625,7 +625,7 @@ export default {
     },
     eventFav() {
        // Periksa apakah pengguna terautentikasi
-      if (!this.isAuthenticated) {
+      if (this.isAuthenticated) {
         // Jika tidak terautentikasi, kembalikan array kosong
         return [];
       }
@@ -635,7 +635,7 @@ export default {
     },
     me() {
     // Periksa apakah pengguna terautentikasi
-    if (!this.isAuthenticated) {
+    if (this.isAuthenticated) {
       // Jika tidak terautentikasi, kembalikan null
       return null;
     }
@@ -676,7 +676,10 @@ export default {
                      organizer?.profile?.url        // Filter for presence of url property
     );
 
-    this.fetchMe();
+    if (this.isAuthenticated) {
+      this.fetchMe();
+    }
+    
   } catch (error) {
     console.error("Failed to fetch organizers:", error);
   }
@@ -986,13 +989,15 @@ mounted() {
       ElMessage.error("Failed to fetch organizers. Please try again later.");
     });
 
-  // Fetch favorite events
+  if (this.isAuthenticated) {
+        // Fetch favorite events
   this.fetchEventsFavorite()
     .catch((error) => {
       console.error("Failed to fetch favorite events:", error);
       // Tampilkan pesan kesalahan kepada pengguna
       ElMessage.error("Failed to fetch favorite events. Please try again later.");
     });
+    }
 
   // Load more events
   this.loadMoreEvents();

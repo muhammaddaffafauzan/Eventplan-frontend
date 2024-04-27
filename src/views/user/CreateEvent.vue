@@ -345,7 +345,7 @@ export default {
       eventForm: {
         title: "",
         categoryId: null,
-        price: "1",
+        price: "0",
         customPrice: null,
         start_date: null,
         end_date: null,

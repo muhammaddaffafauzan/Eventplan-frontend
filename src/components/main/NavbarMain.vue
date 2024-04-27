@@ -416,13 +416,13 @@ export default {
     closeSearch() {
       this.isSearchOpen = false;
     },
-    handleClickOutside(event) {
-      const dropdown = document.getElementById("dropdownHover");
-      const button = document.getElementById("dropdownHoverButton");
-      if (!dropdown.contains(event.target) && !button.contains(event.target)) {
-        this.isModalOpen = false;
-      }
-    },
+      handleClickOutside(event) {
+        const dropdown = document.getElementById("dropdownHover");
+        const button = document.getElementById("dropdownHoverButton");
+        if (dropdown && button && !dropdown.contains(event.target) && !button.contains(event.target)) {
+          this.isSearchOpen = false;
+        }
+      },
     async fetchCurrentLocation() {
       try {
         // Lakukan permintaan ke API Nominatim untuk mendapatkan informasi lokasi berdasarkan koordinat GPS
@@ -476,8 +476,11 @@ export default {
       this.recentSearches = searches;
     },
   },
-mounted() {
-  this.fetchMe(); // Memastikan data pengguna telah dimuat
+  mounted() {
+  if (this.isAuthenticated) {
+      this.fetchMe(); // Memastikan data pengguna telah dimuat
+  }
+
   const profileData = this.getMe;
   this.photoProfile = profileData?.profile?.url;
   document.addEventListener("click", this.handleClickOutside);
