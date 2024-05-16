@@ -1,7 +1,49 @@
-# Vue 3 + Vite
+# EventPlan
 
-This template should help get you started developing with Vue 3 in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+EventPlan is a simple yet powerful event planning application designed to manage complex events with ease. It features a flexible event reminder system and robust security with email verification for new account registrations. This application is ideal for companies or organizations that frequently organize events and activities.
 
-## Recommended IDE Setup
+## Table of Contents
+- [Features](#features)
+- [Tech Stack](#tech-stack)
+- [Project Setup](#project-setup)
+- [Usage](#usage)
+- [Contact](#contact)
+- [License](#license)
 
-- [VS Code](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur) + [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin).
+## Features
+- **Comprehensive Event Management:** Plan and manage events with detailed scheduling and task management.
+- **Flexible Reminder System:** Set up customizable reminders for events to ensure nothing is missed.
+- **Robust Security:** Secure user accounts with email verification before registration is completed.
+- **User-Friendly Interface:** Easy-to-navigate interface designed for both companies and organizations.
+
+## Tech Stack
+- **Frontend Framework:** Vue 3
+- **Build Tool:** Vite
+- **Backend Framework:** Node.js with Express
+- **Database:** MySQL
+- **Authentication:** JSON Web Tokens (JWT)
+- **Email Service:** Nodemailer
+- **Languages:** JavaScript, HTML, CSS
+
+## Project Setup
+
+```bash
+# Clone the repository
+git clone https://github.com/yourusername/EventPlan.git
+
+# Navigate to the project directory
+cd EventPlan
+
+# Install dependencies for the frontend
+npm install
+
+# Install dependencies for the backend
+cd server
+npm install
+
+# Start the backend server
+npm start
+
+# Start the frontend development server
+cd ../
+npm run dev
